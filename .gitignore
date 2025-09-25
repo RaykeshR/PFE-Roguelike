@@ -1,0 +1,22 @@
+*/__pycache__
+__pycache__
+.venv
+
+
+# Fichiers temporaires
+*.swp
+*.swo
+*~
+
+# Les Paquets / archives
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+# *.zip
+
+# Les Logs 
+*.log
