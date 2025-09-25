@@ -17,6 +17,44 @@ class Map:
         self.enemies = []  # [{"x":int,"y":int,"dx":int,"dy":int}]
         self.projectiles = []  # [(x,y,dx,dy)]
         self.ticks = 0
+        self._visible_cache_room = None
+        self._visible_cache_set = set()
+        # Couleurs: activées par défaut (désactiver avec USE_COLOR=0)
+        self.use_color = os.environ.get("USE_COLOR", "1") != "0"
+        self._color_map = None
+        self._color_reset = ""
+        if self.use_color:
+            try:
+                from colorama import Fore, Style, init as colorama_init
+                try:
+                    colorama_init()
+                except Exception:
+                    pass
+                self._color_map = {
+                    "#": Fore.WHITE,
+                    ".": Fore.BLACK,
+                    "+": Fore.CYAN,
+                    "@": Fore.YELLOW,
+                    "S": Fore.GREEN,
+                    "E": Fore.MAGENTA,
+                    "M": Fore.RED,
+                    "*": Fore.RED,
+                }
+                self._color_reset = Style.RESET_ALL
+            except Exception:
+                # Fallback ANSI direct (sans colorama)
+                ESC = "\x1b["
+                self._color_map = {
+                    "#": ESC + "37m",   # blanc
+                    ".": ESC + "30m",   # noir (gris sombre)
+                    "+": ESC + "36m",   # cyan
+                    "@": ESC + "33m",   # jaune
+                    "S": ESC + "32m",   # vert
+                    "E": ESC + "35m",   # magenta
+                    "M": ESC + "31m",   # rouge
+                    "*": ESC + "31m",   # rouge
+                }
+                self._color_reset = "\x1b[0m"
 
         self.generate()
 
@@ -33,6 +71,8 @@ class Map:
         self.enemies = []
         self.projectiles = []
         self.ticks = 0
+        self._visible_cache_room = None
+        self._visible_cache_set = set()
         attempts = 0
 
         while len(self.rooms) < self.room_count and attempts < 100:
@@ -140,34 +180,13 @@ class Map:
         grid = [[" " for _ in range(self.width)] for _ in range(self.height)]
 
         # Calculer visibilité: salle courante + salles adjacentes via portes
-        visible = set()
         current_room = self.get_room_containing(*player_pos)
-        rooms_visible = set()
-        if current_room:
-            rooms_visible.add(current_room)
-            # Ajouter toutes les tuiles de la salle courante
-            for j in range(current_room.height):
-                for i in range(current_room.width):
-                    visible.add((current_room.x + i, current_room.y + j))
-            # Salles adjacentes et couloirs
-            for door, link in self.connections.items():
-                if current_room.contains(*door):
-                    target_room, target_door = link
-                    rooms_visible.add(target_room)
-                    # Ajouter portes et couloir entre les deux
-                    x1, y1 = door
-                    x2, y2 = target_door
-                    visible.add((x1, y1))
-                    visible.add((x2, y2))
-                    for x in range(min(x1, x2), max(x1, x2) + 1):
-                        visible.add((x, y1))
-                    for y in range(min(y1, y2), max(y1, y2) + 1):
-                        visible.add((x2, y))
-            # Ajouter les tuiles des salles adjacentes
-            for room in list(rooms_visible):
-                for j in range(room.height):
-                    for i in range(room.width):
-                        visible.add((room.x + i, room.y + j))
+        if current_room is self._visible_cache_room and self._visible_cache_set:
+            visible = self._visible_cache_set
+        else:
+            visible = self._compute_visible(current_room)
+            self._visible_cache_room = current_room
+            self._visible_cache_set = visible
 
         # Rendu masqué: on affiche tiles seulement si découvert/visible
         for y in range(self.height):
@@ -200,24 +219,22 @@ class Map:
                 if (px2, py2) in visible or (px2, py2) in self.discovered:
                     grid[py2][px2] = "*"
 
-        # Couleurs ANSI simples (fallback si non supporté)
-        def colorize(ch):
-            try:
-                from colorama import Fore, Style
-                if ch == "#": return Fore.WHITE + ch + Style.RESET_ALL
-                if ch == ".": return Fore.BLACK + ch + Style.RESET_ALL
-                if ch == "+": return Fore.CYAN + ch + Style.RESET_ALL
-                if ch == "@": return Fore.YELLOW + ch + Style.RESET_ALL
-                if ch == "S": return Fore.GREEN + ch + Style.RESET_ALL
-                if ch == "E": return Fore.MAGENTA + ch + Style.RESET_ALL
-                if ch == "M": return Fore.RED + ch + Style.RESET_ALL
-                if ch == "*": return Fore.RED + ch + Style.RESET_ALL
-                return ch
-            except Exception:
-                return ch
-
-        for row in grid:
-            print("".join(colorize(c) for c in row))
+        # Couleurs ANSI (optionnelles)
+        if self._color_map:
+            for row in grid:
+                out = []
+                for c in row:
+                    prefix = self._color_map.get(c)
+                    if prefix:
+                        out.append(prefix)
+                        out.append(c)
+                        out.append(self._color_reset)
+                    else:
+                        out.append(c)
+                print("".join(out))
+        else:
+            for row in grid:
+                print("".join(row))
         print("\nLégende: @=Joueur, #=Mur, +=Porte, S=Départ, E=Arrivée")
 
     def create_corridor(self, start, end, grid=None):
@@ -290,8 +307,8 @@ class Map:
     def tick(self):
         # Avancer les projectiles et tirer périodiquement
         self.ticks += 1
-        # Tir ennemi toutes les 6 itérations
-        if self.ticks % 6 == 0:
+        # Tir ennemi moins fréquent pour performance
+        if self.ticks % 10 == 0:
             for e in self.enemies:
                 self.projectiles.append((e["x"], e["y"], e["dx"], e["dy"]))
         # Bouger projectiles
@@ -301,3 +318,29 @@ class Map:
             if 0 <= nx < self.width and 0 <= ny < self.height and self.tiles[ny][nx] != "#":
                 new_projectiles.append((nx, ny, dx, dy))
         self.projectiles = new_projectiles
+
+    def _compute_visible(self, current_room):
+        visible = set()
+        if not current_room:
+            return visible
+        rooms_visible = {current_room}
+        for j in range(current_room.height):
+            for i in range(current_room.width):
+                visible.add((current_room.x + i, current_room.y + j))
+        for door, link in self.connections.items():
+            if current_room.contains(*door):
+                target_room, target_door = link
+                rooms_visible.add(target_room)
+                x1, y1 = door
+                x2, y2 = target_door
+                visible.add((x1, y1))
+                visible.add((x2, y2))
+                for x in range(min(x1, x2), max(x1, x2) + 1):
+                    visible.add((x, y1))
+                for y in range(min(y1, y2), max(y1, y2) + 1):
+                    visible.add((x2, y))
+        for room in list(rooms_visible):
+            for j in range(room.height):
+                for i in range(room.width):
+                    visible.add((room.x + i, room.y + j))
+        return visible
