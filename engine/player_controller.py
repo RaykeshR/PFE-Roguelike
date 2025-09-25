@@ -18,14 +18,12 @@ class PlayerController:
         if room is None:
             return  # bloque le joueur hors des salles
 
-        rel_x = new_x - room.x
-        rel_y = new_y - room.y
-
         # Déplacement vers une porte
         if (new_x, new_y) in room.doors:
-            target_room = self.map.get_connected_room((new_x, new_y))
-            if target_room:
-                self.x, self.y = target_room.get_random_position()
+            target = self.map.get_connected_room((new_x, new_y))
+            if target:
+                target_room, target_door = target
+                self.x, self.y = target_door
             return
 
         # Déplacement normal

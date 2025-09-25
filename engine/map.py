@@ -10,7 +10,7 @@ class Map:
         self.rooms = []
         self.start = (0, 0)
         self.end = None
-        self.connections = {}  # {door_coord: target_room}
+        self.connections = {}  # {door_coord: (target_room, target_door)}
 
         self.generate()
 
@@ -46,13 +46,13 @@ class Map:
                 self.rooms.append(new_room)
             attempts += 1
 
-        # Connecter les portes avec des couloirs
+        # Connecter les portes porte-à-porte
         for i, room in enumerate(self.rooms[:-1]):
+            room_next = self.rooms[i + 1]
             door1 = random.choice(room.doors)
-            next_room = self.rooms[i + 1]
-            door2 = random.choice(next_room.doors)
-            self.connections[door1] = next_room
-            self.connections[door2] = room
+            door2 = random.choice(room_next.doors)
+            self.connections[door1] = (room_next, door2)
+            self.connections[door2] = (room, door1)
 
         # Définir la porte de départ et la porte de fin
         self.start = self.rooms[0].get_random_position()
@@ -71,8 +71,7 @@ class Map:
                     grid[gy][gx] = char
 
         # Dessiner les couloirs
-        for door, target_room in self.connections.items():
-            target_door = random.choice(target_room.doors)
+        for door, (target_room, target_door) in self.connections.items():
             self.create_corridor(door, target_door, grid)
 
         px, py = player_pos
