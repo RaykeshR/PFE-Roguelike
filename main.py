@@ -15,18 +15,11 @@ def main():
     while playing:
         game_map.draw((player.x, player.y))
         print("Déplacez-vous avec ZQSD (ou X pour quitter)")
-
         move = input("> ").lower()
-        if move == "z":
-            player.move(0, -1)
-        elif move == "s":
-            player.move(0, 1)
-        elif move == "q":
-            player.move(-1, 0)
-        elif move == "d":
-            player.move(1, 0)
-        elif move == "x":
+        if move == "x":
             playing = False
+        else:
+            player.move(move)
 
 
 if __name__ == "__main__":
