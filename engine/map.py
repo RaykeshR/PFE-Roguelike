@@ -12,6 +12,8 @@ class Map:
         self.end = None
         self.connections = {}  # {door_coord: (target_room, target_door)}
         self.walkable = set()
+        self.tiles = [[" " for _ in range(self.width)] for _ in range(self.height)]
+        self.discovered = set()
 
         self.generate()
 
@@ -23,6 +25,8 @@ class Map:
         self.rooms = []
         self.connections = {}
         self.walkable = set()
+        self.tiles = [[" " for _ in range(self.width)] for _ in range(self.height)]
+        self.discovered = set()
         attempts = 0
 
         while len(self.rooms) < self.room_count and attempts < 100:
@@ -76,7 +80,7 @@ class Map:
             default_room.doors.append((x + w // 2, y))
             self.rooms.append(default_room)
 
-        # Connecter les portes avec un graphe linéaire (chaîne) puis marquer les couloirs franchissables
+        # Connecter les portes avec un graphe linéaire (chaîne) puis peindre les couloirs dans tiles
         if len(self.rooms) >= 2:
             for i, room in enumerate(self.rooms[:-1]):
                 room_next = self.rooms[i + 1]
@@ -88,15 +92,8 @@ class Map:
                 door2 = random.choice(room_next.doors)
                 self.connections[door1] = (room_next, door2)
                 self.connections[door2] = (room, door1)
-                # Marquer walkable sur le couloir entre door1 et door2
-                x1, y1 = door1
-                x2, y2 = door2
-                for x in range(min(x1, x2), max(x1, x2) + 1):
-                    if 0 <= x < self.width and 0 <= y1 < self.height:
-                        self.walkable.add((x, y1))
-                for y in range(min(y1, y2), max(y1, y2) + 1):
-                    if 0 <= y < self.height and 0 <= x2 < self.width:
-                        self.walkable.add((x2, y))
+                # Peindre couloir dans tiles (préserve '+') et marquer walkable
+                self.create_corridor(door1, door2)
 
         # Définir positions de départ/fin
         self.start = self.rooms[0].get_random_position()
@@ -111,13 +108,23 @@ class Map:
                 tries += 1
             self.end = end
 
-        # Renseigner les cases franchissables: sols et portes des salles
+        # Dessiner les salles dans tiles et renseigner walkable
         for room in self.rooms:
-            for j in range(1, room.height - 1):
-                for i in range(1, room.width - 1):
-                    self.walkable.add((room.x + i, room.y + j))
+            for j in range(room.height):
+                for i in range(room.width):
+                    gx, gy = room.x + i, room.y + j
+                    if 0 <= gx < self.width and 0 <= gy < self.height:
+                        if i == 0 or i == room.width - 1 or j == 0 or j == room.height - 1:
+                            self.tiles[gy][gx] = "#"
+                        else:
+                            self.tiles[gy][gx] = "."
+                            self.walkable.add((gx, gy))
+            # portes
             for door in room.doors:
-                self.walkable.add(door)
+                dx, dy = door
+                if 0 <= dx < self.width and 0 <= dy < self.height:
+                    self.tiles[dy][dx] = "+"
+                    self.walkable.add((dx, dy))
 
     def draw(self, player_pos):
         self.clear_screen()
@@ -153,22 +160,13 @@ class Map:
                     for i in range(room.width):
                         visible.add((room.x + i, room.y + j))
 
-        # Dessiner les salles (avec protections de bornes et visibilité)
-        for room in self.rooms:
-            room_str = room.draw().split("\n")
-            for j, row in enumerate(room_str):
-                for i, char in enumerate(row):
-                    gx, gy = room.x + i, room.y + j
-                    if 0 <= gy < self.height and 0 <= gx < self.width and ((gx, gy) in visible):
-                        grid[gy][gx] = char
+        # Rendu masqué: on affiche tiles seulement si découvert/visible
+        for y in range(self.height):
+            for x in range(self.width):
+                if (x, y) in visible or (x, y) in self.discovered:
+                    grid[y][x] = self.tiles[y][x]
 
-        # Dessiner les couloirs (seulement si visibles)
-        for door, (target_room, target_door) in self.connections.items():
-            x1, y1 = door
-            x2, y2 = target_door
-            # Si l'une des deux salles est visible, on dessine le couloir
-            if (current_room and (current_room.contains(x1, y1) or current_room.contains(x2, y2))):
-                self.create_corridor(door, target_door, grid)
+        # Les couloirs sont déjà peints dans tiles; rien à faire ici
 
         px, py = player_pos
         if 0 <= py < self.height and 0 <= px < self.width:
@@ -177,30 +175,34 @@ class Map:
         # Marquer départ et arrivée si visibles
         sx, sy = self.start
         ex, ey = self.end
-        if 0 <= sy < self.height and 0 <= sx < self.width and ((sx, sy) in visible):
+        if 0 <= sy < self.height and 0 <= sx < self.width and ((sx, sy) in visible or (sx, sy) in self.discovered):
             grid[sy][sx] = "S"
-        if 0 <= ey < self.height and 0 <= ex < self.width and ((ex, ey) in visible):
+        if 0 <= ey < self.height and 0 <= ex < self.width and ((ex, ey) in visible or (ex, ey) in self.discovered):
             grid[ey][ex] = "E"
 
         for row in grid:
             print("".join(row))
         print("\nLégende: @=Joueur, #=Mur, +=Porte, S=Départ, E=Arrivée")
 
-    def create_corridor(self, start, end, grid):
+    def create_corridor(self, start, end, grid=None):
         x1, y1 = start
         x2, y2 = end
-        # Couloir horizontal
-        yh = y1
-        if 0 <= yh < self.height:
-            for x in range(min(x1, x2), max(x1, x2)+1):
-                if 0 <= x < self.width:
-                    grid[yh][x] = "."
-        # Couloir vertical
-        xv = x2
-        if 0 <= xv < self.width:
-            for y in range(min(y1, y2), max(y1, y2)+1):
-                if 0 <= y < self.height:
-                    grid[y][xv] = "."
+        # Couloir horizontal (exclure la porte de départ)
+        for x in range(min(x1, x2), max(x1, x2)+1):
+            if (x, y1) == (x1, y1) or (x, y1) == (x2, y2):
+                continue
+            if 0 <= x < self.width and 0 <= y1 < self.height:
+                if self.tiles[y1][x] != "+":
+                    self.tiles[y1][x] = "."
+                self.walkable.add((x, y1))
+        # Couloir vertical (exclure la porte d'arrivée)
+        for y in range(min(y1, y2), max(y1, y2)+1):
+            if (x2, y) == (x1, y1) or (x2, y) == (x2, y2):
+                continue
+            if 0 <= x2 < self.width and 0 <= y < self.height:
+                if self.tiles[y][x2] != "+":
+                    self.tiles[y][x2] = "."
+                self.walkable.add((x2, y))
 
     def get_room_containing(self, x, y):
         for room in self.rooms:
@@ -213,3 +215,23 @@ class Map:
 
     def is_walkable(self, x, y):
         return (x, y) in self.walkable
+
+    def reveal_from(self, player_pos):
+        # Révéler salle courante, portes et couloirs adjacents, salles connectées
+        room = self.get_room_containing(*player_pos)
+        if room:
+            for j in range(room.height):
+                for i in range(room.width):
+                    self.discovered.add((room.x + i, room.y + j))
+        # Révéler couloirs et salles reliées accessibles directement
+        for door, (target_room, target_door) in self.connections.items():
+            if room and room.contains(*door):
+                x1, y1 = door
+                x2, y2 = target_door
+                for x in range(min(x1, x2), max(x1, x2) + 1):
+                    self.discovered.add((x, y1))
+                for y in range(min(y1, y2), max(y1, y2) + 1):
+                    self.discovered.add((x2, y))
+                for j in range(target_room.height):
+                    for i in range(target_room.width):
+                        self.discovered.add((target_room.x + i, target_room.y + j))
