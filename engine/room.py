@@ -1,3 +1,5 @@
+import random
+
 class Room:
     def __init__(self, x, y, width, height, doors=None):
         self.x = x
@@ -25,7 +27,6 @@ class Room:
         return "\n".join(output)
 
     def get_random_position(self):
-        """Retourne une position à l'intérieur de la room (hors murs)."""
         x = random.randint(self.x + 1, self.x + self.width - 2)
         y = random.randint(self.y + 1, self.y + self.height - 2)
         return (x, y)
