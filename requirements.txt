@@ -1,0 +1,8 @@
+pip
+matplotlib
+pandas
+python-dotenv
+ipython
+ipykernel
+requests
+typing
