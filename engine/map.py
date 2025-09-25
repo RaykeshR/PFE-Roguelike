@@ -1,43 +1,44 @@
 import os
+from engine.room import Room
 
 class Map:
-    def __init__(self, width=10, height=10):
+    def __init__(self, width=40, height=20):
         self.width = width
         self.height = height
-        self.grid = [["." for _ in range(width)] for _ in range(height)]
+        self.rooms = []
+        self.player_x = 2
+        self.player_y = 2
+        self.start = (self.player_x, self.player_y)
+        self.end = None  # pourra pointer vers une sortie
+        self.bots = []   # pas encore implémenté
 
-        # On ajoute une bordure de murs
-        for x in range(width):
-            self.grid[0][x] = "#"
-            self.grid[height - 1][x] = "#"
-        for y in range(height):
-            self.grid[y][0] = "#"
-            self.grid[y][width - 1] = "#"
+        # Génération procédurale basique
+        self.generate()
 
-        # Position du joueur
-        self.player_x = width // 2
-        self.player_y = height // 2
+    def generate(self):
+        """Crée une map simple avec 2 pièces connectées."""
+        room1 = Room(1, 1, 15, 10, doors=[(15, 5)], items={(5, 5): "!"})
+        room2 = Room(16, 3, 15, 8, doors=[(16, 5)], items={(20, 6): "/"})
+        self.rooms = [room1, room2]
+        self.end = (25, 7)
 
     def clear_screen(self):
-        """Nettoie le terminal (Windows/Linux/Mac)."""
         os.system('cls' if os.name == 'nt' else 'clear')
 
     def draw(self):
-        """Affiche la map en ASCII avec le joueur."""
+        """Affiche seulement la pièce où se trouve le joueur."""
         self.clear_screen()
-        for y in range(self.height):
-            row = ""
-            for x in range(self.width):
-                if x == self.player_x and y == self.player_y:
-                    row += "@"
-                else:
-                    row += self.grid[y][x]
-            print(row)
+        for room in self.rooms:
+            if room.contains(self.player_x, self.player_y):
+                room.is_visible = True
+                print(room.draw((self.player_x, self.player_y)))
+                break
 
     def move_player(self, dx, dy):
-        """Déplace le joueur si ce n'est pas un mur."""
         new_x = self.player_x + dx
         new_y = self.player_y + dy
-        if self.grid[new_y][new_x] != "#":
-            self.player_x = new_x
-            self.player_y = new_y
+        # Autoriser mouvement uniquement si dans une pièce visible
+        for room in self.rooms:
+            if room.contains(new_x, new_y):
+                self.player_x, self.player_y = new_x, new_y
+                return
