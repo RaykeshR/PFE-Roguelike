@@ -17,10 +17,11 @@ class Room:
             row = ""
             for i in range(self.width):
                 gx, gy = self.x + i, self.y + j
-                if i == 0 or i == self.width-1 or j == 0 or j == self.height-1:
-                    row += "#"
-                elif (gx, gy) in self.doors:
+                # Les portes doivent être visibles même si elles sont sur les murs
+                if (gx, gy) in self.doors:
                     row += "+"
+                elif i == 0 or i == self.width-1 or j == 0 or j == self.height-1:
+                    row += "#"
                 else:
                     row += "."
             output.append(row)
