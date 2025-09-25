@@ -7,7 +7,7 @@ def main():
     # Initialisation du jeu et boucle principale ici
     # print("Tout fonctionne !")
 
-    game_map = Map(12, 8)  # Une petite map 12x8
+    game_map = Map()
     playing = True
 
     while playing:
