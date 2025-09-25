@@ -10,6 +10,7 @@ class Map:
         self.rooms = []
         self.start = (0, 0)
         self.end = None
+        self.connections = {}  # { (room_id, door_coord): target_room }
 
         self.generate()
 
@@ -17,8 +18,9 @@ class Map:
         os.system('cls' if os.name == 'nt' else 'clear')
 
     def generate(self):
-        """Génère plusieurs rooms aléatoires sans chevauchement."""
+        """Génère plusieurs rooms aléatoires sans chevauchement et les connecte."""
         self.rooms = []
+        self.connections = {}
         attempts = 0
         while len(self.rooms) < self.room_count and attempts < 100:
             w = random.randint(8, 15)
@@ -44,12 +46,19 @@ class Map:
                 self.rooms.append(new_room)
             attempts += 1
 
+        # Connecter les portes aléatoirement
+        for i, room in enumerate(self.rooms[:-1]):
+            # Choisir une porte de cette room et de la suivante
+            door1 = random.choice(room.doors)
+            door2 = random.choice(self.rooms[i+1].doors)
+            self.connections[door1] = self.rooms[i+1]
+            self.connections[door2] = room
+
         # Définir départ et arrivée
         self.start = self.rooms[0].get_random_position()
-        self.end = self.rooms[-1].doors[0] if self.rooms[-1].doors else self.rooms[-1].get_random_position()
+        self.end = self.rooms[-1].get_random_position()
 
     def draw(self, player_pos):
-        """Affiche toutes les rooms et le joueur."""
         self.clear_screen()
         grid = [[" " for _ in range(self.width)] for _ in range(self.height)]
         for room in self.rooms:
@@ -70,9 +79,6 @@ class Map:
                 return room
         return None
 
-    def get_connected_room(self, current_room, door_x, door_y):
-        # Retourne une room différente qui contient cette porte
-        for room in self.rooms:
-            if room != current_room and (door_x, door_y) in room.doors:
-                return room
-        return None
+    def get_connected_room(self, door_coord):
+        """Retourne la room connectée à cette porte, s'il y en a."""
+        return self.connections.get(door_coord, None)
