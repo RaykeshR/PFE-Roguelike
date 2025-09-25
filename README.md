@@ -88,6 +88,6 @@ Ajouter : `.venv`
 
 ### 7. Lancer le fichier MainWindow.py 
 
-Commande : `python MainWindow.py `
+Commande : `python Main.py `
 (Lance le fichier principal avec python)
 </details> 
