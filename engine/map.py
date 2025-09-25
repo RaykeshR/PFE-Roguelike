@@ -14,6 +14,9 @@ class Map:
         self.walkable = set()
         self.tiles = [[" " for _ in range(self.width)] for _ in range(self.height)]
         self.discovered = set()
+        self.enemies = []  # [{"x":int,"y":int,"dx":int,"dy":int}]
+        self.projectiles = []  # [(x,y,dx,dy)]
+        self.ticks = 0
 
         self.generate()
 
@@ -27,6 +30,9 @@ class Map:
         self.walkable = set()
         self.tiles = [[" " for _ in range(self.width)] for _ in range(self.height)]
         self.discovered = set()
+        self.enemies = []
+        self.projectiles = []
+        self.ticks = 0
         attempts = 0
 
         while len(self.rooms) < self.room_count and attempts < 100:
@@ -126,6 +132,9 @@ class Map:
                     self.tiles[dy][dx] = "+"
                     self.walkable.add((dx, dy))
 
+        # Placer quelques ennemis immobiles
+        self._place_enemies(count=min(3, max(1, len(self.rooms)//2)))
+
     def draw(self, player_pos):
         self.clear_screen()
         grid = [[" " for _ in range(self.width)] for _ in range(self.height)]
@@ -180,8 +189,35 @@ class Map:
         if 0 <= ey < self.height and 0 <= ex < self.width and ((ex, ey) in visible or (ex, ey) in self.discovered):
             grid[ey][ex] = "E"
 
+        # Superposer ennemis et projectiles sur le rendu
+        for enemy in self.enemies:
+            ex, ey = enemy["x"], enemy["y"]
+            if 0 <= ey < self.height and 0 <= ex < self.width:
+                if (ex, ey) in visible or (ex, ey) in self.discovered:
+                    grid[ey][ex] = "M"  # Monstre immobile
+        for px2, py2, _, _ in self.projectiles:
+            if 0 <= py2 < self.height and 0 <= px2 < self.width:
+                if (px2, py2) in visible or (px2, py2) in self.discovered:
+                    grid[py2][px2] = "*"
+
+        # Couleurs ANSI simples (fallback si non supporté)
+        def colorize(ch):
+            try:
+                from colorama import Fore, Style
+                if ch == "#": return Fore.WHITE + ch + Style.RESET_ALL
+                if ch == ".": return Fore.BLACK + ch + Style.RESET_ALL
+                if ch == "+": return Fore.CYAN + ch + Style.RESET_ALL
+                if ch == "@": return Fore.YELLOW + ch + Style.RESET_ALL
+                if ch == "S": return Fore.GREEN + ch + Style.RESET_ALL
+                if ch == "E": return Fore.MAGENTA + ch + Style.RESET_ALL
+                if ch == "M": return Fore.RED + ch + Style.RESET_ALL
+                if ch == "*": return Fore.RED + ch + Style.RESET_ALL
+                return ch
+            except Exception:
+                return ch
+
         for row in grid:
-            print("".join(row))
+            print("".join(colorize(c) for c in row))
         print("\nLégende: @=Joueur, #=Mur, +=Porte, S=Départ, E=Arrivée")
 
     def create_corridor(self, start, end, grid=None):
@@ -235,3 +271,33 @@ class Map:
                 for j in range(target_room.height):
                     for i in range(target_room.width):
                         self.discovered.add((target_room.x + i, target_room.y + j))
+
+    def _place_enemies(self, count=2):
+        import random as _r
+        placed = 0
+        tries = 0
+        flat_walkable = list(self.walkable)
+        while placed < count and tries < 200 and flat_walkable:
+            x, y = _r.choice(flat_walkable)
+            # éviter start/end
+            if (x, y) != self.start and (x, y) != self.end and self.tiles[y][x] == ".":
+                # choisir une direction de tir (haut/bas/gauche/droite)
+                dx, dy = _r.choice([(1,0),(-1,0),(0,1),(0,-1)])
+                self.enemies.append({"x": x, "y": y, "dx": dx, "dy": dy})
+                placed += 1
+            tries += 1
+
+    def tick(self):
+        # Avancer les projectiles et tirer périodiquement
+        self.ticks += 1
+        # Tir ennemi toutes les 6 itérations
+        if self.ticks % 6 == 0:
+            for e in self.enemies:
+                self.projectiles.append((e["x"], e["y"], e["dx"], e["dy"]))
+        # Bouger projectiles
+        new_projectiles = []
+        for (px, py, dx, dy) in self.projectiles:
+            nx, ny = px + dx, py + dy
+            if 0 <= nx < self.width and 0 <= ny < self.height and self.tiles[ny][nx] != "#":
+                new_projectiles.append((nx, ny, dx, dy))
+        self.projectiles = new_projectiles

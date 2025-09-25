@@ -30,6 +30,12 @@ class PlayerController:
         # Mise à jour de la visibilité persistante
         self.map.reveal_from((self.x, self.y))
 
+        # Check collision projectile (simple): mort => message et quitter
+        for (px, py, _, _) in list(self.map.projectiles):
+            if (px, py) == (self.x, self.y):
+                print("\nVous avez été touché par un projectile !")
+                raise SystemExit(0)
+
         # Vérifier porte finale
         if (self.x, self.y) == self.map.end:
             print("\nVous avez atteint la porte finale ! Nouvelle map générée...")
