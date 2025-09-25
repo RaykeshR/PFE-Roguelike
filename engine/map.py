@@ -89,29 +89,7 @@ class Map:
                 for r in self.rooms
             )
             if not overlap:
-                # Ajouter portes sur les murs (1 à 2 portes)
-                door_count = random.randint(1, 2)
-                added = set()
-                for _ in range(door_count):
-                    # Choisir un mur: 0=haut,1=bas,2=gauche,3=droite
-                    side = random.randint(0, 3)
-                    if side == 0:  # haut
-                        dx = random.randint(1, w - 2)
-                        dy = 0
-                    elif side == 1:  # bas
-                        dx = random.randint(1, w - 2)
-                        dy = h - 1
-                    elif side == 2:  # gauche
-                        dx = 0
-                        dy = random.randint(1, h - 2)
-                    else:  # droite
-                        dx = w - 1
-                        dy = random.randint(1, h - 2)
-
-                    door = (x + dx, y + dy)
-                    if door not in added:
-                        new_room.doors.append(door)
-                        added.add(door)
+                # On n'ajoute pas de portes aléatoires ici; elles seront posées selon les connexions
                 self.rooms.append(new_room)
             attempts += 1
 
@@ -126,16 +104,16 @@ class Map:
             default_room.doors.append((x + w // 2, y))
             self.rooms.append(default_room)
 
-        # Connecter les portes avec un graphe linéaire (chaîne) puis peindre les couloirs dans tiles
+        # Connecter les salles en chaîne avec des portes orientées vers la salle voisine
         if len(self.rooms) >= 2:
             for i, room in enumerate(self.rooms[:-1]):
                 room_next = self.rooms[i + 1]
-                if not room.doors:
-                    room.doors.append(room.get_random_position())
-                if not room_next.doors:
-                    room_next.doors.append(room_next.get_random_position())
-                door1 = random.choice(room.doors)
-                door2 = random.choice(room_next.doors)
+                door1 = self._pick_door_towards(room, room_next)
+                if door1 not in room.doors:
+                    room.doors.append(door1)
+                door2 = self._pick_door_towards(room_next, room)
+                if door2 not in room_next.doors:
+                    room_next.doors.append(door2)
                 self.connections[door1] = (room_next, door2)
                 self.connections[door2] = (room, door1)
                 # Peindre couloir dans tiles (préserve '+') et marquer walkable
@@ -344,3 +322,19 @@ class Map:
                 for i in range(room.width):
                     visible.add((room.x + i, room.y + j))
         return visible
+
+    def _pick_door_towards(self, room_from, room_to):
+        # Choisir un point sur le mur de room_from le plus proche du centre de room_to
+        cx_to = room_to.x + room_to.width // 2
+        cy_to = room_to.y + room_to.height // 2
+        # Distances aux murs
+        left = (room_from.x, min(max(cy_to, room_from.y + 1), room_from.y + room_from.height - 2))
+        right = (room_from.x + room_from.width - 1, min(max(cy_to, room_from.y + 1), room_from.y + room_from.height - 2))
+        top = (min(max(cx_to, room_from.x + 1), room_from.x + room_from.width - 2), room_from.y)
+        bottom = (min(max(cx_to, room_from.x + 1), room_from.x + room_from.width - 2), room_from.y + room_from.height - 1)
+        candidates = [left, right, top, bottom]
+        # Choisir le plus proche du centre cible
+        def dist2(p):
+            return (p[0] - cx_to) * (p[0] - cx_to) + (p[1] - cy_to) * (p[1] - cy_to)
+        candidates.sort(key=dist2)
+        return candidates[0]
