@@ -1,4 +1,5 @@
 from engine.map import Map
+from engine.player_controller import PlayerController
 
 
 def main():
@@ -8,21 +9,22 @@ def main():
     # print("Tout fonctionne !")
 
     game_map = Map()
-    playing = True
+    player = PlayerController(game_map)
 
+    playing = True
     while playing:
-        game_map.draw()
+        game_map.draw((player.x, player.y))
         print("Déplacez-vous avec ZQSD (ou X pour quitter)")
 
         move = input("> ").lower()
         if move == "z":
-            game_map.move_player(0, -1)
+            player.move(0, -1)
         elif move == "s":
-            game_map.move_player(0, 1)
+            player.move(0, 1)
         elif move == "q":
-            game_map.move_player(-1, 0)
+            player.move(-1, 0)
         elif move == "d":
-            game_map.move_player(1, 0)
+            player.move(1, 0)
         elif move == "x":
             playing = False
 
