@@ -23,7 +23,21 @@ class PlayerController:
         target = self.map.get_connected_room((new_x, new_y))
         if target:
             target_room, target_door = target
-            self.x, self.y = target_door
+            # Placer le joueur juste à l'intérieur de la salle cible
+            tx, ty = target_door
+            # Déterminer une case adjacente walkable côté intérieur
+            candidates = [(tx+1, ty), (tx-1, ty), (tx, ty+1), (tx, ty-1)]
+            placed = False
+            for cx, cy in candidates:
+                if self.map.is_walkable(cx, cy):
+                    # s'assurer qu'on est bien dans la salle cible
+                    if self.map.get_room_containing(cx, cy) == target_room:
+                        self.x, self.y = cx, cy
+                        placed = True
+                        break
+            if not placed:
+                # fallback: rester sur la porte si aucune case intérieure trouvée
+                self.x, self.y = target_door
         else:
             self.x, self.y = new_x, new_y
 
