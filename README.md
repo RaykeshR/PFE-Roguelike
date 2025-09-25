@@ -1,1 +1,93 @@
 # PFE-Roguelike
+
+
+[![My Skills](https://skillicons.dev/icons?i=py)](https://www.python.org/)
+[![My Skills](https://skillicons.dev/icons?i=tensorflow)](https://www.tensorflow.org/?hl=fr)
+[![My Skills](https://skillicons.dev/icons?i=github)](https://github.com/RaykeshR/PFE-Roguelike)
+[![My Skills](https://skillicons.dev/icons?i=git)](https://git-scm.com/)
+[![My Skills](https://skillicons.dev/icons?i=bash)](https://fr.wikibooks.org/wiki/Programmation_Bash/Scripts)
+[![My Skills](https://skillicons.dev/icons?i=md)](https://docs.github.com/fr/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax)
+[![My Skills](https://skillicons.dev/icons?i=vscode)](https://code.visualstudio.com/)
+[![My Skills](https://skillicons.dev/icons?i=powershell)](https://learn.microsoft.com/fr-fr/powershell/scripting/overview?view=powershell-7.4)
+[![My Skills](https://skillicons.dev/icons?i=windows)](https://www.microsoft.com/fr-fr/windows?r=1)
+
+
+#### Sommaire 
+
+TODO :octocat: :neckbeard: :bowtie: :shipit:
+
+### Introduction au projet PFE-Roguelike :
+
+[![Vidéo Youtube : Miniature](./src/rogue.gif)
+](https://fr.wikipedia.org/wiki/Roguelike)
+
+### Mise en place (Windows):
+
+<!-- <details open> -->
+<details>
+<summary>Création d'environnements virtuels : </summary>
+
+### 1. Clonner le Repo
+
+avec GitHub (Copie les fichiers localement)
+
+### 2. `python -m venv .venv`
+
+peut nécessiter le passage par CMD (Crée le Dossier .venv)
+
+### 3. `.venv\Scripts\activate`
+ 
+
+Créer un environnement virtuel Python (Sur Linux/Mac) :
+```bash
+source venv/bin/activate  # Sur Linux/Mac
+```
+
+Lancer avec le CMD peut éviter les erreurs. (Lance l'environnement virtuel)
+EN ADMIN : `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned` en cas d'erreur
+([détail](https://tutorial.djangogirls.org/fr/django_installation/))
+
+Résultat : 
+
+$\color{rgba(100,255,100, 0.75)}{\textsf{(.venv)}}$ PS C:\Users...\Portfolio_Django> |
+
+On peut aussi (Si c'est un problème de l'éditeur) `$ . .venv\Scripts\activate.ps1`
+(lance l'environnement virtuel)
+
+### 4. `python -m pip install --upgrade pip`
+
+(met à jour pip)
+
+### 5. `pip install -r requirements.txt`
+
+```pip freeze > requirements.txt``` pour remplir automatiquement les requirements
+
+Pour tout les étapes précédente (sur CMD ou powershell>=7) : 
+
+
+```
+python -m venv .venv && .venv\Scripts\activate && python -m pip install --upgrade pip && pip install -r requirements.txt
+```
+
+en cas d'erreur (supprimer le dossier .venv ou lancer): 
+
+```.venv\Scripts\activate && python -m pip install --upgrade pip && pip install -r requirements.txt```
+
+Avec  pip freeze  :
+
+    Pour tout les étapes précédente (sur CMD ou powershell>=7) : 
+    ```python -m venv .venv && .venv\Scripts\activate && python -m pip install --upgrade pip && pip install -r requirements.txt && pip freeze > requirements.txt```
+    
+    en cas d'erreur (supprimer le dossier .venv ou lancer): 
+    ```.venv\Scripts\activate && python -m pip install --upgrade pip && pip install -r requirements.txt && pip freeze > requirements.txt```
+    
+### 6. Modifier .git\info\exclude 
+
+Ajouter : `.venv`
+(Ne prend pas en compte la modification du dossier .venv)
+
+### 7. Lancer le fichier MainWindow.py 
+
+Commande : `python MainWindow.py `
+(Lance le fichier principal avec python)
+</details> 
