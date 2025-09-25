@@ -14,20 +14,17 @@ class PlayerController:
         new_x = self.x + dx
         new_y = self.y + dy
 
-        room = self.map.get_room_containing(new_x, new_y)
-        if room is None:
-            return  # bloque le joueur hors des salles
-
-        # Déplacement vers une porte
-        if (new_x, new_y) in room.doors:
-            target = self.map.get_connected_room((new_x, new_y))
-            if target:
-                target_room, target_door = target
-                self.x, self.y = target_door
+        # Déplacement sur cases franchissables (sol, portes, couloirs)
+        if not self.map.is_walkable(new_x, new_y):
             return
 
-        # Déplacement normal
-        self.x, self.y = new_x, new_y
+        # Téléportation si la case est une porte connectée
+        target = self.map.get_connected_room((new_x, new_y))
+        if target:
+            target_room, target_door = target
+            self.x, self.y = target_door
+        else:
+            self.x, self.y = new_x, new_y
 
         # Vérifier porte finale
         if (self.x, self.y) == self.map.end:
