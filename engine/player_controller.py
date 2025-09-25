@@ -2,6 +2,7 @@ class PlayerController:
     def __init__(self, game_map):
         self.map = game_map
         self.x, self.y = self.map.start
+        self.map.reveal_from((self.x, self.y))
 
     def move(self, direction):
         dx, dy = 0, 0
@@ -25,6 +26,9 @@ class PlayerController:
             self.x, self.y = target_door
         else:
             self.x, self.y = new_x, new_y
+
+        # Mise à jour de la visibilité persistante
+        self.map.reveal_from((self.x, self.y))
 
         # Vérifier porte finale
         if (self.x, self.y) == self.map.end:
