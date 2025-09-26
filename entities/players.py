@@ -53,7 +53,8 @@ class players:
     #returne les objets équipés
     def get_equiped_item(self):
         return self.equiped_item
-
+    
+    #pour afficher une image dans le dossier src
     def show_img_in_src(self, img_name):
         BASE_DIR=os.path.dirname(__file__)
         #Construire le chemin vers le GIF
@@ -63,8 +64,12 @@ class players:
         image=Image.open(joueur_path)
         image.show()
 
-  
-    def train_bot(self) :
+    #methode pour  calculer la distance euclidienne monstre-joueur
+    def distance_euclidienne(self,monstre):
+        return ((self.x-monstre.x)**2+(self.y-monstre.y)**2)**0.5
+
+    #type de bots qui vont prendre le role de joueur pour le pré-entrainement du model
+    def type_train_bot(self,type_bot) :
         '''
         3 categoris de bot :
         Type      | Comportement                                                
@@ -73,6 +78,18 @@ class players:
         Fuyard      | Évite le combat, fuit quand un ennemi approche              
         Aléatoire  | Choisit des actions au hasard (exploration, attaque, fuite) 
         '''
+        type_bot=["Agressif","Fuyard","Aléatoire"]
+        if type_bot=="Agressif" :
+            pass
+        elif type_bot=="Fuyard" :
+            pass
+        elif type_bot=="Aléatoire" :
+            pass
+        else :
+            print("Type de bot inconnu. Choisissez parmi : Agressif, Fuyard, Aléatoire.")
+  
+    def train_bot(self) :
+
         pass
 
 
@@ -82,67 +99,3 @@ class players:
         
 
 
-'''  def __init__(self, name, hp=100, position=(0, 0)):
-        """
-        Représente le joueur.
-
-        :param name: Nom du joueur
-        :param hp: Points de vie
-        :param position: Position initiale (x, y)
-        """
-        self.name = name
-        self.hp = hp
-        self.position = position
-        self.inventory = []       # Liste des objets collectés
-        self.actions_log = []     # Historique des actions pour la BDD
-        self.style = None         # Profil de jeu (agressif, sniper, tank…)
-
-    # -------------------------
-    # ⚔️ Combat
-    # -------------------------
-    def attack(self, enemy, damage=10):
-        """
-        Le joueur attaque un ennemi.
-        """
-        enemy.take_damage(damage)
-        self.log_action("attack")
-
-    def take_damage(self, amount):
-        """
-        Le joueur reçoit des dégâts.
-        """
-        self.hp -= amount
-        print(f"{self.name} subit {amount} dégâts. HP restants: {self.hp}")
-        if self.is_dead():
-            self.log_action("death")
-
-    def is_dead(self):
-        """
-        Vérifie si le joueur est mort.
-        """
-        return self.hp <= 0
-
-    # -------------------------
-    # 🚶 Déplacement
-    # -------------------------
-    def move(self, direction):
-        """
-        Déplace le joueur dans une direction (x, y).
-        """
-        x, y = self.position
-        if direction == "up":
-            self.position = (x, y + 1)
-        elif direction == "down":
-            self.position = (x, y - 1)
-        elif direction == "left":
-            self.position = (x - 1, y)
-        elif direction == "right":
-            self.position = (x + 1, y)
-
-        print(f"{self.name} se déplace vers {self.position}")
-        self.log_action(f"move_{direction}")
-
-    # -------------------------
-    # 🎒 Inventaire
-    # ----------------
-'''
