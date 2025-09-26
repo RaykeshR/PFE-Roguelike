@@ -8,3 +8,4 @@ requests
 typing
 pygame
 arcade
+PILLOW
