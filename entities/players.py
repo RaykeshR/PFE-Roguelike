@@ -4,16 +4,8 @@ from PIL import Image
 ###################################################################################################################################################
 
 class players:
-    #attrbuts
-    pv=100
-    inventaire=[]
-    equiped_item=[]
-    is_human=True
-    name="player"
-    x=0.0
-    y=0.0
     #constructeur
-    def __init__(self, name, pv=100, inventaire=[], equiped_item=[], is_human=True, x=0.0, y=0.0):
+    def __init__(self, name="player", pv=100, inventaire=[], equiped_item=[], is_human=True, x=0.0, y=0.0):
         self.pv=pv
         self.inventaire=inventaire
         self.equiped_item=equiped_item
@@ -21,67 +13,67 @@ class players:
         self.name=name
         self.x=x
         self.y=y
-   
-    BASE_DIR=os.path.dirname(__file__)
-    #Construire le chemin vers le GIF
-    joueur_path=os.path.join(BASE_DIR, "..", "src", "enemy.gif")
-    joueur_path = os.path.abspath(joueur_path)
-    #Charger l'image et visualisation
-    joueur=Image.open(joueur_path)
-    joueur.show()
 
 ###################################################################Méthodes##################################################################
-#Pour vérifier si le joueur est en vie
+    #Pour vérifier si le joueur est en vie
     def get_is_alive(self):
         if self.pv>0:
             return True
         else:
             return False
 
-#retourne les pv
+    #retourne les pv
     def get_pv(self):
         return self.pv
             
-#pour retrouver des pv
+    #pour retrouver des pv
     def heal(self,soin):
         self.pv+=soin
 
-#retourne l'inventaire
+    #retourne l'inventaire
     def get_inventaire(self):
         return self.inventaire
 
-#retourne si le jourur est humain
+    #retourne si le jourur est humain
     def get_is_human(self):
         return self.is_human
     
-#retourne le nom du joueur
+    #retourne le nom du joueur
     def get_name(self):
         return self.name
     
-#retourne la position x
+    #retourne la position x
     def get_x(self):
         return self.x
     
-#retourne la position y
+    #retourne la position y
     def get_y(self):
         return self.yz
     
-#returne les objets équipés
+    #returne les objets équipés
     def get_equiped_item(self):
         return self.equiped_item
 
+    def show_img_in_src(self, img_name):
+        BASE_DIR=os.path.dirname(__file__)
+        #Construire le chemin vers le GIF
+        joueur_path=os.path.join(BASE_DIR, "..", "src", img_name)
+        joueur_path = os.path.abspath(joueur_path)
+        #Charger l'image et visualisation
+        image=Image.open(joueur_path)
+        image.show()
+
   
+    def train_bot(self) :
+        '''
+        3 categoris de bot :
+        Type      | Comportement                                                
 
-def train_bot() :
-    '''
-    3 categoris de bot :
-    Type      | Comportement                                                
-
- Agressif    | Attaque systématiquement les ennemis, fonce vers eux        
- Fuyard      | Évite le combat, fuit quand un ennemi approche              
- Aléatoire  | Choisit des actions au hasard (exploration, attaque, fuite) 
-'''
-    pass
+        Agressif    | Attaque systématiquement les ennemis, fonce vers eux        
+        Fuyard      | Évite le combat, fuit quand un ennemi approche              
+        Aléatoire  | Choisit des actions au hasard (exploration, attaque, fuite) 
+        '''
+        pass
 
 
 
