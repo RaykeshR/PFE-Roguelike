@@ -1,9 +1,11 @@
+from engine.game import run_game
 
 
 def main():
+    """ Lance le jeu """
     print("Bienvenue dans le jeu Roguelike !")
-    # Initialisation du jeu et boucle principale ici
-    print("Tout fonctionne !")
+    run_game()
+
 
 if __name__ == "__main__":
     main()
