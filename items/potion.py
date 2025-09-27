@@ -26,3 +26,8 @@ class Potion(Item):
     #         target.increase_speed(self.potency, self.duration)
     #     else:
     #         raise ValueError("Unknown potion category")
+
+if __name__ == "__main__":
+    # Example usage
+    health_potion = Potion("Health Potion", "Restores health over time.", Rarity.COMMON, CategoryPotion.HEALTH, potency=50, duration=5)
+    print(f"Created potion: {health_potion.name}, Category: {health_potion.category}, Potency: {health_potion.potency}, Duration: {health_potion.duration}")
