@@ -69,8 +69,8 @@ class Weapon(Item):
 
 
 if __name__ == "__main__":
-    sword = Weapon("Sword", "A sharp blade.", 10, CategoryWeapon.MELEE)
-    bow = Weapon("Bow", "A ranged weapon.", 8, CategoryWeapon.DISTANCE, range=5.0)
+    sword = Weapon("Sword", "A sharp blade.", Rarity.LEGENDARY, 10, CategoryWeapon.MELEE)
+    bow = Weapon("Bow", "A ranged weapon.",Rarity.LEGENDARY, 8, CategoryWeapon.DISTANCE, range=5.0)
     
     sword.use()
     bow.use()
