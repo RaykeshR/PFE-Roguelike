@@ -1,6 +1,6 @@
-from item import Item
-from rarity import Rarity
-from category_potion import CategoryPotion
+from .item import Item
+from .rarity import Rarity
+from .category_potion import CategoryPotion
 
 class Potion(Item):
     """
