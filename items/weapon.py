@@ -1,6 +1,7 @@
-from item import Item
-from category_weapon import CategoryWeapon
-from rarity import Rarity
+from .item import Item
+from .category_weapon import CategoryWeapon
+from .rarity import Rarity
+
 
 class Weapon(Item):
     """

@@ -1,4 +1,4 @@
-from items import Weapon
+from items import Weapon, Rarity
 
 import random
 
@@ -66,12 +66,13 @@ class Monster():
             print("Monster's pv are still above 0.")
             return None
     
-    def kill(self):
+    def kill(self, drop_rate=1.0):
         """
         Instantly kill the monster by setting its health to 0.
         """
         self.pv = 0
-        self.die(drop_rate=1.0)
+        dropped_item=self.die(drop_rate)
+        return dropped_item
     
     def kill_all_monsters():
         """
@@ -83,12 +84,11 @@ class Monster():
 
 if __name__ == "__main__":
     # Example usage
-    sword = Weapon(name="Sword", damage=15, category="melee", range=1.5, durability=10)
+    sword = Weapon(name="Sword",description="a sharp blade",rarity=Rarity.LEGENDARY, damage=15, category="melee", range=1.5, durability=10)
     goblin = Monster(weapon=sword, pv=50, x=5.0, y=10.0)
     
     print(f"Goblin's initial health: {goblin.get_pv()}")
-    goblin.set_pv(0)  # Simulate the goblin taking damage
-    dropped_item = goblin.die(drop_rate=0.7)
+    dropped_item=goblin.kill()  # Simulate the goblin taking damage
     if dropped_item:
         print(f"Goblin dropped: {dropped_item.name}")
     else:
