@@ -8,3 +8,5 @@ requests
 typing
 pygame
 arcade
+psycopg2-binary
+python-dotenv
