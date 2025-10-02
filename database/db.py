@@ -54,7 +54,7 @@ def execute_query(query, params=None, fetch=None):
             conn.commit()
 
     except Exception as e:
-        print(f"❌ Erreur lors de l'exécution de la requête : {e}")
+        print(f" Erreur lors de l'exécution de la requête : {e}")
         # Si une erreur survient, annule la transaction
         if conn:
             conn.rollback()
