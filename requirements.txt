@@ -9,3 +9,5 @@ typing
 pygame
 arcade
 PILLOW
+psycopg2
+dotenv
