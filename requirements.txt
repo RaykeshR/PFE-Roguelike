@@ -12,3 +12,4 @@ psycopg2-binary
 PILLOW
 psycopg2
 dotenv
+colorama
