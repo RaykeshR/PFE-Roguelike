@@ -1,0 +1,17 @@
+# Définir le comportement par défaut pour normaliser automatiquement les fins de ligne
+* text=auto
+
+# fichiers Python
+*.py text
+
+# fichiers d'image
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.gif binary
+
+# Autres types de fichiers courants
+*.md text
+# *.txt text
+*.csv text
+*.json text
