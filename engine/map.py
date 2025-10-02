@@ -1,6 +1,11 @@
 import os
 import random
-from engine.room import Room
+import random as _r
+
+from items import Weapon, Rarity
+from entities.monster import Monster
+from .room import Room
+
 
 class Map:
     def __init__(self, width=50, height=20, room_count=4):
@@ -188,10 +193,10 @@ class Map:
 
         # Superposer ennemis et projectiles sur le rendu
         for enemy in self.enemies:
-            ex, ey = enemy["x"], enemy["y"]
+            ex, ey = enemy.x, enemy.y
             if 0 <= ey < self.height and 0 <= ex < self.width:
                 if (ex, ey) in visible or (ex, ey) in self.discovered:
-                    grid[ey][ex] = "M"  # Monstre immobile
+                    grid[ey][ex] = "M"
         for px2, py2, _, _ in self.projectiles:
             if 0 <= py2 < self.height and 0 <= px2 < self.width:
                 if (px2, py2) in visible or (px2, py2) in self.discovered:
@@ -268,34 +273,47 @@ class Map:
                         self.discovered.add((target_room.x + i, target_room.y + j))
 
     def _place_enemies(self, count=2):
-        import random as _r
         placed = 0
         tries = 0
         flat_walkable = list(self.walkable)
         while placed < count and tries < 200 and flat_walkable:
             x, y = _r.choice(flat_walkable)
-            # éviter start/end
             if (x, y) != self.start and (x, y) != self.end and self.tiles[y][x] == ".":
-                # choisir une direction de tir (haut/bas/gauche/droite)
                 dx, dy = _r.choice([(1,0),(-1,0),(0,1),(0,-1)])
-                self.enemies.append({"x": x, "y": y, "dx": dx, "dy": dy})
+                # arme optionnelle ; tu peux mettre None
+                weapon = None
+                m = Monster(weapon=weapon, pv=50, x=x, y=y, dx=dx, dy=dy, speed=0.33)
+                self.enemies.append(m)
                 placed += 1
             tries += 1
 
-    def tick(self):
-        # Avancer les projectiles et tirer périodiquement
+    def tick(self, player_pos=None):
+        # if self.enemies:
+        #     print("Type des ennemis :", type(self.enemies[0]))
         self.ticks += 1
-        # Tir ennemi moins fréquent pour performance
         if self.ticks % 10 == 0:
             for e in self.enemies:
-                self.projectiles.append((e["x"], e["y"], e["dx"], e["dy"]))
-        # Bouger projectiles
+                self.projectiles.append((e.x, e.y, e.dx, e.dy))
+
         new_projectiles = []
         for (px, py, dx, dy) in self.projectiles:
             nx, ny = px + dx, py + dy
             if 0 <= nx < self.width and 0 <= ny < self.height and self.tiles[ny][nx] != "#":
                 new_projectiles.append((nx, ny, dx, dy))
         self.projectiles = new_projectiles
+
+        # -------- [RL] déplacement + update Q-learning ----------
+        if player_pos is not None:
+            for m in list(self.enemies):
+                m._move_acc += m.speed
+                while m._move_acc >= 1.0:
+                    reached = m.rl_step(self, player_pos)
+                    m._move_acc -= 1.0
+                    if reached:
+                        # TODO: gérer l'attaque/dégâts au joueur
+                        break
+        # -------------------------------------------------------
+
 
     def _compute_visible(self, current_room):
         visible = set()

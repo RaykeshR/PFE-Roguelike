@@ -20,7 +20,7 @@ def run_game():
         while playing:
             game_map.draw((player.x, player.y))
             time.sleep(0.08)
-            game_map.tick()
+            game_map.tick((player.x, player.y))
             if msvcrt.kbhit():
                 key = msvcrt.getwch().lower()
                 if key == "x":
@@ -32,7 +32,7 @@ def run_game():
         while playing:
             game_map.draw((player.x, player.y))
             print("Déplacez-vous avec ZQSD (X pour quitter)")
-            game_map.tick()
+            game_map.tick((player.x, player.y))
             cmd = input("> ").lower()
             if cmd == "x":
                 playing = False

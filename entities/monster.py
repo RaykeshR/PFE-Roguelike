@@ -1,14 +1,24 @@
 from items import Weapon, Rarity
+from engine.rl import QLearningAgent
+
 
 import random
 
 class Monster():
     list_monster = []
-    def __init__(self, weapon : Weapon, pv=100, x=0.0, y=0.0):
+    def __init__(self, weapon : Weapon, pv=100, x=0.0, y=0.0, dx=1, dy=0, speed=0.33):
         self.pv=pv
         self.weapon=weapon
-        self.x=x
-        self.y=y
+        self.x=int(x)
+        self.y=int(y)
+        self.dx=int(dx)
+        self.dy=int(dy)
+        self.speed = float(speed)
+        self._move_acc = 0.0 
+
+        self.rl_agent = None
+        self.rl_steps = 0
+
         Monster.list_monster.append(self)
     
     ###### getters and setters ######
@@ -49,6 +59,93 @@ class Monster():
     def set_position(self, x, y):
         self.x = x
         self.y = y
+    
+    def set_speed(self, speed: float):
+        self.speed = max(0.0, float(speed))
+
+
+    ###### RL methods ######
+
+
+    def _ensure_rl(self):
+        if self.rl_agent is None:
+            self.rl_agent = QLearningAgent()
+
+    def _state(self, player_pos, clip=6):
+        px, py = player_pos
+        dx = max(-clip, min(clip, px - self.x))
+        dy = max(-clip, min(clip, py - self.y))
+        return (dx, dy)
+
+    @staticmethod
+    def _offset_from_action(a):
+        if a == 0:   return (0, -1)  # up
+        if a == 1:   return (0,  1)  # down
+        if a == 2:   return (-1, 0)  # left
+        if a == 3:   return (1,  0)  # right
+        raise ValueError("action inconnue")
+
+    def _try_action_on_map(self, game_map, action, player_pos):
+        """
+        Tente un déplacement 4-dir sur ta Map.
+        Renvoie (next_state, reward, done, applied_bool).
+        Reward: -1/step, -5 si mur, +20 si atteint joueur.
+        """
+        ax, ay = self._offset_from_action(action)
+        nx, ny = self.x + ax, self.y + ay
+
+        reward = -1.0
+        applied = False
+
+        # Collision (bornes + walkable)
+        if 0 <= nx < game_map.width and 0 <= ny < game_map.height and game_map.is_walkable(nx, ny):
+            # éviter chevauchement autre monstre
+            occupied = any((m is not self) and (getattr(m, "x", None) == nx and getattr(m, "y", None) == ny)
+                           for m in game_map.enemies)
+            if occupied:
+                reward += -2.0
+                nx, ny = self.x, self.y
+            else:
+                applied = True
+        else:
+            reward += -5.0
+            nx, ny = self.x, self.y
+        
+        # distance avant/après (même si le move est annulé)
+        px, py = player_pos
+        # distance de Manhattan (plus stable pour grille)
+        d_old = abs(px - self.x) + abs(py - self.y)
+        d_new = abs(px - nx) + abs(py - ny)
+
+        # Reward dense : bonus si on se rapproche, malus si on s'éloigne
+        # Le coefficient 0.6 est doux; ajuste 0.3–1.0 selon ton feeling
+        reward += 0.6 * (d_old - d_new)
+
+
+        if applied:
+            self.x, self.y = nx, ny
+
+        px, py = player_pos
+        done = (self.x == px and self.y == py)
+        if done:
+            reward += 20.0
+
+        return self._state(player_pos), reward, done, applied
+
+    def rl_step(self, game_map, player_pos):
+        """
+        Un pas d'APPR pour ce monstre : choisir action, bouger, update Q.
+        Retourne True si le joueur est atteint.
+        """
+        self._ensure_rl()
+        s = self._state(player_pos)
+        a = self.rl_agent.select(s)
+        s2, r, done, _ = self._try_action_on_map(game_map, a, player_pos)
+        self.rl_agent.update(s, a, r, s2, done)
+        self.rl_steps += 1
+        if self.rl_steps % 10 == 0:
+            self.rl_agent.decay()
+        return done
     
     ###### other methods ######
 
