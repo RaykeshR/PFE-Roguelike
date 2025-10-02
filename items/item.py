@@ -1,4 +1,4 @@
-from rarity import Rarity
+from .rarity import Rarity
 
 class Item:
     def __init__(self, name: str, description: str, rarity: Rarity):
