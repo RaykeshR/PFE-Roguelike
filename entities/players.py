@@ -5,10 +5,10 @@ from PIL import Image
 
 class players:
     #constructeur
-    def __init__(self, name="player", pv=100, inventory=[], equiped_item=[], is_human=True, x=0.0, y=0.0):
+    def __init__(self, name="player", pv=100, inventory=None, equiped_item=None, is_human=True, x=0.0, y=0.0):
         self.pv=pv
-        self.inventory=inventory
-        self.equiped_item=equiped_item
+        self.inventory=inventory if inventory is not None else []
+        self.equiped_item=equiped_item if equiped_item is not None else []
         self.is_human=is_human
         self.name=name
         self.x=x
@@ -48,7 +48,7 @@ class players:
     
     #retourne la position y
     def get_y(self):
-        return self.yz
+        return self.y
     
     #returne les objets équipés
     def get_equiped_item(self):
