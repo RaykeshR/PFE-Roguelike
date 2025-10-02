@@ -10,7 +10,6 @@ pygame
 arcade
 psycopg2-binary
 python-dotenv
-
 PILLOW
 psycopg2
 dotenv
