@@ -20,6 +20,9 @@ def run_game():
         while playing:
             game_map.draw((player.x, player.y))
             time.sleep(0.08)
+            # for i in game_map.get_matrix():print(i)
+            # import sys
+            # sys.exit(0)
             game_map.tick()
             if msvcrt.kbhit():
                 key = msvcrt.getwch().lower()
