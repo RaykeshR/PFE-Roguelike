@@ -79,6 +79,14 @@ class players:
         Aléatoire  | Choisit des actions au hasard (exploration, attaque, fuite) 
         '''
         type_bot=["Agressif","Fuyard","Aléatoire"]
+        if type_bot in type_bot :
+            return True
+        else :
+            return False
+  
+    def train_bot(self,type_bot) :
+        
+
         if type_bot=="Agressif" :
             pass
         elif type_bot=="Fuyard" :
@@ -87,10 +95,6 @@ class players:
             pass
         else :
             print("Type de bot inconnu. Choisissez parmi : Agressif, Fuyard, Aléatoire.")
-  
-    def train_bot(self) :
-
-        pass
 
 
 
