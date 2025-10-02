@@ -4,7 +4,6 @@ __pycache__
 .env
 */.env
 **/.env
-database\.env
 
 # Fichiers temporaires
 *.swp
