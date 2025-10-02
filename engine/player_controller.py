@@ -6,10 +6,14 @@ class PlayerController:
 
     def move(self, direction):
         dx, dy = 0, 0
-        if direction == "z": dy = -1
-        elif direction == "s": dy = 1
-        elif direction == "q": dx = -1
-        elif direction == "d": dx = 1
+        haut = ["z", "w", "up"]
+        bas = ["s", "down"]
+        gauche = ["q", "a", "left"]
+        droite = ["d", "right"]
+        if direction in haut: dy = -1
+        elif direction in bas: dy = 1
+        elif direction in gauche: dx = -1
+        elif direction in droite: dx = 1
         else: return
 
         new_x = self.x + dx
