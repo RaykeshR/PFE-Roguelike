@@ -247,6 +247,13 @@ class Map:
     def is_walkable(self, x, y):
         return (x, y) in self.walkable
 
+    def get_matrix(self):
+        """Retourne la matrice (liste de listes) représentant la carte.
+
+        Chaque case correspond au caractère stocké dans `tiles`.
+        """
+        return self.tiles
+
     def reveal_from(self, player_pos):
         # Révéler salle courante, portes et couloirs adjacents, salles connectées
         room = self.get_room_containing(*player_pos)
