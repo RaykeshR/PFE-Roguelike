@@ -3,6 +3,7 @@ from db import execute_query
 def initialiser_base_de_donnees():
     """Crée les tables si elles n'existent pas."""
     schema = """
+    
     -- Table des utilisateurs (les personnes qui jouent)
 CREATE TABLE utilisateurs (
     id SERIAL PRIMARY KEY,
@@ -60,16 +61,15 @@ CREATE TABLE parties (
 CREATE TABLE rooms (
     id SERIAL PRIMARY KEY,
     partie_id INT REFERENCES parties(id) ON DELETE CASCADE,
-    room_number INT,        -- identifiant de la room dans la map
-    ennemis INT DEFAULT 0,  -- nombre d’ennemis générés
-    butin TEXT              -- loot généré
+    room_number INT,        
+    ennemis INT DEFAULT 0,  
+    butin TEXT              
 );
-
-    );
 
     """
     execute_query(schema)
     print(" Base de données initialisée.")
+initialiser_base_de_donnees()
 
 def ajouter_joueur(nom):
     """Ajoute un nouveau joueur et retourne son ID."""
