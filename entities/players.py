@@ -84,7 +84,7 @@ class players:
         else :
             return False
   
-    def train_bot(self,type_bot) :
+    def train_bot(self,type_bot,) :
         
 
         if type_bot=="Agressif" :
