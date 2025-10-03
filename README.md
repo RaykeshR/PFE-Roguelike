@@ -27,6 +27,12 @@ TODO :octocat: :neckbeard: :bowtie: :shipit:
 <details>
 <summary>Création d'environnements virtuels : </summary>
 
+## Un package manquant : 
+
+```
+.venv\Scripts\activate && python -m pip install --upgrade pip && pip install -r requirements.txt
+```
+
 ### 1. Clonner le Repo
 
 avec GitHub (Copie les fichiers localement)
@@ -90,4 +96,15 @@ Ajouter : `.venv`
 
 Commande : `python main.py `
 (Lance le fichier principal avec python)
+
+### Linux/Mac :
+
+"""
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+python main.py
+"""
+
 </details> 

@@ -69,7 +69,8 @@ CREATE TABLE rooms (
     """
     execute_query(schema)
     print(" Base de données initialisée.")
-initialiser_base_de_donnees()
+if __name__ == "__main__":
+    initialiser_base_de_donnees()
 
 def ajouter_joueur(nom):
     """Ajoute un nouveau joueur et retourne son ID."""
