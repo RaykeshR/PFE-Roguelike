@@ -10,3 +10,4 @@ CREATE TABLE IF NOT EXISTS joueurs (
 
 );
 
+INSERT INTO joueurs (1, test) VALUES;
