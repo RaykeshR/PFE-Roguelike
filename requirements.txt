@@ -14,3 +14,4 @@ python-dotenv
 PILLOW
 psycopg2
 dotenv
+pymongo
