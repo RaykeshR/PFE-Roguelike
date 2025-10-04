@@ -13,3 +13,4 @@ PILLOW
 psycopg2
 dotenv
 colorama
+pytest

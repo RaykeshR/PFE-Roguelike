@@ -8,7 +8,7 @@ from .room import Room
 
 
 class Map:
-    def __init__(self, width=50, height=20, room_count=4):
+    def __init__(self, width=60, height=26, room_count=5):
         self.width = width
         self.height = height
         self.room_count = room_count
@@ -80,17 +80,18 @@ class Map:
         self._visible_cache_set = set()
         attempts = 0
 
-        while len(self.rooms) < self.room_count and attempts < 100:
+        while len(self.rooms) < self.room_count and attempts < 300:
             w = random.randint(8, 15)
             h = random.randint(5, 10)
-            x = random.randint(1, self.width - w - 1)
-            y = random.randint(1, self.height - h - 1)
+            x = random.randint(1, self.width - w - 2)
+            y = random.randint(1, self.height - h - 2)
             new_room = Room(x, y, w, h)
 
-            # Vérifier chevauchement
+            # Vérifier chevauchement avec marge (buffer) pour éviter salles collées
+            margin = 2
             overlap = any(
-                x < r.x + r.width and x + w > r.x and
-                y < r.y + r.height and y + h > r.y
+                (x - margin) < (r.x + r.width) and (x + w + margin) > r.x and
+                (y - margin) < (r.y + r.height) and (y + h + margin) > r.y
                 for r in self.rooms
             )
             if not overlap:
@@ -113,16 +114,14 @@ class Map:
         if len(self.rooms) >= 2:
             for i, room in enumerate(self.rooms[:-1]):
                 room_next = self.rooms[i + 1]
-                door1 = self._pick_door_towards(room, room_next)
+                door1 = self._pick_unique_door(room, room_next)
                 if door1 not in room.doors:
                     room.doors.append(door1)
-                door2 = self._pick_door_towards(room_next, room)
+                door2 = self._pick_unique_door(room_next, room)
                 if door2 not in room_next.doors:
                     room_next.doors.append(door2)
                 self.connections[door1] = (room_next, door2)
                 self.connections[door2] = (room, door1)
-                # Peindre couloir dans tiles (préserve '+') et marquer walkable
-                self.create_corridor(door1, door2)
 
         # Définir positions de départ/fin
         self.start = self.rooms[0].get_random_position()
@@ -154,6 +153,10 @@ class Map:
                 if 0 <= dx < self.width and 0 <= dy < self.height:
                     self.tiles[dy][dx] = "+"
                     self.walkable.add((dx, dy))
+
+        # Creuser les couloirs APRES avoir dessiné les salles pour éviter de traverser des murs futurs
+        for door_start, (target_room, door_end) in self.connections.items():
+            self.create_corridor(door_start, door_end)
 
         # Placer quelques ennemis immobiles
         self._place_enemies(count=min(3, max(1, len(self.rooms)//2)))
@@ -223,22 +226,100 @@ class Map:
     def create_corridor(self, start, end, grid=None):
         x1, y1 = start
         x2, y2 = end
-        # Couloir horizontal (exclure la porte de départ)
-        for x in range(min(x1, x2), max(x1, x2)+1):
-            if (x, y1) == (x1, y1) or (x, y1) == (x2, y2):
-                continue
-            if 0 <= x < self.width and 0 <= y1 < self.height:
-                if self.tiles[y1][x] != "+":
-                    self.tiles[y1][x] = "."
-                self.walkable.add((x, y1))
-        # Couloir vertical (exclure la porte d'arrivée)
-        for y in range(min(y1, y2), max(y1, y2)+1):
-            if (x2, y) == (x1, y1) or (x2, y) == (x2, y2):
-                continue
-            if 0 <= x2 < self.width and 0 <= y < self.height:
-                if self.tiles[y][x2] != "+":
-                    self.tiles[y][x2] = "."
-                self.walkable.add((x2, y))
+
+        # Déterminer les salles des portes (mur sur lequel se trouve la porte)
+        room1 = self.get_room_containing(x1, y1)
+        room2 = self.get_room_containing(x2, y2)
+
+        def step_outside_from_door(dx, dy, rx, ry, rw, rh):
+            # Porte sur le mur gauche
+            if dx == rx:
+                return (dx - 1, dy)
+            # Porte sur le mur droit
+            if dx == rx + rw - 1:
+                return (dx + 1, dy)
+            # Porte sur le mur haut
+            if dy == ry:
+                return (dx, dy - 1)
+            # Porte sur le mur bas
+            if dy == ry + rh - 1:
+                return (dx, dy + 1)
+            # Fallback (au cas où): ne bouge pas
+            return (dx, dy)
+
+        # Calculer les points juste à l'extérieur des deux portes
+        if room1:
+            sx, sy = step_outside_from_door(x1, y1, room1.x, room1.y, room1.width, room1.height)
+        else:
+            sx, sy = x1, y1
+        if room2:
+            ex, ey = step_outside_from_door(x2, y2, room2.x, room2.y, room2.width, room2.height)
+        else:
+            ex, ey = x2, y2
+
+        # Clamp dans la carte
+        sx = max(0, min(self.width - 1, sx))
+        sy = max(0, min(self.height - 1, sy))
+        ex = max(0, min(self.width - 1, ex))
+        ey = max(0, min(self.height - 1, ey))
+
+        # Chercher un chemin dans l'espace libre uniquement (' ') ou via des portes ('+') pour éviter de traverser les salles ('.')
+        def neighbors(x, y):
+            for dx, dy in ((1,0),(-1,0),(0,1),(0,-1)):
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < self.width and 0 <= ny < self.height:
+                    yield nx, ny
+
+        def passable(x, y):
+            cell = self.tiles[y][x]
+            return cell == ' ' or cell == '+'
+
+        from collections import deque
+        def bfs_path(start_xy, end_xy):
+            sx0, sy0 = start_xy
+            ex0, ey0 = end_xy
+            queue = deque([(sx0, sy0)])
+            came = { (sx0, sy0): None }
+            while queue:
+                cx, cy = queue.popleft()
+                if (cx, cy) == (ex0, ey0):
+                    # reconstruit
+                    path = []
+                    cur = (cx, cy)
+                    while cur is not None:
+                        path.append(cur)
+                        cur = came[cur]
+                    path.reverse()
+                    return path
+                for nx, ny in neighbors(cx, cy):
+                    if (nx, ny) not in came and passable(nx, ny):
+                        came[(nx, ny)] = (cx, cy)
+                        queue.append((nx, ny))
+            return None
+
+        path = bfs_path((sx, sy), (ex, ey))
+
+        def carve(x, y):
+            # Creuser seulement dans l'espace vide; ne jamais remplacer un sol de salle '.'
+            if 0 <= x < self.width and 0 <= y < self.height:
+                if self.tiles[y][x] == ' ':
+                    self.tiles[y][x] = '.'
+                    self.walkable.add((x, y))
+                elif self.tiles[y][x] == '+':
+                    self.walkable.add((x, y))
+
+        if path:
+            for (cx, cy) in path:
+                if (cx, cy) not in (start, end):
+                    carve(cx, cy)
+        else:
+            # Fallback: couloir en L mais en ne creusant que dans l'espace vide
+            for x in range(min(sx, ex), max(sx, ex) + 1):
+                if (x, sy) not in (start, end):
+                    carve(x, sy)
+            for y in range(min(sy, ey), max(sy, ey) + 1):
+                if (ex, y) not in (start, end):
+                    carve(ex, y)
 
     def get_room_containing(self, x, y):
         for room in self.rooms:
@@ -362,4 +443,22 @@ class Map:
         def dist2(p):
             return (p[0] - cx_to) * (p[0] - cx_to) + (p[1] - cy_to) * (p[1] - cy_to)
         candidates.sort(key=dist2)
+        return candidates[0]
+
+    def _pick_unique_door(self, room_from, room_to):
+        """Comme _pick_door_towards mais évite de réutiliser une porte déjà posée sur room_from."""
+        cx_to = room_to.x + room_to.width // 2
+        cy_to = room_to.y + room_to.height // 2
+        left = (room_from.x, min(max(cy_to, room_from.y + 1), room_from.y + room_from.height - 2))
+        right = (room_from.x + room_from.width - 1, min(max(cy_to, room_from.y + 1), room_from.y + room_from.height - 2))
+        top = (min(max(cx_to, room_from.x + 1), room_from.x + room_from.width - 2), room_from.y)
+        bottom = (min(max(cx_to, room_from.x + 1), room_from.x + room_from.width - 2), room_from.y + room_from.height - 1)
+        candidates = [left, right, top, bottom]
+        def dist2(p):
+            return (p[0] - cx_to) * (p[0] - cx_to) + (p[1] - cy_to) * (p[1] - cy_to)
+        candidates.sort(key=dist2)
+        for c in candidates:
+            if c not in room_from.doors:
+                return c
+        # Si toutes prises, reprendre le meilleur (on n'ajoute pas de doublon plus tard)
         return candidates[0]
