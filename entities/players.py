@@ -153,15 +153,15 @@ class players:
         self.x += move_x
         self.y += move_y
 
-    def attaque(self,monstre,degat):
+    def joueur_attaque(self,monstre,degat):
         """
         Attaque un monstre en réduisant ses points de vie.
         degat: montant des points de vie à retirer au monstre.
         """
-        monstre.pv -= degat
-        if monstre.pv < 0:
-            monstre.pv = 0
-        print(f"{self.name} attaque {monstre.name} et lui inflige {degat} points de dégât. PV restants du monstre: {monstre.pv}")
+        monstre.pv-=degat
+        if monstre.pv<0:
+            monstre.pv=0
+        print(f"{self.name} attaque {monstre.name} et lui inflige {degat} points de dégât et les PV restants du monstre sont donc : {monstre.pv}")
 
     #type de bots qui vont prendre le role de joueur pour le pré-entrainement du model
     def type_train_bot(self,type_bot) :
