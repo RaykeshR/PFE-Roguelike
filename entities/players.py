@@ -2,7 +2,11 @@
 import os
 from PIL import Image
 import random
+from random import randint
+
 from monster import Monster
+from items import weapon
+
 ###################################################################################################################################################
 
 class players:
@@ -55,6 +59,17 @@ class players:
     #returne les objets équipés
     def get_equiped_item(self):
         return self.equiped_item
+    
+    def get_weapon(self):
+        for item in self.equiped_item:
+            if isinstance(item, weapon):
+                return item
+        return None
+    def get_weapon_category(self):
+        weapon=self.get_weapon()
+        if weapon:
+            return weapon.category
+        return None
     
     def set_pv(self, pv):
         self.pv=pv
@@ -162,6 +177,7 @@ class players:
         if monstre.pv<0:
             monstre.pv=0
         print(f"{self.name} attaque {monstre.name} et lui inflige {degat} points de dégât et les PV restants du monstre sont donc : {monstre.pv}")
+    
 
     #type de bots qui vont prendre le role de joueur pour le pré-entrainement du model
     def type_train_bot(self,type_bot) :
@@ -173,6 +189,7 @@ class players:
         Fuyard      | Évite le combat, fuit quand un ennemi approche              
         Aléatoire  | Choisit des actions au hasard (exploration, attaque, fuite) 
         '''
+
         type_bot=["Agressif","Fuyard","Aléatoire"]
         
   
@@ -185,18 +202,45 @@ class players:
             '''Se dirige toujours vers l'ennemi le plus proche et l'attaque'''
             if bot_position[0]<monster_position[0] :
                 self.x+=1
+            elif bot_position[0]>monster_position[0] :
+                self.x-=1
+            else :
+                self.joueur_attaque(monster,10)
+            if bot_position[1]<monster_position[1] :
+                self.y+=1
+            elif bot_position[1]>monster_position[1] :
+                self.y-=1
+            else :
+                self.joueur_attaque(monster,10)
 
         elif type_bot=="Fuyard" :
             '''S'éloigne de l'ennemi le plus proche pour éviter le combat'''
             if bot_position[0]<monster_position[0] :
                 self.x-=1
-
+            elif bot_position[0]>monster_position[0] :
+                self.x+=1
+            else :
+                if randint(0,1)==0 :
+                    self.x+=randint(-1,1)
+                else :
+                    self.y+=randint(-1,1)
+              
+            if bot_position[1]<monster_position[1] :
+                self.y-=1
+            elif bot_position[1]>monster_position[1] :
+                self.y+=1
+            else :
+                if randint(0,1)==0 :
+                    self.x+=randint(-1,1)
+                else :
+                    self.y+=randint(-1,1)
         elif type_bot=="Aléatoire" :
             '''Choisit aléatoirement entre attaquer, fuir ou explorer'''
             action=random.choice(["attaquer","fuir","explorer"])
             if action=="attaquer" :
-                if bot_position[0]<monster_position[0] :
-                    self.x+=1
+                action="Agressif"
+            elif action=="fuyard" :
+                action="Fuyard"
         else :
             print("Type de bot inconnu. Choisissez parmi : Agressif, Fuyard, Aléatoire.")
 
