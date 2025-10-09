@@ -1,0 +1,16 @@
+pip
+matplotlib
+pandas
+python-dotenv
+ipython
+ipykernel
+requests
+typing
+pygame
+arcade
+psycopg2-binary
+PILLOW
+psycopg2
+dotenv
+colorama
+pytest
