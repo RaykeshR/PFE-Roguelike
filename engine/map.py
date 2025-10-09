@@ -1,6 +1,7 @@
 import os
 import random
 import random as _r
+import logging
 
 from items import Weapon, Rarity
 from entities.monster import Monster
@@ -68,6 +69,7 @@ class Map:
 
     def generate(self):
         """Génère plusieurs salles aléatoires avec portes et couloirs."""
+        log = logging.getLogger("pfe_roguelike.engine.map")
         self.rooms = []
         self.connections = {}
         self.walkable = set()
@@ -160,6 +162,18 @@ class Map:
 
         # Placer quelques ennemis immobiles
         self._place_enemies(count=min(3, max(1, len(self.rooms)//2)))
+        log.info(
+            "Carte générée",
+            extra={
+                "extra": {
+                    "rooms": len(self.rooms),
+                    "connections": len(self.connections),
+                    "start": self.start,
+                    "end": self.end,
+                    "enemies": len(self.enemies),
+                }
+            },
+        )
 
     def draw(self, player_pos):
         self.clear_screen()
