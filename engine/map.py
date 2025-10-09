@@ -2,6 +2,7 @@ import os
 import random
 import random as _r
 import logging
+from system.game_logging import get_episode_logger
 
 from items import Weapon, Rarity
 from entities.monster import Monster
@@ -396,6 +397,13 @@ class Map:
         if self.ticks % 10 == 0:
             for e in self.enemies:
                 self.projectiles.append((e.x, e.y, e.dx, e.dy))
+        # log positions projectiles
+        if self.projectiles:
+            ep = get_episode_logger()
+            ep.log_step({
+                "tick": self.ticks,
+                "projectiles": [ [px, py, dx, dy] for (px, py, dx, dy) in self.projectiles ]
+            })
 
         new_projectiles = []
         for (px, py, dx, dy) in self.projectiles:
