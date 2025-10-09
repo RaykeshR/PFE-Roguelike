@@ -1,5 +1,6 @@
 from items import Weapon, Rarity
 from engine.rl import QLearningAgent
+from system.game_logging import get_episode_logger
 
 
 import random
@@ -142,6 +143,18 @@ class Monster():
         a = self.rl_agent.select(s)
         s2, r, done, _ = self._try_action_on_map(game_map, a, player_pos)
         self.rl_agent.update(s, a, r, s2, done)
+        # log transition RL
+        ep = get_episode_logger()
+        ep.log_transition(
+            monster_id=id(self),
+            s=list(s),
+            a=int(a),
+            r=float(r),
+            s2=list(s2),
+            done=bool(done),
+            tick=game_map.ticks,
+            pos=[self.x, self.y],
+        )
         self.rl_steps += 1
         if self.rl_steps % 10 == 0:
             self.rl_agent.decay()
