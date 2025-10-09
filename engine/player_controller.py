@@ -1,8 +1,13 @@
+import logging
+
+
 class PlayerController:
     def __init__(self, game_map):
         self.map = game_map
         self.x, self.y = self.map.start
         self.map.reveal_from((self.x, self.y))
+        self._log = logging.getLogger("pfe_roguelike.engine.player")
+        self._log.info("Joueur initialisé", extra={"extra": {"pos": (self.x, self.y)}})
 
     def move(self, direction):
         dx, dy = 0, 0
@@ -21,6 +26,7 @@ class PlayerController:
 
         # Déplacement sur cases franchissables (sol, portes, couloirs)
         if not self.map.is_walkable(new_x, new_y):
+            self._log.debug("Blocage déplacement: mur", extra={"extra": {"from": (self.x, self.y), "to": (new_x, new_y)}})
             return
 
         # Téléportation si la case est une porte connectée
@@ -47,16 +53,19 @@ class PlayerController:
 
         # Mise à jour de la visibilité persistante
         self.map.reveal_from((self.x, self.y))
+        self._log.info("Position joueur mise à jour", extra={"extra": {"pos": (self.x, self.y)}})
 
         # Check collision projectile (simple): mort => message et quitter
         for (px, py, _, _) in list(self.map.projectiles):
             if (px, py) == (self.x, self.y):
                 print("\nVous avez été touché par un projectile !")
+                self._log.warning("Joueur touché par projectile", extra={"extra": {"pos": (self.x, self.y)}})
                 raise SystemExit(0)
 
         # Vérifier porte finale
         if (self.x, self.y) == self.map.end:
             print("\nVous avez atteint la porte finale ! Nouvelle map générée...")
+            self._log.info("Porte finale atteinte, regénération map")
             input("Appuyez sur Entrée pour continuer...")
             self.map.generate()
             self.x, self.y = self.map.start
