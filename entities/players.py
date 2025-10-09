@@ -128,10 +128,44 @@ class players:
     #methode pour  calculer la distance euclidienne monstre-joueur
     def distance_euclidienne(self,monstre):
         return ((self.x-monstre.x)**2+(self.y-monstre.y)**2)**0.5
+    
+    def move_towards(self,target_x,target_y,step_size=1.0):
+        """
+        Déplace le joueur vers une position cible (target_x, target_y) par une taille de pas spécifiée.
+        step_size: distance maximale que le joueur peut se déplacer en une seule fois.
+        """
+        direction_x = target_x - self.x
+        direction_y = target_y - self.y
+        distance = (direction_x**2 + direction_y**2)**0.5
+        
+        if distance == 0:
+            return  #le joueur est déjà à la position cible
+        
+        #Normaliser la direction
+        direction_x /= distance
+        direction_y /= distance
+        
+        #Calculer le déplacement
+        move_x = direction_x * min(step_size, distance)
+        move_y = direction_y * min(step_size, distance)
+        
+        #Mettre à jour la position du joueur
+        self.x += move_x
+        self.y += move_y
+
+    def attaque(self,monstre,degat):
+        """
+        Attaque un monstre en réduisant ses points de vie.
+        degat: montant des points de vie à retirer au monstre.
+        """
+        monstre.pv -= degat
+        if monstre.pv < 0:
+            monstre.pv = 0
+        print(f"{self.name} attaque {monstre.name} et lui inflige {degat} points de dégât. PV restants du monstre: {monstre.pv}")
 
     #type de bots qui vont prendre le role de joueur pour le pré-entrainement du model
     def type_train_bot(self,type_bot) :
-        '''
+        ''' 
         3 categoris de bot :
         Type      | Comportement                                                
 
@@ -140,10 +174,7 @@ class players:
         Aléatoire  | Choisit des actions au hasard (exploration, attaque, fuite) 
         '''
         type_bot=["Agressif","Fuyard","Aléatoire"]
-        if type_bot in type_bot :
-            return True
-        else :
-            return False
+        
   
     def train_bot(self,type_bot,monster) :
         monster_position=(monster.x, monster.y)
