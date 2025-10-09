@@ -1,0 +1,30 @@
+{
+    "tick": 1024,
+    "player": {"pos": [4.0, 7.0], 
+               "hp": 15, 
+               "inventory": ["sword"]
+            },
+    "monsters": [
+        {"id": 1,
+         "type": "orc",
+         "pos": [6, 7],
+         "hp": 8},
+        {"id": 2,
+         "type": "slime", 
+         "pos": [3, 5], 
+         "hp": 4
+        }
+    ],
+    "action_player": "attack",
+    "reward_player": 5,
+    "done": false
+}
+{
+    "player_id": 123,
+    "level": 4,
+    "hp_end": 3,
+    "time_spent": 52,
+    "items_used": 2,
+    "score_mastery": 0.35   // joueur en galère
+  }
+  
