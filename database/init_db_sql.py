@@ -1,4 +1,4 @@
-from db import execute_query
+from db_sql import execute_query
 
 def initialiser_base_de_donnees():
     """Crée les tables si elles n'existent pas."""
