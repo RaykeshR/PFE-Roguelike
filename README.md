@@ -11,6 +11,7 @@
 [![My Skills](https://skillicons.dev/icons?i=powershell)](https://learn.microsoft.com/fr-fr/powershell/scripting/overview?view=powershell-7.4)
 [![My Skills](https://skillicons.dev/icons?i=windows)](https://www.microsoft.com/fr-fr/windows?r=1)
 
+Le site est accessible via ce [Lien qui fait une Redirection d'URL](https://raykeshr.github.io/PFE-Roguelike/) vers une page d'accueil pour le site du Github : PFE-Roguelike
 
 #### Sommaire 
 
@@ -136,28 +137,3 @@ git push --mirror
 
 </details> 
 
-<details>
-<summary>Nettoyer un depot git : </summary>
-Télécharger BFG Repo-Cleaner sur le site (.jar): 
-https://rtyley.github.io/bfg-repo-cleaner/
-
-Lancer : 
-
-git clone --mirror https://github.com/RaykeshR/PFE-Roguelike.git
-cd PFE-Roguelike.git
-<!-- java -jar ../bfg-1.15.0.jar --delete-files database/.env -->
-java -jar ../bfg-1.15.0.jar --delete-files .env
-
-git reflog expire --expire=now --all
-git gc --prune=now --aggressive
-git push --force --all
-git push --force --tags
-
-<!-- git push --force origin Dev -->
-
-<!-- git push --force origin --all
-git push --force origin --tags -->
-
-git push --mirror
-
-</details> 
