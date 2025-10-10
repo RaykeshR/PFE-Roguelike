@@ -8,6 +8,10 @@ from monster import Monster
 from items import weapon
 
 ###################################################################################################################################################
+#pv joueur =100
+#pv monstre=50
+#degats arme=10
+#arme avec points de vie
 
 class players:
     #constructeur
@@ -73,6 +77,7 @@ class players:
     
     def set_pv(self, pv):
         self.pv=pv
+
     
     def set_inventory(self, inventory):
         self.inventory=inventory
@@ -168,29 +173,33 @@ class players:
         self.x += move_x
         self.y += move_y
 
-    def joueur_attaque(self,monstre,degat):
+
+    def joueur_attaque(self, monstre):
         """
         Attaque un monstre en réduisant ses points de vie.
         degat: montant des points de vie à retirer au monstre.
         """
-        monstre.pv-=degat
+        arme=self.get_weapon()
+        degats=arme.damage if arme else 5  #dégâts de base
+        monstre.pv-=degats
         if monstre.pv<0:
             monstre.pv=0
-        print(f"{self.name} attaque {monstre.name} et lui inflige {degat} points de dégât et les PV restants du monstre sont donc : {monstre.pv}")
-    
+        print(f"{self.name} attaque {monstre.name} avec {arme.name if arme else 'ses poings'} et inflige {degats} dégâts.")
+        if not monstre.get_is_alive():
+            print(f"{monstre.name} est vaincu!")
 
-    #type de bots qui vont prendre le role de joueur pour le pré-entrainement du model
-    def type_train_bot(self,type_bot) :
-        ''' 
-        3 categoris de bot :
-        Type      | Comportement                                                
+    # #type de bots qui vont prendre le role de joueur pour le pré-entrainement du model
+    # def type_train_bot(self,type_bot):
+    #     ''' 
+    #     3 categoris de bot :
+    #     Type      | Comportement                                                
 
-        Agressif    | Attaque systématiquement les ennemis, fonce vers eux        
-        Fuyard      | Évite le combat, fuit quand un ennemi approche              
-        Aléatoire  | Choisit des actions au hasard (exploration, attaque, fuite) 
-        '''
+    #     Agressif    | Attaque systématiquement les ennemis, fonce vers eux        
+    #     Fuyard      | Évite le combat, fuit quand un ennemi approche              
+    #     Aléatoire  | Choisit des actions au hasard (exploration, attaque, fuite) 
+    #     '''
 
-        type_bot=["Agressif","Fuyard","Aléatoire"]
+    #     type_bot=["Agressif","Fuyard","Aléatoire"]
         
   
     def train_bot(self,type_bot,monster) :
@@ -243,5 +252,42 @@ class players:
                 action="Fuyard"
         else :
             print("Type de bot inconnu. Choisissez parmi : Agressif, Fuyard, Aléatoire.")
+    
+    def combat(self, monster):
+        """
+        Gère un combat complet entre le joueur et un monstre.
+        Utilise la méthode joueur_attaque pour infliger les dégâts.
+        """
+        print(f" Combat entre {self.name} et un monstre commence !")
+        print(f"{self.name} : {self.pv} PV | Monstre : {monster.get_pv()} PV\n")
 
- 
+        #Boucle jusqu’à la mort d’un des deux
+        while self.get_is_alive() and monster.get_is_alive():
+            #Tour du joueur
+            print(f"{self.name} attaque !")
+            self.joueur_attaque(monster)
+
+            #Vérifie si le monstre est mort
+            if not monster.get_is_alive():
+                print("Le monstre est mort !")
+                dropped=monster.die()
+                if dropped:
+                    self.inventory.append(dropped)
+                    print(f"{self.name} ramasse {dropped.name}.")
+                break
+
+            #Tour du monstre
+            print("Le monstre riposte !")
+            self.pv-=monster.weapon.get_damage()
+            monster.weapon.use()
+
+            if not self.get_is_alive():
+                print(f"{self.name} est mort pendant le combat...")
+                break
+
+            #Affichage de l’état actuel
+            print(f"\n➡️  {self.name} : {self.pv} PV , Monstre : {monster.get_pv()} PV\n")
+        
+        print("Combat terminé.")
+
+    
