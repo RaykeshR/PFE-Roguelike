@@ -1,0 +1,33 @@
+id,name,description,rarity,type,damage,defense,range,category,durability,value,potency,duration
+1,Epée émoussée,Une épée émoussée mais encore utilisable,common,weapon,5,0,0,1.0,melee,90,1,0,0
+
+
+
+
+
+
+
+id,name,type,damage,defense,heal,range,,value,description
+1,Epée,weapon,5,0,0,10,Une vieille épée émoussée mais encore utilisable.
+
+
+id,name,type,damage,defense,heal,value,description
+1,Epée rouillée,weapon,5,0,0,10,Une vieille épée émoussée mais encore utilisable.
+2,Hache de guerre,weapon,10,0,0,30,Une lourde hache capable de trancher plusieurs ennemis.
+3,Bouclier en bois,armor,0,3,0,15,Protège un peu contre les attaques physiques.
+4,Armure de cuir,armor,0,5,0,25,Une armure légère offrant une bonne mobilité.
+5,Potion de soin,potion,0,0,20,5,Restaure 20 PV immédiatement.
+6,Potion de mana,potion,0,0,0,5,Restaure une petite quantité de mana.
+7,Arc de chasseur,weapon,8,0,0,25,Un arc léger et précis pour attaquer à distance.
+8,Casque en fer,armor,0,2,0,10,Protège la tête contre les coups.
+9,Bombe,consumable,15,0,0,20,Inflige 15 dégâts de zone à tous les ennemis proches.
+10,Clé dorée,quest,0,0,0,0,Permet d’ouvrir une porte spéciale dans le donjon.
+11,Anneau de force,accessory,0,0,0,50,Augmente les dégâts de 5 points.
+12,Amulette de protection,accessory,0,0,0,50,Réduit les dégâts subis de 3 points.
+13,Grimoire de feu,spellbook,0,0,0,100,Permet d’apprendre le sort de boule de feu.
+14,Grimoire de glace,spellbook,0,0,0,100,Permet d’apprendre le sort de glace.
+15,Grimoire de foudre,spellbook,0,0,0,100
+,Permet d’apprendre le sort de foudre.
+16,Herbes médicinales,potion,0,0,10,3,Restaure 10 PV sur une période de temps.
+17,Flèche en bois,consumable,3,0,0,1,
+18,Flèche en acier,consumable,5,0,0,3,
