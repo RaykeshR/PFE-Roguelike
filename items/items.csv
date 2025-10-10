@@ -5,6 +5,11 @@ id,name,description,rarity,type,damage,defense,range,category,durability,potency
 4,Health Potion,Restores health over time.,common,potion,0,0,0.0,heal,100,50,5
 
 
+
+
+
+
+
 12,Hache de guerre,Une hache lourde capable d'infliger de gros dégâts,uncommon,weapon,12,0,1.0,melee,80,0,0
 13,Arc de chasseur,Un arc léger et précis pour attaquer à distance,rare,weapon,8,0,5.0,distance,70,0,0
 14,Bâton magique,Un bâton imprégné de pouvoir magique,epic,weapon,15,0,4.0,magic,60,0,0
