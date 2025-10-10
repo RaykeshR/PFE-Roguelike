@@ -8,66 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from fastapi_users.db import SQLAlchemyBaseUserTableUUID
 
-# -------------------
-# 1. Config DB
-# -------------------
-DATABASE_URL = "postgresql+asyncpg://postgres:TON_PASSWORD@localhost:5432/TA_BASE"
+#pour se connecter a la base de donnée
+from dotenv import load_dotenv
 
-Base = declarative_base()
-engine = create_async_engine(DATABASE_URL, echo=True)
-async_session_maker = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
-
-# -------------------
-# 2. Modèle User lié à ta table existante
-# -------------------
-class User(SQLAlchemyBaseUserTableUUID, Base):
-    pass
-
-async def get_user_db(session: AsyncSession = async_session_maker()):
-    yield SQLAlchemyUserDatabase(session, User)
-
-# -------------------
-# 3. Auth JWT
-# -------------------
-SECRET = "SECRET_KEY_A_CHANGER"
-auth_backends = [
-    JWTAuthentication(secret=SECRET, lifetime_seconds=3600)
-]
-
-class UserRead(schemas.BaseUser[uuid.UUID]):
-    pass
-
-class UserCreate(schemas.BaseUserCreate):
-    pass
-
-class UserUpdate(schemas.BaseUserUpdate):
-    pass
-
-fastapi_users = FastAPIUsers[User, uuid.UUID](
-    get_user_db,
-    auth_backends,
-    User,
-    UserCreate,
-    UserUpdate,
-    UserRead,
-)
-
-# -------------------
-# 4. FastAPI app
-# -------------------
-app = FastAPI()
-
-# Routes d'authentification toutes prêtes 🚀
-app.include_router(
-    fastapi_users.get_auth_router(auth_backends[0]), prefix="/auth/jwt", tags=["auth"]
-)
-app.include_router(
-    fastapi_users.get_register_router(UserRead, UserCreate), prefix="/auth", tags=["auth"]
-)
-app.include_router(
-    fastapi_users.get_users_router(UserRead, UserUpdate), prefix="/users", tags=["users"]
-)
-
-@app.get("/")
-async def root():
-    return {"message": "Bienvenue sur l’API de connexion"}
+load_dotenv()
