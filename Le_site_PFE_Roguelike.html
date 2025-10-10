@@ -12,6 +12,244 @@
     <link rel="shortcut icon" type="image/x-icon" href="./images/iconeF.ico?">
 </head>
 <body>
-    TODO : faire une page d'accueil pour le site du Github : PFE-Roguelike
+    <header>
+        <nav>
+            <div class="logo">🎮 PFE-Roguelike</div>
+            <ul class="nav-links">
+                <li><a href="#presentation">Présentation</a></li>
+                <li><a href="#fonctionnalites">Fonctionnalités</a></li>
+                <li><a href="#technologies">Technologies</a></li>
+                <li><a href="#ia">Intelligence Artificielle</a></li>
+                <li><a href="#installation">Installation</a></li>
+                <li><a href="#progression">Progression</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h1>PFE-Roguelike</h1>
+        <p>Un jeu roguelike avec génération procédurale et intelligence artificielle par Q-learning</p>
+        
+        <div class="badges">
+            <img src="https://skillicons.dev/icons?i=py" alt="Python">
+            <img src="https://skillicons.dev/icons?i=tensorflow" alt="TensorFlow">
+            <img src="https://skillicons.dev/icons?i=github" alt="GitHub">
+            <img src="https://skillicons.dev/icons?i=git" alt="Git">
+            <img src="https://skillicons.dev/icons?i=vscode" alt="VSCode">
+        </div>
+
+        <div class="cta-buttons">
+            <a href="https://github.com/RaykeshR/PFE-Roguelike" class="btn btn-primary" target="_blank">
+                📦 Voir sur GitHub
+            </a>
+            <a href="#installation" class="btn btn-secondary">
+                🚀 Commencer
+            </a>
+        </div>
+    </section>
+
+    <div class="sections">
+        <section id="presentation" class="section-card">
+            <h2>📖 Présentation du Projet</h2>
+            <p>
+                PFE-Roguelike est un projet de fin d'études qui combine développement de jeu vidéo et intelligence artificielle.
+                Le projet implémente un jeu de type roguelike avec génération procédurale de cartes et des ennemis contrôlés
+                par des algorithmes d'apprentissage par renforcement.
+            </p>
+            <h3>Objectifs principaux</h3>
+            <ul>
+                <li>Créer un système de génération procédurale de donjons</li>
+                <li>Implémenter des ennemis intelligents utilisant le Q-learning</li>
+                <li>Développer un système de combat et d'inventaire</li>
+                <li>Intégrer une base de données pour la persistance</li>
+            </ul>
+            
+            <div class="placeholder">
+                📝 Espace réservé pour : captures d'écran du jeu, vidéo de démonstration, objectifs détaillés
+            </div>
+        </section>
+
+        <section id="fonctionnalites" class="section-card">
+            <h2>⚡ Fonctionnalités</h2>
+            
+            <div class="grid-2">
+                <div>
+                    <h3>✅ Implémentées</h3>
+                    <ul>
+                        <li>Génération procédurale de cartes avec salles et couloirs</li>
+                        <li>Système de déplacement du joueur (ZQSD)</li>
+                        <li>Portes et téléportation entre salles</li>
+                        <li>Ennemis avec déplacement IA (Q-learning)</li>
+                        <li>Système de projectiles</li>
+                        <li>Brouillard de guerre et découverte progressive</li>
+                        <li>Système d'items (armes, potions)</li>
+                        <li>Gestion de la base de données (PostgreSQL, MongoDB)</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3>🚧 En cours / À venir</h3>
+                    <div class="placeholder">
+                        À compléter avec :
+                        <ul style="text-align: left; margin-top: 1rem;">
+                            <li>Fonctionnalités en développement</li>
+                            <li>Features planifiées</li>
+                            <li>Améliorations prévues</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="technologies" class="section-card">
+            <h2>🛠️ Technologies Utilisées</h2>
+            
+            <div class="grid-2">
+                <div>
+                    <h3>Langages & Frameworks</h3>
+                    <ul>
+                        <li>Python 3.x (langage principal)</li>
+                        <li>Pygame / Arcade (moteur de jeu)</li>
+                        <li>TensorFlow (IA)</li>
+                        <li>FastAPI (API backend)</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3>Bases de données</h3>
+                    <ul>
+                        <li>PostgreSQL (données structurées)</li>
+                        <li>MongoDB (logs et données flexibles)</li>
+                        <li>psycopg2 (connexion PostgreSQL)</li>
+                        <li>pymongo (connexion MongoDB)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Outils de développement</h3>
+            <ul>
+                <li>Git & GitHub (versioning)</li>
+                <li>VSCode (éditeur)</li>
+                <li>pytest (tests unitaires)</li>
+                <li>colorama (affichage console)</li>
+            </ul>
+        </section>
+
+        <section id="ia" class="section-card">
+            <h2>🤖 Intelligence Artificielle</h2>
+            <p>
+                Les ennemis du jeu utilisent un algorithme de <strong>Q-learning</strong> pour apprendre à se déplacer
+                intelligemment et poursuivre le joueur.
+            </p>
+            
+            <h3>Caractéristiques du système RL</h3>
+            <ul>
+                <li>Apprentissage par renforcement (Reinforcement Learning)</li>
+                <li>Algorithme Q-learning avec mise à jour progressive</li>
+                <li>Récompenses basées sur la distance au joueur</li>
+                <li>Décroissance epsilon pour équilibrer exploration/exploitation</li>
+                <li>Évitement des collisions entre monstres</li>
+            </ul>
+
+            <div class="placeholder">
+                📊 Espace réservé pour : graphiques de performance, métriques d'apprentissage, comparaisons de stratégies
+            </div>
+        </section>
+
+        <section id="installation" class="section-card">
+            <h2>🚀 Installation et Démarrage</h2>
+            
+            <h3>Prérequis</h3>
+            <ul>
+                <li>Python 3.8 ou supérieur</li>
+                <li>pip (gestionnaire de paquets Python)</li>
+                <li>Git</li>
+            </ul>
+
+            <h3>Installation (Windows)</h3>
+            <pre style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 5px; overflow-x: auto;">
+<code># 1. Cloner le dépôt
+git clone https://github.com/RaykeshR/PFE-Roguelike.git
+cd PFE-Roguelike
+
+# 2. Créer un environnement virtuel
+python -m venv .venv
+
+# 3. Activer l'environnement
+.venv\Scripts\activate
+
+# 4. Installer les dépendances
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+
+# 5. Lancer le jeu
+python main.py</code></pre>
+
+            <h3>Installation (Linux/Mac)</h3>
+            <pre style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 5px; overflow-x: auto;">
+<code>python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+python main.py</code></pre>
+        </section>
+
+        <section id="progression" class="section-card">
+            <h2>📈 Suivi du Projet</h2>
+            
+            <h3>Statistiques</h3>
+            <div class="placeholder">
+                Espace réservé pour :
+                <ul style="text-align: left; margin-top: 1rem;">
+                    <li>Nombre de commits</li>
+                    <li>Lignes de code</li>
+                    <li>Couverture des tests</li>
+                    <li>Progression des fonctionnalités</li>
+                </ul>
+            </div>
+
+            <h3>Roadmap</h3>
+            <div class="placeholder">
+                À compléter avec le calendrier du projet et les jalons importants
+            </div>
+
+            <h3>Documentation</h3>
+            <div class="placeholder">
+                Liens vers la documentation technique, diagrammes UML, architecture du projet
+            </div>
+        </section>
+
+        <section class="section-card">
+            <h2>🎯 Contributions & Tests</h2>
+            <p>Le projet utilise pytest pour les tests unitaires.</p>
+            
+            <pre style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 5px;">
+<code># Lancer tous les tests
+python run_tests.py
+
+# Lancer des tests spécifiques
+PYTEST_K=map python run_tests.py</code></pre>
+
+            <div class="placeholder">
+                📝 Guide de contribution à compléter
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 PFE-Roguelike - Projet de fin d'études</p>
+        <div class="team">
+            <span class="team-member">👨‍💻 Raykesh</span>
+            <span class="team-member">👨‍💻 Sabri</span>
+            <span class="team-member">👨‍💻 Maxence</span>
+            <span class="team-member">👨‍💻 Coumba</span>
+            <span class="team-member">👨‍💻 Chrisphen</span>
+        </div>
+        <p style="margin-top: 1rem;">
+            <a href="https://github.com/RaykeshR/PFE-Roguelike" style="color: #00d4ff;" target="_blank">
+                Voir le projet sur GitHub
+            </a>
+        </p>
+    </footer>
 </body>
 </html>
