@@ -1,4 +1,5 @@
 import time
+import logging
 try:
     import msvcrt  # Windows input non bloquant
 except ImportError:
@@ -6,12 +7,25 @@ except ImportError:
 
 from engine.map import Map
 from engine.player_controller import PlayerController
+from system.game_logging import get_episode_logger
 
 
 def run_game():
     """Lance la boucle de jeu (affichage + saisie)"""
+    log = logging.getLogger("pfe_roguelike.engine")
     game_map = Map()
     player = PlayerController(game_map)
+    log.info("Partie initialisée", extra={"extra": {"start": game_map.start, "rooms": len(game_map.rooms)}})
+
+    # Episode logger
+    ep = get_episode_logger()
+    ep.start_episode({
+        "seed": None,  # pourra être rempli si on introduit un seed global
+        "map_size": [game_map.width, game_map.height],
+        "rooms": len(game_map.rooms),
+        "start": game_map.start,
+        "end": game_map.end,
+    })
 
     playing = True
     if msvcrt:
@@ -28,8 +42,17 @@ def run_game():
                 key = msvcrt.getwch().lower()
                 if key == "x":
                     playing = False
+                    ep.end_episode("quit", {"tick": game_map.ticks})
                 elif key in ("z", "q", "s", "d"):
+                    old = (player.x, player.y)
                     player.move(key)
+                    if (player.x, player.y) != old:
+                        log.info("Déplacement joueur", extra={"extra": {"from": old, "to": (player.x, player.y), "input": key}})
+                        ep.log_step({
+                            "tick": game_map.ticks,
+                            "player": {"from": list(old), "to": [player.x, player.y]},
+                            "action_player": key,
+                        })
     else:
         # Fallback: saisie par ligne
         while playing:
@@ -39,7 +62,16 @@ def run_game():
             cmd = input("> ").lower()
             if cmd == "x":
                 playing = False
+                ep.end_episode("quit", {"tick": game_map.ticks})
             elif cmd in ("z", "q", "s", "d"):
+                old = (player.x, player.y)
                 player.move(cmd)
+                if (player.x, player.y) != old:
+                    log.info("Déplacement joueur", extra={"extra": {"from": old, "to": (player.x, player.y), "input": cmd}})
+                    ep.log_step({
+                        "tick": game_map.ticks,
+                        "player": {"from": list(old), "to": [player.x, player.y]},
+                        "action_player": cmd,
+                    })
 
 
