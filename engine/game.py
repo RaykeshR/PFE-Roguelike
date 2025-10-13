@@ -1,5 +1,7 @@
 import time
 import logging
+from engine.player_profiler import PlayerProfiler
+from engine.ai_director import AIDirector
 try:
     import msvcrt  # Windows input non bloquant
 except ImportError:
@@ -16,6 +18,9 @@ def run_game():
     game_map = Map()
     player = PlayerController(game_map)
     log.info("Partie initialisée", extra={"extra": {"start": game_map.start, "rooms": len(game_map.rooms)}})
+    profiler = PlayerProfiler()
+    director = AIDirector()
+    current_monster_strategy = "standard"
 
     # Episode logger
     ep = get_episode_logger()
@@ -44,6 +49,7 @@ def run_game():
                     playing = False
                     ep.end_episode("quit", {"tick": game_map.ticks})
                 elif key in ("z", "q", "s", "d"):
+                    profiler.log_action('move')
                     old = (player.x, player.y)
                     player.move(key)
                     if (player.x, player.y) != old:
