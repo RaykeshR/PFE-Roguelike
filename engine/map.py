@@ -484,3 +484,14 @@ class Map:
                 return c
         # Si toutes prises, reprendre le meilleur (on n'ajoute pas de doublon plus tard)
         return candidates[0]
+    
+    # Dans la classe Map, PFE_Roguelike/engine/map.py
+
+    def get_location_type(self, x, y):
+        """Détermine si les coordonnées sont dans une salle ou un couloir."""
+        if self.get_room_containing(x, y) is not None:
+            return "room"
+        elif self.is_walkable(x, y):
+            return "corridor"
+        else:
+            return "wall"

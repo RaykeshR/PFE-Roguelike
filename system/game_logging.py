@@ -70,7 +70,7 @@ class EpisodeLogger:
             }
             self._write(payload)
 
-    def log_transition(self, monster_id, s, a, r, s2, done, tick=None, pos=None):
+    def log_transition(self, monster_id, s, a, r, s2, done, tick=None, pos=None,location=None):
         with self._lock:
             payload = {
                 "type": "transition",
@@ -87,6 +87,9 @@ class EpisodeLogger:
                 payload["tick"] = tick
             if pos is not None:
                 payload["pos"] = pos
+            if location is not None:
+                payload["location"] = location 
+
             self._write(payload)
 
     def log_event(self, event_type: str, **fields):
