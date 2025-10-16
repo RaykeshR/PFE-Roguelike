@@ -209,40 +209,25 @@ class players:
         
         if type_bot=="Agressif" :
             '''Se dirige toujours vers l'ennemi le plus proche et l'attaque'''
-            if bot_position[0]<monster_position[0] :
-                self.x+=1
-            elif bot_position[0]>monster_position[0] :
-                self.x-=1
-            else :
-                self.joueur_attaque(monster,10)
-            if bot_position[1]<monster_position[1] :
-                self.y+=1
-            elif bot_position[1]>monster_position[1] :
-                self.y-=1
-            else :
+            if randint(0,1)==0 : #choisit aléatoirement de se déplacer en x ou y
+                if bot_position[0]<monster_position[0] :
+                    self.x+=1
+                elif bot_position[0]>monster_position[0] :
+                    self.x-=1
+            else:
+                if bot_position[1]<monster_position[1] :
+                    self.y+=1
+                elif bot_position[1]>monster_position[1] :
+                    self.y-=1
+            if self.distance_euclidienne(monster)<=0 :
                 self.joueur_attaque(monster,10)
 
         elif type_bot=="Fuyard" :
             '''S'éloigne de l'ennemi le plus proche pour éviter le combat'''
-            if bot_position[0]<monster_position[0] :
-                self.x-=1
-            elif bot_position[0]>monster_position[0] :
-                self.x+=1
+            if randint(0,1)==0 :#choisit aléatoirement de se déplacer en x ou y
+                self.x+=randint(-1,1)
             else :
-                if randint(0,1)==0 :
-                    self.x+=randint(-1,1)
-                else :
-                    self.y+=randint(-1,1)
-              
-            if bot_position[1]<monster_position[1] :
-                self.y-=1
-            elif bot_position[1]>monster_position[1] :
-                self.y+=1
-            else :
-                if randint(0,1)==0 :
-                    self.x+=randint(-1,1)
-                else :
-                    self.y+=randint(-1,1)
+                self.y+=randint(-1,1)
         elif type_bot=="Aléatoire" :
             '''Choisit aléatoirement entre attaquer, fuir ou explorer'''
             action=random.choice(["attaquer","fuir","explorer"])
