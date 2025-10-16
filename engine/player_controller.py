@@ -2,6 +2,7 @@ import logging
 from typing import Optional, List
 from items import Weapon, Potion
 from items.category_potion import CategoryPotion
+from entities.players import players as PlayerEntity
 
 
 class PlayerController:
@@ -11,48 +12,57 @@ class PlayerController:
         self.map.reveal_from((self.x, self.y))
         self._log = logging.getLogger("pfe_roguelike.engine.player")
         self._log.info("Joueur initialisé", extra={"extra": {"pos": (self.x, self.y)}})
-        # inventaire simple
-        self.inventory: List[object] = []
-        self.hp: int = 100
-        self.equipped_weapon: Optional[Weapon] = None
+        # Modèle de domaine joueur (entities.players)
+        self.player = PlayerEntity(name="player", pv=100, inventory=[], equiped_item=[], is_human=True, x=self.x, y=self.y)
 
     # --- HUD helpers ---
     def get_hp(self) -> int:
-        return self.hp
+        return int(self.player.get_pv())
 
     def get_equipped_weapon_name(self) -> str:
-        return self.equipped_weapon.name if self.equipped_weapon else "(aucune)"
+        w = None
+        # entities.players stocke equiped_item (liste). On considère la première arme.
+        for it in self.player.get_equiped_item() or []:
+            if isinstance(it, Weapon):
+                w = it
+                break
+        return w.name if w else "(aucune)"
 
     def get_inventory_size(self) -> int:
-        return len(self.inventory)
+        inv = self.player.get_inventory() or []
+        return len(inv)
 
     # --- Inventory actions ---
     def list_inventory(self):
-        return list(self.inventory)
+        return list(self.player.get_inventory() or [])
 
     def equip_weapon_by_index(self, idx: int) -> bool:
-        if 0 <= idx < len(self.inventory):
-            item = self.inventory[idx]
+        inv = self.player.get_inventory() or []
+        if 0 <= idx < len(inv):
+            item = inv[idx]
             if isinstance(item, Weapon):
-                self.equipped_weapon = item
+                # remplace l'équipement actuel par cette arme (liste avec une arme)
+                self.player.set_equiped_item([item])
                 self._log.info("Arme équipée", extra={"extra": {"item": item.name}})
                 return True
         return False
 
     def use_potion_by_index(self, idx: int) -> bool:
-        if 0 <= idx < len(self.inventory):
-            item = self.inventory[idx]
+        inv = self.player.get_inventory() or []
+        if 0 <= idx < len(inv):
+            item = inv[idx]
             if isinstance(item, Potion):
                 used = False
                 if item.category == CategoryPotion.HEALTH:
-                    before = self.hp
-                    self.hp = max(0, before + int(item.potency))
+                    before = int(self.player.get_pv())
+                    self.player.set_pv(max(0, before + int(item.potency)))
                     used = True
                 elif item.category == CategoryPotion.SPEED:
                     # Placeholder: on pourrait influencer la vitesse de déplacement
                     used = True
                 if used:
-                    self.inventory.pop(idx)
+                    inv.pop(idx)
+                    self.player.set_inventory(inv)
                     self._log.info("Potion utilisée", extra={"extra": {"item": item.name}})
                     return True
         return False
@@ -114,10 +124,12 @@ class PlayerController:
         items_here = self.map.get_items_at(self.x, self.y)
         if items_here:
             taken = self.map.pickup_all_items(self.x, self.y)
-            self.inventory.extend(taken)
+            inv = self.player.get_inventory() or []
+            inv.extend(taken)
+            self.player.set_inventory(inv)
             for it in taken:
                 self._log.info("Ramassage item", extra={"extra": {"pos": (self.x, self.y), "item": getattr(it, "name", str(it))}})
-            print(f"Vous avez ramassé {len(taken)} objet(s). Inventaire: {[getattr(i,'name',str(i)) for i in self.inventory]}")
+            print(f"Vous avez ramassé {len(taken)} objet(s). Inventaire: {[getattr(i,'name',str(i)) for i in (self.player.get_inventory() or [])]}")
 
         # Vérifier porte finale
         if (self.x, self.y) == self.map.end:
@@ -126,3 +138,5 @@ class PlayerController:
             input("Appuyez sur Entrée pour continuer...")
             self.map.generate()
             self.x, self.y = self.map.start
+            # synchroniser la position dans le modèle
+            self.player.set_position(self.x, self.y)

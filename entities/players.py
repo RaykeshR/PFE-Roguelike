@@ -4,8 +4,8 @@ from PIL import Image
 import random
 from random import randint
 
-from monster import Monster
-from items import weapon
+from .monster import Monster
+from items import Weapon
 
 ###################################################################################################################################################
 #pv joueur =100
@@ -66,7 +66,7 @@ class players:
     
     def get_weapon(self):
         for item in self.equiped_item:
-            if isinstance(item, weapon):
+            if isinstance(item, Weapon):
                 return item
         return None
     def get_weapon_category(self):
