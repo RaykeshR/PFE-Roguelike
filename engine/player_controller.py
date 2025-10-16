@@ -1,4 +1,7 @@
 import logging
+from typing import Optional, List
+from items import Weapon, Potion
+from items.category_potion import CategoryPotion
 
 
 class PlayerController:
@@ -8,6 +11,51 @@ class PlayerController:
         self.map.reveal_from((self.x, self.y))
         self._log = logging.getLogger("pfe_roguelike.engine.player")
         self._log.info("Joueur initialisé", extra={"extra": {"pos": (self.x, self.y)}})
+        # inventaire simple
+        self.inventory: List[object] = []
+        self.hp: int = 100
+        self.equipped_weapon: Optional[Weapon] = None
+
+    # --- HUD helpers ---
+    def get_hp(self) -> int:
+        return self.hp
+
+    def get_equipped_weapon_name(self) -> str:
+        return self.equipped_weapon.name if self.equipped_weapon else "(aucune)"
+
+    def get_inventory_size(self) -> int:
+        return len(self.inventory)
+
+    # --- Inventory actions ---
+    def list_inventory(self):
+        return list(self.inventory)
+
+    def equip_weapon_by_index(self, idx: int) -> bool:
+        if 0 <= idx < len(self.inventory):
+            item = self.inventory[idx]
+            if isinstance(item, Weapon):
+                self.equipped_weapon = item
+                self._log.info("Arme équipée", extra={"extra": {"item": item.name}})
+                return True
+        return False
+
+    def use_potion_by_index(self, idx: int) -> bool:
+        if 0 <= idx < len(self.inventory):
+            item = self.inventory[idx]
+            if isinstance(item, Potion):
+                used = False
+                if item.category == CategoryPotion.HEALTH:
+                    before = self.hp
+                    self.hp = max(0, before + int(item.potency))
+                    used = True
+                elif item.category == CategoryPotion.SPEED:
+                    # Placeholder: on pourrait influencer la vitesse de déplacement
+                    used = True
+                if used:
+                    self.inventory.pop(idx)
+                    self._log.info("Potion utilisée", extra={"extra": {"item": item.name}})
+                    return True
+        return False
 
     def move(self, direction):
         dx, dy = 0, 0
@@ -61,6 +109,15 @@ class PlayerController:
                 print("\nVous avez été touché par un projectile !")
                 self._log.warning("Joueur touché par projectile", extra={"extra": {"pos": (self.x, self.y)}})
                 raise SystemExit(0)
+
+        # Ramassage automatique des items présents sur la case
+        items_here = self.map.get_items_at(self.x, self.y)
+        if items_here:
+            taken = self.map.pickup_all_items(self.x, self.y)
+            self.inventory.extend(taken)
+            for it in taken:
+                self._log.info("Ramassage item", extra={"extra": {"pos": (self.x, self.y), "item": getattr(it, "name", str(it))}})
+            print(f"Vous avez ramassé {len(taken)} objet(s). Inventaire: {[getattr(i,'name',str(i)) for i in self.inventory]}")
 
         # Vérifier porte finale
         if (self.x, self.y) == self.map.end:
