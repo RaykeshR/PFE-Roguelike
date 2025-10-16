@@ -9,7 +9,17 @@ CREATE TABLE utilisateurs (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(100),
+    mdp VARCHAR(50),
     created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Table des modèles de monstres
+CREATE TABLE monster_templates (
+    id SERIAL PRIMARY KEY,
+    nom VARCHAR(50) UNIQUE NOT NULL,
+    base_pv INT DEFAULT 50,
+    base_speed FLOAT DEFAULT 0.33,
+    ia_profile VARCHAR(50) -- ex: 'agressif'
 );
 
 -- Table des joueurs/personnages (liés à un utilisateur)
