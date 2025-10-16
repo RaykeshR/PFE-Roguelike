@@ -24,7 +24,8 @@ class Map:
         self.tiles = [[" " for _ in range(self.width)] for _ in range(self.height)]
         self.discovered = set()
         self.enemies = []  # [{"x":int,"y":int,"dx":int,"dy":int}]
-        self.projectiles = []  # [(x,y,dx,dy)]
+        self.projectiles = []  # tuples: (x,y,dx,dy[,owner,owner_id])
+        self.attack_flash = {}  # {(x,y): expire_tick}
         self.items = []  # list of {"x": int, "y": int, "item": Item}
         self.ticks = 0
         self._visible_cache_room = None
@@ -83,6 +84,7 @@ class Map:
         self.discovered = set()
         self.enemies = []
         self.projectiles = []
+        self.attack_flash = {}
         self.items = []
         self.ticks = 0
         self._visible_cache_room = None
@@ -230,10 +232,27 @@ class Map:
             if 0 <= ey < self.height and 0 <= ex < self.width:
                 if (ex, ey) in visible or (ex, ey) in self.discovered:
                     grid[ey][ex] = "M"
-        for px2, py2, _, _ in self.projectiles:
-            if 0 <= py2 < self.height and 0 <= px2 < self.width:
-                if (px2, py2) in visible or (px2, py2) in self.discovered:
-                    grid[py2][px2] = "*"
+        for pr in self.projectiles:
+            if len(pr) >= 4:
+                px2, py2 = pr[0], pr[1]
+                owner = pr[4] if len(pr) >= 5 else "enemy"
+                if 0 <= py2 < self.height and 0 <= px2 < self.width:
+                    if (px2, py2) in visible or (px2, py2) in self.discovered:
+                        grid[py2][px2] = "^" if owner == "player" else "*"
+
+        # Effet de flash d'attaque temporaire
+        if getattr(self, 'attack_flash', None):
+            to_del = []
+            for (fx, fy), expire in list(self.attack_flash.items()):
+                if self.ticks >= expire:
+                    to_del.append((fx, fy))
+            for k in to_del:
+                self.attack_flash.pop(k, None)
+            for (fx, fy), expire in self.attack_flash.items():
+                if 0 <= fy < self.height and 0 <= fx < self.width:
+                    if (fx, fy) in visible or (fx, fy) in self.discovered:
+                        if grid[fy][fx] != "@":
+                            grid[fy][fx] = "#"
 
         # Couleurs ANSI (optionnelles)
         if self._color_map:
@@ -251,7 +270,7 @@ class Map:
         else:
             for row in grid:
                 print("".join(row))
-        print("\nLégende: @=Joueur, #=Mur, +=Porte, S=Départ, E=Arrivée, !=Item")
+        print("\nLégende: @=Joueur, #=Mur, +=Porte, S=Départ, E=Arrivée, !=Item, *=Proj ennemi, ^=Proj joueur")
 
     def create_corridor(self, start, end, grid=None):
         x1, y1 = start
@@ -456,26 +475,54 @@ class Map:
         self.items = remaining
         return taken
 
+    def drop_item(self, x, y, item):
+        if 0 <= x < self.width and 0 <= y < self.height and (x, y) in self.walkable:
+            self.items.append({"x": x, "y": y, "item": item})
+            return True
+        return False
+
     def tick(self, player_pos=None):
         # if self.enemies:
         #     print("Type des ennemis :", type(self.enemies[0]))
         self.ticks += 1
         if self.ticks % 10 == 0:
             for e in self.enemies:
-                self.projectiles.append((e.x, e.y, e.dx, e.dy))
-        # log positions projectiles
+                # projectiles ennemis avec propriétaire
+                self.projectiles.append((e.x, e.y, e.dx, e.dy, "enemy", id(e)))
+        # log positions projectiles (supporte formats étendus)
         if self.projectiles:
             ep = get_episode_logger()
+            proj_log = []
+            for pr in self.projectiles:
+                if len(pr) >= 4:
+                    entry = [pr[0], pr[1], pr[2], pr[3]]
+                    if len(pr) >= 5:
+                        entry.append(pr[4])  # owner
+                    if len(pr) >= 6:
+                        entry.append(pr[5])  # owner_id
+                    proj_log.append(entry)
             ep.log_step({
                 "tick": self.ticks,
-                "projectiles": [ [px, py, dx, dy] for (px, py, dx, dy) in self.projectiles ]
+                "projectiles": proj_log
             })
 
         new_projectiles = []
-        for (px, py, dx, dy) in self.projectiles:
+        for pr in self.projectiles:
+            if len(pr) == 4:
+                px, py, dx, dy = pr
+                owner = "enemy"
+                owner_id = None
+            elif len(pr) >= 5:
+                px, py, dx, dy, owner = pr[:5]
+                owner_id = pr[5] if len(pr) >= 6 else None
+            else:
+                continue
             nx, ny = px + dx, py + dy
             if 0 <= nx < self.width and 0 <= ny < self.height and self.tiles[ny][nx] != "#":
-                new_projectiles.append((nx, ny, dx, dy))
+                if owner_id is not None:
+                    new_projectiles.append((nx, ny, dx, dy, owner, owner_id))
+                else:
+                    new_projectiles.append((nx, ny, dx, dy, owner))
         self.projectiles = new_projectiles
 
         # -------- [RL] déplacement + update Q-learning ----------
@@ -516,6 +563,11 @@ class Map:
                 for i in range(room.width):
                     visible.add((room.x + i, room.y + j))
         return visible
+
+    def add_attack_flash(self, cells, duration_ticks=4):
+        expire = self.ticks + max(1, int(duration_ticks))
+        for (x, y) in cells:
+            self.attack_flash[(int(x), int(y))] = expire
 
     def _pick_door_towards(self, room_from, room_to):
         # Choisir un point sur le mur de room_from le plus proche du centre de room_to
