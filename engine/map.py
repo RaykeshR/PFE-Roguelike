@@ -26,6 +26,7 @@ class Map:
         self.enemies = []  # [{"x":int,"y":int,"dx":int,"dy":int}]
         self.projectiles = []  # tuples: (x,y,dx,dy[,owner,owner_id])
         self.attack_flash = {}  # {(x,y): expire_tick}
+        self.hit_flash = {}  # {(x,y): expire_tick}
         self.items = []  # list of {"x": int, "y": int, "item": Item}
         self.ticks = 0
         self._visible_cache_room = None
@@ -51,6 +52,7 @@ class Map:
                     "M": Fore.RED,
                     "*": Fore.RED,
                     "!": Fore.BLUE,
+                    "X": Fore.RED,
                 }
                 self._color_reset = Style.RESET_ALL
             except Exception:
@@ -66,6 +68,7 @@ class Map:
                     "M": ESC + "31m",   # rouge
                     "*": ESC + "31m",   # rouge
                     "!": ESC + "34m",   # bleu
+                    "X": ESC + "31m",   # rouge
                 }
                 self._color_reset = "\x1b[0m"
 
@@ -85,6 +88,7 @@ class Map:
         self.enemies = []
         self.projectiles = []
         self.attack_flash = {}
+        self.hit_flash = {}
         self.items = []
         self.ticks = 0
         self._visible_cache_room = None
@@ -254,6 +258,20 @@ class Map:
                         if grid[fy][fx] != "@":
                             grid[fy][fx] = "#"
 
+        # Effet de hit (X rouge) sur cases touchées
+        if getattr(self, 'hit_flash', None):
+            to_del2 = []
+            for (hx, hy), expire in list(self.hit_flash.items()):
+                if self.ticks >= expire:
+                    to_del2.append((hx, hy))
+            for k in to_del2:
+                self.hit_flash.pop(k, None)
+            for (hx, hy), expire in self.hit_flash.items():
+                if 0 <= hy < self.height and 0 <= hx < self.width:
+                    if (hx, hy) in visible or (hx, hy) in self.discovered:
+                        if grid[hy][hx] != "@":
+                            grid[hy][hx] = "X"
+
         # Couleurs ANSI (optionnelles)
         if self._color_map:
             for row in grid:
@@ -270,7 +288,7 @@ class Map:
         else:
             for row in grid:
                 print("".join(row))
-        print("\nLégende: @=Joueur, #=Mur, +=Porte, S=Départ, E=Arrivée, !=Item, *=Proj ennemi, ^=Proj joueur")
+        print("\nLégende: @=Joueur, #=Mur, +=Porte, S=Départ, E=Arrivée, !=Item, *=Proj ennemi, ^=Proj joueur, X=Hit")
 
     def create_corridor(self, start, end, grid=None):
         x1, y1 = start
@@ -568,6 +586,11 @@ class Map:
         expire = self.ticks + max(1, int(duration_ticks))
         for (x, y) in cells:
             self.attack_flash[(int(x), int(y))] = expire
+
+    def add_hit_flash(self, cells, duration_ticks=6):
+        expire = self.ticks + max(1, int(duration_ticks))
+        for (x, y) in cells:
+            self.hit_flash[(int(x), int(y))] = expire
 
     def _pick_door_towards(self, room_from, room_to):
         # Choisir un point sur le mur de room_from le plus proche du centre de room_to
