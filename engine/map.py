@@ -4,7 +4,9 @@ import random as _r
 import logging
 from system.game_logging import get_episode_logger
 
-from items import Weapon, Rarity
+from items import Weapon, Rarity, Potion
+from items.category_weapon import CategoryWeapon
+from items.category_potion import CategoryPotion
 from entities.monster import Monster
 from .room import Room
 
@@ -23,6 +25,7 @@ class Map:
         self.discovered = set()
         self.enemies = []  # [{"x":int,"y":int,"dx":int,"dy":int}]
         self.projectiles = []  # [(x,y,dx,dy)]
+        self.items = []  # list of {"x": int, "y": int, "item": Item}
         self.ticks = 0
         self._visible_cache_room = None
         self._visible_cache_set = set()
@@ -46,6 +49,7 @@ class Map:
                     "E": Fore.MAGENTA,
                     "M": Fore.RED,
                     "*": Fore.RED,
+                    "!": Fore.BLUE,
                 }
                 self._color_reset = Style.RESET_ALL
             except Exception:
@@ -60,6 +64,7 @@ class Map:
                     "E": ESC + "35m",   # magenta
                     "M": ESC + "31m",   # rouge
                     "*": ESC + "31m",   # rouge
+                    "!": ESC + "34m",   # bleu
                 }
                 self._color_reset = "\x1b[0m"
 
@@ -78,6 +83,7 @@ class Map:
         self.discovered = set()
         self.enemies = []
         self.projectiles = []
+        self.items = []
         self.ticks = 0
         self._visible_cache_room = None
         self._visible_cache_set = set()
@@ -163,6 +169,8 @@ class Map:
 
         # Placer quelques ennemis immobiles
         self._place_enemies(count=min(3, max(1, len(self.rooms)//2)))
+        # Placer quelques items au sol
+        self._place_items(count=min(3, 1 + len(self.rooms)//2))
         log.info(
             "Carte générée",
             extra={
@@ -209,7 +217,14 @@ class Map:
         if 0 <= ey < self.height and 0 <= ex < self.width and ((ex, ey) in visible or (ex, ey) in self.discovered):
             grid[ey][ex] = "E"
 
-        # Superposer ennemis et projectiles sur le rendu
+        # Superposer items, ennemis et projectiles sur le rendu
+        for obj in self.items:
+            ix, iy = obj["x"], obj["y"]
+            if 0 <= iy < self.height and 0 <= ix < self.width:
+                if (ix, iy) in visible or (ix, iy) in self.discovered:
+                    # n'écrase pas le joueur si même case; le joueur sera rendu après
+                    if grid[iy][ix] != "@":
+                        grid[iy][ix] = "!"
         for enemy in self.enemies:
             ex, ey = enemy.x, enemy.y
             if 0 <= ey < self.height and 0 <= ex < self.width:
@@ -236,7 +251,7 @@ class Map:
         else:
             for row in grid:
                 print("".join(row))
-        print("\nLégende: @=Joueur, #=Mur, +=Porte, S=Départ, E=Arrivée")
+        print("\nLégende: @=Joueur, #=Mur, +=Porte, S=Départ, E=Arrivée, !=Item")
 
     def create_corridor(self, start, end, grid=None):
         x1, y1 = start
@@ -389,6 +404,57 @@ class Map:
                 self.enemies.append(m)
                 placed += 1
             tries += 1
+
+    def _place_items(self, count=3):
+        placed = 0
+        tries = 0
+        flat_walkable = list(self.walkable)
+        occupied_enemy = {(e.x, e.y) for e in self.enemies}
+        while placed < count and tries < 400 and flat_walkable:
+            x, y = _r.choice(flat_walkable)
+            if (x, y) in occupied_enemy or (x, y) == self.start or (x, y) == self.end:
+                tries += 1
+                continue
+            if self.tiles[y][x] != ".":
+                tries += 1
+                continue
+            # Créer un item simple aléatoire
+            if _r.random() < 0.7:
+                item = Weapon(
+                    name=_r.choice(["Dague", "Épée", "Arc"]),
+                    description="Un objet trouvé au sol",
+                    rarity=_r.choice([Rarity.COMMON, Rarity.RARE, Rarity.EPIC]),
+                    damage=_r.choice([4, 6, 8, 10]),
+                    category=_r.choice([CategoryWeapon.MELEE, CategoryWeapon.DISTANCE]),
+                    range=_r.choice([1.0, 1.5, 3.0, 5.0]),
+                    durability=_r.choice([5, 10, 15]),
+                )
+            else:
+                item = Potion(
+                    name=_r.choice(["Potion de soin", "Potion de vitesse"]),
+                    description="Une fiole mystérieuse",
+                    rarity=_r.choice([Rarity.COMMON, Rarity.RARE]),
+                    category=_r.choice([CategoryPotion.HEALTH, CategoryPotion.SPEED]),
+                    potency=_r.choice([10, 20, 30]),
+                    duration=_r.choice([3, 5, 7]),
+                )
+            self.items.append({"x": x, "y": y, "item": item})
+            placed += 1
+            tries += 1
+
+    def get_items_at(self, x, y):
+        return [obj["item"] for obj in self.items if obj["x"] == x and obj["y"] == y]
+
+    def pickup_all_items(self, x, y):
+        taken = []
+        remaining = []
+        for obj in self.items:
+            if obj["x"] == x and obj["y"] == y:
+                taken.append(obj["item"])
+            else:
+                remaining.append(obj)
+        self.items = remaining
+        return taken
 
     def tick(self, player_pos=None):
         # if self.enemies:
