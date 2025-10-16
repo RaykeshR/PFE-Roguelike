@@ -1,0 +1,32 @@
+id,name,description,rarity,type,damage,defense,range,category,durability,potency,duration
+1,Epée émoussée,Une épée émoussée mais encore utilisable,common,weapon,5,0,1.0,melee,90,0,0
+2,Sword,A sharp blade.,legendary,weapon,10,1,1.0,melee,100,0,0
+3,Bow,A ranged weapon.,legendary,weapon,8,1,5.0,distance,100,0,0
+4,Health Potion,Restores health over time.,common,potion,0,0,0.0,heal,100,50,5
+
+
+
+
+
+
+
+12,Hache de guerre,Une hache lourde capable d'infliger de gros dégâts,uncommon,weapon,12,0,1.0,melee,80,0,0
+13,Arc de chasseur,Un arc léger et précis pour attaquer à distance,rare,weapon,8,0,5.0,distance,70,0,0
+14,Bâton magique,Un bâton imprégné de pouvoir magique,epic,weapon,15,0,4.0,magic,60,0,0
+15,Dague empoisonnée,Une petite lame recouverte de poison,uncommon,weapon,7,0,1.5,melee,85,10,3
+16,Bouclier en bois,Un bouclier simple mais utile contre les coups,common,armor,0,5,0.0,defense,100,0,0
+17,Armure de cuir,Une armure légère offrant une bonne mobilité,uncommon,armor,0,8,0.0,defense,90,0,0
+18,Heaume d'acier,Un casque lourd offrant une excellente protection,rare,armor,0,12,0.0,defense,95,0,0
+19,Potion de soin,Redonne progressivement des points de vie,common,potion,0,0,0.0,health,0,50,5
+20,Potion de force,Augmente temporairement les dégâts physiques,uncommon,potion,0,0,0.0,buff,0,20,10
+21,Potion de vitesse,Augmente la vitesse de déplacement pendant un court instant,uncommon,potion,0,0,0.0,buff,0,15,8
+22,Potion de mana,Restaure la magie sur la durée,common,potion,0,0,0.0,magic,0,40,6
+23,Anneau de régénération,Un anneau magique qui soigne lentement son porteur,rare,accessory,0,2,0.0,passive,999,5,10
+24,Amulette du gardien,Une amulette protégeant des attaques magiques,epic,accessory,0,5,0.0,passive,999,0,0
+25,Bombe artisanale,Inflige des dégâts de zone à tous les ennemis proches,uncommon,consumable,20,0,0.0,explosive,1,0,0
+26,Clé dorée,Ouvre une porte spéciale dans le donjon,rare,quest,0,0,0.0,key,999,0,0
+27,Épée du roi,Une épée légendaire forgée pour un roi oublié,legendary,weapon,25,5,1.0,melee,120,0,0
+28,Arc du phénix,Un arc légendaire tirant des flèches enflammées,legendary,weapon,20,0,6.0,distance,100,0,0
+29,Bouclier divin,Un bouclier sacré qui bloque toute attaque,legendary,armor,0,25,0.0,defense,150,0,0
+30,Potion d’invincibilité,Rend invincible pendant un court instant,legendary,potion,0,0,0.0,buff,0,0,5
+
