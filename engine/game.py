@@ -11,6 +11,7 @@ from engine.map import Map
 from engine.player_controller import PlayerController
 from system.game_logging import get_episode_logger
 from items import Weapon, Potion
+from items.category_weapon import CategoryWeapon
 
 
 def run_game():
@@ -35,11 +36,15 @@ def run_game():
 
     playing = True
     def print_hud():
-        print(f"PV: {player.get_hp()} | Arme: {player.get_equipped_weapon_name()} | Inventaire: {player.get_inventory_size()} (I pour ouvrir) | Aide: H")
+        w = player.get_equipped_weapon()
+        w_stats = ""
+        if w:
+            w_stats = f" (DMG {getattr(w,'damage','?')}, Dur {getattr(w,'durability','?')}, Portée {getattr(w,'range','?')})"
+        print(f"PV: {player.get_hp()} | Arme: {player.get_equipped_weapon_name()}{w_stats} | Inventaire: {player.get_inventory_size()} (I pour ouvrir) | Aide: H | Attaque: A")
 
     if msvcrt:
         # Boucle avec saisie continue (Windows)
-        print("Contrôles: ZQSD, Inventaire=I, Aide=H, Quitter=X (maintenir possible)")
+        print("Contrôles: ZQSD, Attaque=A, Inventaire=I, Aide=H, Quitter=X (maintenir possible)")
         while playing:
             game_map.draw((player.x, player.y))
             print_hud()
@@ -58,6 +63,8 @@ def run_game():
                     time.sleep(0.6)
                 elif key == "i":
                     _open_inventory_menu(player)
+                elif key == "a":
+                    _player_attack(player, game_map)
                 elif key in ("z", "q", "s", "d"):
                     profiler.log_action('move')
                     old = (player.x, player.y)
@@ -74,7 +81,7 @@ def run_game():
         while playing:
             game_map.draw((player.x, player.y))
             print_hud()
-            print("Déplacez-vous avec ZQSD | I=Inventaire | H=Aide | X=Quitter")
+            print("Déplacez-vous avec ZQSD | A=Attaque | I=Inventaire | H=Aide | X=Quitter")
             game_map.tick((player.x, player.y))
             cmd = input("> ").lower()
             if cmd == "x":
@@ -84,6 +91,8 @@ def run_game():
                 print("Aide: ZQSD pour bouger, I inventaire (équip/usage), X quitter.")
             elif cmd == "i":
                 _open_inventory_menu(player)
+            elif cmd == "a":
+                _player_attack(player, game_map)
             elif cmd in ("z", "q", "s", "d"):
                 old = (player.x, player.y)
                 player.move(cmd)
@@ -100,6 +109,12 @@ def run_game():
 def _open_inventory_menu(player: PlayerController):
     while True:
         print("\n=== Inventaire ===")
+        # résumé d'état
+        eq = player.get_equipped_weapon()
+        eq_desc = "aucune"
+        if eq:
+            eq_desc = f"{eq.name} (DMG {getattr(eq,'damage','?')}, Dur {getattr(eq,'durability','?')})"
+        print(f"Etat: PV={player.get_hp()} | Arme équipée={eq_desc}")
         inv = player.list_inventory()
         if not inv:
             print("(Inventaire vide)")
@@ -108,11 +123,26 @@ def _open_inventory_menu(player: PlayerController):
                 name = getattr(it, "name", str(it))
                 extra = []
                 if isinstance(it, Weapon):
-                    extra.append(f"DMG {getattr(it,'damage', '?')}")
-                    extra.append(f"Dur {getattr(it,'durability','?')}")
+                    dmg = getattr(it,'damage','?')
+                    dur = getattr(it,'durability','?')
+                    rng = getattr(it,'range','?')
+                    extra.append(f"DMG {dmg}")
+                    extra.append(f"Dur {dur}")
+                    extra.append(f"Portée {rng}")
+                    # delta si équipé
+                    cur = player.get_equipped_weapon()
+                    if cur and hasattr(cur,'damage') and hasattr(it,'damage'):
+                        dd = it.damage - cur.damage
+                        if dd != 0:
+                            sign = "+" if dd>0 else ""
+                            extra.append(f"ΔDMG {sign}{dd}")
                 if isinstance(it, Potion):
-                    extra.append(f"{getattr(it,'category','?')}")
-                    extra.append(f"+{getattr(it,'potency','?')}")
+                    cat = getattr(it,'category','?')
+                    pot = getattr(it,'potency','?')
+                    extra.append(f"{cat}")
+                    # effet attendu sur PV si potion de soin
+                    if str(cat).lower().endswith('health'):
+                        extra.append(f"+PV {pot}")
                 suffix = f" ({', '.join(extra)})" if extra else ""
                 print(f"{i}: {name}{suffix}")
 
@@ -141,3 +171,70 @@ def _open_inventory_menu(player: PlayerController):
         else:
             print("Commande inconnue.")
 
+
+def _player_attack(player: PlayerController, game_map: Map):
+    w = player.get_equipped_weapon()
+    if not w:
+        print("Aucune arme équipée.")
+        return
+    rng = getattr(w, 'range', 1.0)
+    dmg = getattr(w, 'damage', 5)
+    px, py = player.x, player.y
+    max_dist = int(round(float(rng)))
+    # cible: monstre le plus proche dans la portée
+    nearest = None
+    nearest_d = 10**9
+    for m in list(game_map.enemies):
+        d = abs(m.x - px) + abs(m.y - py)
+        if d <= max_dist and d < nearest_d:
+            nearest = m
+            nearest_d = d
+    if nearest is None:
+        print("Aucune cible à portée.")
+        return
+    # Animation/projectiles si arme à distance
+    is_ranged = getattr(w, 'category', None) == CategoryWeapon.DISTANCE
+    # projectile directionnel grossier vers la cible
+    if is_ranged:
+        dx = 0
+        dy = 0
+        if nearest.x != px:
+            dx = 1 if nearest.x > px else -1
+        elif nearest.y != py:
+            dy = 1 if nearest.y > py else -1
+        sx, sy = px + dx, py + dy
+        if 0 <= sx < game_map.width and 0 <= sy < game_map.height:
+            # projectiles du joueur, propriétaire "player"
+            game_map.projectiles.append((sx, sy, dx, dy, "player", None))
+    else:
+        # flash mêlée sur la case de la cible
+        try:
+            game_map.add_attack_flash([(nearest.x, nearest.y)], duration_ticks=4)
+        except Exception:
+            pass
+
+    # Appliquer dégâts à la cible
+    try:
+        nearest.set_pv(max(0, int(nearest.get_pv()) - max(1, int(dmg))))
+    except Exception:
+        print("Erreur lors de l'application des dégâts.")
+        return
+    if hasattr(w, 'use'):
+        try:
+            w.use()
+        except Exception:
+            pass
+    print(f"Vous frappez un monstre en ({nearest.x},{nearest.y}) pour {dmg} dégâts. PV restants: {nearest.get_pv()}")
+    if not nearest.get_is_alive():
+        dropped = None
+        try:
+            dropped = nearest.die(drop_rate=1.0)
+        except Exception:
+            dropped = None
+        if dropped is not None:
+            game_map.drop_item(nearest.x, nearest.y, dropped)
+        try:
+            game_map.enemies.remove(nearest)
+            print(f"Monstre vaincu. Ennemis restants: {len(game_map.enemies)}")
+        except ValueError:
+            pass

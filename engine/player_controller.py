@@ -28,6 +28,12 @@ class PlayerController:
                 break
         return w.name if w else "(aucune)"
 
+    def get_equipped_weapon(self) -> Optional[Weapon]:
+        for it in self.player.get_equiped_item() or []:
+            if isinstance(it, Weapon):
+                return it
+        return None
+
     def get_inventory_size(self) -> int:
         inv = self.player.get_inventory() or []
         return len(inv)
@@ -114,7 +120,11 @@ class PlayerController:
         self._log.info("Position joueur mise à jour", extra={"extra": {"pos": (self.x, self.y)}})
 
         # Check collision projectile (simple): mort => message et quitter
-        for (px, py, _, _) in list(self.map.projectiles):
+        for pr in list(self.map.projectiles):
+            px, py = pr[0], pr[1]
+            owner = pr[4] if len(pr) >= 5 else "enemy"
+            if owner != "enemy":
+                continue
             if (px, py) == (self.x, self.y):
                 print("\nVous avez été touché par un projectile !")
                 self._log.warning("Joueur touché par projectile", extra={"extra": {"pos": (self.x, self.y)}})
