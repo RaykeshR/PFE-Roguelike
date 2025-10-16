@@ -190,7 +190,18 @@ def _player_attack(player: PlayerController, game_map: Map):
             nearest = m
             nearest_d = d
     if nearest is None:
-        print("Aucune cible à portée.")
+        # Pas de cible: si arme à distance, tirer dans la dernière direction connue
+        is_ranged = getattr(w, 'category', None) == CategoryWeapon.DISTANCE
+        if is_ranged:
+            dx, dy = getattr(player, '_last_dir', (1, 0))
+            if dx == 0 and dy == 0:
+                dx, dy = (1, 0)
+            sx, sy = player.x + dx, player.y + dy
+            if 0 <= sx < game_map.width and 0 <= sy < game_map.height:
+                game_map.projectiles.append((sx, sy, dx, dy, "player", None))
+                print("Tir dans le vide pour tester l'arme.")
+        else:
+            print("Aucune cible à portée.")
         return
     # Animation/projectiles si arme à distance
     is_ranged = getattr(w, 'category', None) == CategoryWeapon.DISTANCE
@@ -215,7 +226,13 @@ def _player_attack(player: PlayerController, game_map: Map):
 
     # Appliquer dégâts à la cible
     try:
-        nearest.set_pv(max(0, int(nearest.get_pv()) - max(1, int(dmg))))
+        before = int(nearest.get_pv())
+        nearest.set_pv(max(0, before - max(1, int(dmg))))
+        # flash hit sur la case de la cible
+        try:
+            game_map.add_hit_flash([(nearest.x, nearest.y)], duration_ticks=6)
+        except Exception:
+            pass
     except Exception:
         print("Erreur lors de l'application des dégâts.")
         return

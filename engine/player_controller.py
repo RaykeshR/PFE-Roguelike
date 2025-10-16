@@ -87,6 +87,8 @@ class PlayerController:
 
         new_x = self.x + dx
         new_y = self.y + dy
+        # mémoriser la dernière direction
+        self._last_dir = (dx, dy)
 
         # Déplacement sur cases franchissables (sol, portes, couloirs)
         if not self.map.is_walkable(new_x, new_y):
