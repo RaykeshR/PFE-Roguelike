@@ -600,6 +600,7 @@ class Map:
                 px, py, dx, dy, owner = pr[:5]
                 owner_id = pr[5] if len(pr) >= 6 else None
             else:
+                logging.warning(f"Projectile ignoré, format inattendu: {pr}")
                 continue
             nx, ny = px + dx, py + dy
             if 0 <= nx < self.width and 0 <= ny < self.height and self.tiles[ny][nx] != "#":
