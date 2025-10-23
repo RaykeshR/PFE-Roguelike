@@ -371,8 +371,6 @@ class Map:
                         queue.append((nx, ny))
             return None
 
-        path = bfs_path((sx, sy), (ex, ey))
-
         def carve(x, y):
             # Creuser seulement dans l'espace vide; ne jamais remplacer un sol de salle '.'
             if 0 <= x < self.width and 0 <= y < self.height:
@@ -382,18 +380,75 @@ class Map:
                 elif self.tiles[y][x] == '+':
                     self.walkable.add((x, y))
 
+        # --- Tentative principale ---
+        path = bfs_path((sx, sy), (ex, ey))
+
         if path:
             for (cx, cy) in path:
                 if (cx, cy) not in (start, end):
                     carve(cx, cy)
         else:
-            # Fallback: couloir en L mais en ne creusant que dans l'espace vide
-            for x in range(min(sx, ex), max(sx, ex) + 1):
-                if (x, sy) not in (start, end):
-                    carve(x, sy)
-            for y in range(min(sy, ey), max(sy, ey) + 1):
-                if (ex, y) not in (start, end):
-                    carve(ex, y)
+            # --- Nouveau fallback plus permissif ---
+            def smart_fallback_corridor(sx, sy, ex, ey):
+                from random import shuffle
+                visited = set()
+                path = []
+                stack = [(sx, sy)]
+
+                def safe(x, y):
+                    return (0 <= x < self.width and 0 <= y < self.height 
+                            and self.tiles[y][x] in (' ', '+') 
+                            and (x, y) not in visited)
+
+                while stack:
+                    cx, cy = stack.pop()
+                    visited.add((cx, cy))
+                    path.append((cx, cy))
+                    if (cx, cy) == (ex, ey):
+                        return path
+                    nbs = list(neighbors(cx, cy))
+                    shuffle(nbs)  # rend le trajet moins rigide (permissif)
+                    for nx, ny in nbs:
+                        if safe(nx, ny):
+                            stack.append((nx, ny))
+                return None
+
+            alt_path = smart_fallback_corridor(sx, sy, ex, ey)
+            
+            if alt_path:
+                for (cx, cy) in alt_path:
+                    if (cx, cy) not in (start, end):
+                        carve(cx, cy)
+            else:
+                # # Fallback: couloir en L mais en ne creusant que dans l'espace vide
+                # for x in range(min(sx, ex), max(sx, ex) + 1):
+                #     if (x, sy) not in (start, end):
+                #         carve(x, sy)
+                # for y in range(min(sy, ey), max(sy, ey) + 1):
+                #     if (ex, y) not in (start, end):
+                #         carve(ex, y)
+                #################################################################################
+                # Fallback: couloir en L mais sans traverser de salles
+                # for x in range(min(sx, ex), max(sx, ex) + 1):
+                #     if (x, sy) not in (start, end) and self.tiles[sy][x] == ' ':
+                #         carve(x, sy)
+                # for y in range(min(sy, ey), max(sy, ey) + 1):
+                #     if (ex, y) not in (start, end) and self.tiles[y][ex] == ' ':
+                #         carve(ex, y)
+                #################################################################################
+                def safe_carve(x, y):
+                    if self.tiles[y][x] == '.':  # ne pas écraser une salle
+                        return
+                    carve(x, y)
+
+                for x in range(min(sx, ex), max(sx, ex) + 1):
+                    if (x, sy) not in (start, end):
+                        safe_carve(x, sy)
+                for y in range(min(sy, ey), max(sy, ey) + 1):
+                    if (ex, y) not in (start, end):
+                        safe_carve(ex, y)
+
+
 
     def get_room_containing(self, x, y):
         for room in self.rooms:
