@@ -9,6 +9,8 @@ if __name__ != "__main__": # to avoid circular import when run as main
     from items.category_potion import CategoryPotion
     from entities.monster import Monster
     from .room import Room
+    from dotenv import load_dotenv
+    from pathlib import Path
 else:
     # Exécution directe : lancer le main du projet (subprocess)
     import subprocess
@@ -461,6 +463,8 @@ class Map:
         Args:
             count (int, optional): Nombre d'items à placer. Default is 3.
         """
+        dotenv_path = Path("database/.env")
+        load_dotenv(dotenv_path=dotenv_path)
         dont_use_csv = os.environ.get("DONT_USE_CSV_ITEMS", "true").strip().lower() not in ["false", "0","f","no","n","non","off","disable","disabled","none","null","nil","0.0","faux","negatif","fals"]
         
         # Si CSV est activé, on charge les items du fichier
