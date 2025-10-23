@@ -441,13 +441,17 @@ class Map:
             tries += 1
 
     def _place_items(self, count=3):
-        # use_csv = os.environ.get("USE_CSV_ITEMS", "true").lower() != "false"
-        use_csv = os.environ.get("USE_CSV_ITEMS", "true").strip().lower() not in ["false", "0"]
+        """
+        Place des items aléatoires sur la carte.
+        Si la variable d'environnement DONT_USE_CSV_ITEMS est définie à "false" ou "0", les items sont chargés depuis un fichier CSV.
+        Si le CSV n'est pas utilisé ou en cas d'erreur de lecture, des items aléatoires simples sont créés.
+        """
+        dont_use_csv = os.environ.get("DONT_USE_CSV_ITEMS", "true").strip().lower() not in ["false", "0"]
         
         # Si CSV est activé, on charge les items du fichier
         csv_items = []
-        if not use_csv:
-            csv_path = os.path.join("databas", "items.csv")
+        if not dont_use_csv:
+            csv_path = os.path.join("items", "items.csv")
             try:
                 with open(csv_path, newline='', encoding='utf-8') as f:
                     reader = csv.DictReader(f)
@@ -455,7 +459,7 @@ class Map:
                         csv_items.append(row)
             except Exception as e:
                 print(f"Erreur lecture CSV items: {e}")
-                use_csv = True  # fallback vers aléatoire si problème CSV
+                dont_use_csv = True  # fallback vers aléatoire si problème CSV
 
         placed = 0
         tries = 0
@@ -471,7 +475,7 @@ class Map:
                 continue
 
             # Choisir un item
-            if use_csv or not csv_items:
+            if dont_use_csv or not csv_items:
                 # Créer un item simple aléatoire
                 if _r.random() < 0.7:
                     item = Weapon(
