@@ -1,3 +1,5 @@
+#classe à supprimée après intégration des changements dans entities.players
+
 import logging
 from typing import Optional, List
 from items import Weapon, Potion

@@ -1,12 +1,15 @@
 #######################################################################IMPORTS#######################################################################
 import os
-from PIL import Image
 import random
+import logging
+from engine.map import Map
 from random import randint
-
+from PIL import Image
 from .monster import Monster
 from items import Weapon
-
+from items import Potion
+from items.category_potion import CategoryPotion
+from typing import Optional, List
 ###################################################################################################################################################
 #pv joueur =100
 #pv monstre=50
@@ -15,21 +18,26 @@ from items import Weapon
 
 class players:
     #constructeur
-    def __init__(self, name="player", pv=100, inventory=None, equiped_item=None, is_human=True, x=0.0, y=0.0):
+    def __init__(self, name="player", pv=100, inventory=None, equiped_item=None, is_human=True, x=0.0, y=0.0,game_map=Map()):
         self.pv=pv
         self.inventory=inventory if inventory is not None else []
         self.equiped_item=equiped_item if equiped_item is not None else []
         self.is_human=is_human
         self.name=name
-        self.x=x
-        self.y=y
+        self.map=game_map
+        self.x,self.y=self.map.start
+        self.map.reveal_from((self.x,self.y))
+        self._log = logging.getLogger("pfe_roguelike.engine.player")
+        self._log.info("Joueur initialisé", extra={"extra": {"pos": (self.x, self.y)}})
+
+        
 
 ###################################################################Méthodes##################################################################
     #### GETTERS AND SETTERS ####
     
     #Pour vérifier si le joueur est en vie
     def get_is_alive(self):
-        """True si le joueur est en vie (pv > 0), sinon False."""
+        """True si le joueur est en vie (pv>0), sinon False."""
         if self.pv>0:
             return True
         else:
@@ -38,6 +46,8 @@ class players:
     #retourne les pv
     def get_pv(self):
         return self.pv
+    def get_hp(self)->int:
+        return int(self.get_pv())
 
     #retourne l'inventory
     def get_inventory(self):
@@ -64,16 +74,36 @@ class players:
     def get_equiped_item(self):
         return self.equiped_item
     
-    def get_weapon(self):
-        for item in self.equiped_item:
-            if isinstance(item, Weapon):
-                return item
+    
+    #retourne l'arme équipée
+    def get_equipped_weapon(self) -> Optional[Weapon]:
+        for it in self.get_equiped_item() or []:
+            if isinstance(it, Weapon):
+                return it
+        return None
+    
+     #retourne le nom de l'arme équipée
+    def get_equipped_weapon_name(self) -> str:
+        arme=None
+        # entities.players stocke equiped_item (liste). On considère la première arme.
+        for it in self.get_equiped_item() or []:
+            if isinstance(it, Weapon):
+                arme= it
+                break
+        return arme.name if arme else "(aucune)"
+    
         return None
     def get_weapon_category(self):
         weapon=self.get_weapon()
         if weapon:
             return weapon.category
         return None
+    
+    #retourne les elements de l'inventaire
+    def list_inventory(self):
+        return list(self.get_inventory() or [])
+    
+    
     
     def set_pv(self, pv):
         self.pv=pv
@@ -130,6 +160,39 @@ class players:
         self.pv=0
         self.die()
 
+    #équipe une arme par son index dans l'inventaire
+    def equip_weapon_by_index(self, idx: int) -> bool:
+        inv = self.get_inventory() or []
+        if 0 <= idx < len(inv):
+            item = inv[idx]
+            if isinstance(item, Weapon):
+                # remplace l'équipement actuel par cette arme (liste avec une arme)
+                self.set_equiped_item([item])
+                self._log.info("Arme équipée", extra={"extra": {"item": item.name}})
+                return True
+        return False
+    
+    #utilise une potion par son index dans l'inventaire
+    def use_potion_by_index(self, idx: int) -> bool:
+        inv = self.get_inventory() or []
+        if 0 <= idx < len(inv):
+            item = inv[idx]
+            if isinstance(item, Potion):
+                used = False
+                if item.category == CategoryPotion.HEALTH:
+                    before = int(self.get_pv())
+                    self.set_pv(max(0, before + int(item.potency)))
+                    used = True
+                elif item.category == CategoryPotion.SPEED:
+                    # Placeholder: on pourrait influencer la vitesse de déplacement
+                    used = True
+                if used:
+                    inv.pop(idx)
+                    self.set_inventory(inv)
+                    self._log.info("Potion utilisée", extra={"extra": {"item": item.name}})
+                    return True
+        return False
+
     
     #pour afficher une image dans le dossier src
     def show_img_in_src(self, img_name):
@@ -149,7 +212,7 @@ class players:
     def distance_euclidienne(self,monstre):
         return ((self.x-monstre.x)**2+(self.y-monstre.y)**2)**0.5
     
-    def move_towards(self,target_x,target_y,step_size=1.0):
+    ''' def move_towards(self,target_x,target_y,step_size=1.0):
         """
         Déplace le joueur vers une position cible (target_x, target_y) par une taille de pas spécifiée.
         step_size: distance maximale que le joueur peut se déplacer en une seule fois.
@@ -172,6 +235,87 @@ class players:
         #Mettre à jour la position du joueur
         self.x += move_x
         self.y += move_y
+        '''
+    #déplace le joueur dans une direction donnée
+    def move(self, direction):
+        dx, dy = 0, 0
+        haut = ["z", "w", "up"]
+        bas = ["s", "down"]
+        gauche = ["q", "a", "left"]
+        droite = ["d", "right"]
+        if direction in haut: dy = -1
+        elif direction in bas: dy = 1
+        elif direction in gauche: dx = -1
+        elif direction in droite: dx = 1
+        else: return
+
+        new_x = self.x + dx
+        new_y = self.y + dy
+        # mémoriser la dernière direction
+        self._last_dir = (dx, dy)
+
+        # Déplacement sur cases franchissables (sol, portes, couloirs)
+        if not self.map.is_walkable(new_x, new_y):
+            self._log.debug("Blocage déplacement: mur", extra={"extra": {"from": (self.x, self.y), "to": (new_x, new_y)}})
+            return
+
+        # Téléportation si la case est une porte connectée
+        target = self.map.get_connected_room((new_x, new_y))
+        if target:
+            target_room, target_door = target
+            # Placer le joueur juste à l'intérieur de la salle cible
+            tx, ty = target_door
+            # Déterminer une case adjacente walkable côté intérieur
+            candidates = [(tx+1, ty), (tx-1, ty), (tx, ty+1), (tx, ty-1)]
+            placed = False
+            for cx, cy in candidates:
+                if self.map.is_walkable(cx, cy):
+                    # s'assurer qu'on est bien dans la salle cible
+                    if self.map.get_room_containing(cx, cy) == target_room:
+                        self.x, self.y = cx, cy
+                        placed = True
+                        break
+            if not placed:
+                # fallback: rester sur la porte si aucune case intérieure trouvée
+                self.x, self.y = target_door
+        else:
+            self.x, self.y = new_x, new_y
+
+        # Mise à jour de la visibilité persistante
+        self.map.reveal_from((self.x, self.y))
+        self._log.info("Position joueur mise à jour", extra={"extra": {"pos": (self.x, self.y)}})
+
+        # Check collision projectile (simple): mort => message et quitter
+        for pr in list(self.map.projectiles):
+            px, py = pr[0], pr[1]
+            owner = pr[4] if len(pr) >= 5 else "enemy"
+            if owner != "enemy":
+                continue
+            if (px, py) == (self.x, self.y):
+                print("\nVous avez été touché par un projectile !")
+                self._log.warning("Joueur touché par projectile", extra={"extra": {"pos": (self.x, self.y)}})
+                raise SystemExit(0)
+
+        # Ramassage automatique des items présents sur la case
+        items_here = self.map.get_items_at(self.x, self.y)
+        if items_here:
+            taken = self.map.pickup_all_items(self.x, self.y)
+            inv = self.get_inventory() or []
+            inv.extend(taken)
+            self.set_inventory(inv)
+            for it in taken:
+                self._log.info("Ramassage item", extra={"extra": {"pos": (self.x, self.y), "item": getattr(it, "name", str(it))}})
+            print(f"Vous avez ramassé {len(taken)} objet(s). Inventaire: {[getattr(i,'name',str(i)) for i in (self.get_inventory() or [])]}")
+
+        # Vérifier porte finale
+        if (self.x, self.y) == self.map.end:
+            print("\nVous avez atteint la porte finale ! Nouvelle map générée...")
+            self._log.info("Porte finale atteinte, regénération map")
+            input("Appuyez sur Entrée pour continuer...")
+            self.map.generate()
+            self.x, self.y = self.map.start
+            # synchroniser la position dans le modèle
+            self.player.set_position(self.x, self.y)
 
 
     def joueur_attaque(self, monstre):
