@@ -441,10 +441,18 @@ class Map:
             tries += 1
 
     def _place_items(self, count=3):
-        """
-        Place des items aléatoires sur la carte.
-        Si la variable d'environnement DONT_USE_CSV_ITEMS est définie à "false" ou "0", les items sont chargés depuis un fichier CSV.
-        Si le CSV n'est pas utilisé ou en cas d'erreur de lecture, des items aléatoires simples sont créés.
+        """   
+        Place des items sur la carte.
+
+        Les items peuvent être choisis aléatoirement ou depuis un fichier CSV en fonction
+        de la variable d'environnement `DONT_USE_CSV_ITEMS`.
+
+        Comportement :
+            - Si `DONT_USE_CSV_ITEMS` est défini à `false` ou `0`, les items sont chargés depuis le fichier CSV situé dans `items/items.csv`.
+            - Si la lecture du CSV échoue ou si `DONT_USE_CSV_ITEMS` est autre chose, des items aléatoires simples (Weapon ou Potion) sont générés.
+
+        Args:
+            count (int, optional): Nombre d'items à placer. Default is 3.
         """
         dont_use_csv = os.environ.get("DONT_USE_CSV_ITEMS", "true").strip().lower() not in ["false", "0"]
         
