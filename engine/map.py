@@ -1,7 +1,5 @@
-import os
-import random
+import os, csv, random, logging
 import random as _r
-import logging
 from system.game_logging import get_episode_logger
 
 from items import Weapon, Rarity, Potion
@@ -443,6 +441,22 @@ class Map:
             tries += 1
 
     def _place_items(self, count=3):
+        # use_csv = os.environ.get("USE_CSV_ITEMS", "true").lower() != "false"
+        use_csv = os.environ.get("USE_CSV_ITEMS", "true").strip().lower() not in ["false", "0"]
+        
+        # Si CSV est activé, on charge les items du fichier
+        csv_items = []
+        if not use_csv:
+            csv_path = os.path.join("databas", "items.csv")
+            try:
+                with open(csv_path, newline='', encoding='utf-8') as f:
+                    reader = csv.DictReader(f)
+                    for row in reader:
+                        csv_items.append(row)
+            except Exception as e:
+                print(f"Erreur lecture CSV items: {e}")
+                use_csv = True  # fallback vers aléatoire si problème CSV
+
         placed = 0
         tries = 0
         flat_walkable = list(self.walkable)
@@ -455,26 +469,54 @@ class Map:
             if self.tiles[y][x] != ".":
                 tries += 1
                 continue
-            # Créer un item simple aléatoire
-            if _r.random() < 0.7:
-                item = Weapon(
-                    name=_r.choice(["Dague", "Épée", "Arc"]),
-                    description="Un objet trouvé au sol",
-                    rarity=_r.choice([Rarity.COMMON, Rarity.RARE, Rarity.EPIC]),
-                    damage=_r.choice([4, 6, 8, 10]),
-                    category=_r.choice([CategoryWeapon.MELEE, CategoryWeapon.DISTANCE]),
-                    range=_r.choice([1.0, 1.5, 3.0, 5.0]),
-                    durability=_r.choice([5, 10, 15]),
-                )
+
+            # Choisir un item
+            if use_csv or not csv_items:
+                # Créer un item simple aléatoire
+                if _r.random() < 0.7:
+                    item = Weapon(
+                        name=_r.choice(["Dague", "Épée", "Arc"]),
+                        description="Un objet trouvé au sol",
+                        rarity=_r.choice([Rarity.COMMON, Rarity.RARE, Rarity.EPIC]),
+                        damage=_r.choice([4, 6, 8, 10]),
+                        category=_r.choice([CategoryWeapon.MELEE, CategoryWeapon.DISTANCE]),
+                        range=_r.choice([1.0, 1.5, 3.0, 5.0]),
+                        durability=_r.choice([5, 10, 15]),
+                    )
+                else:
+                    item = Potion(
+                        name=_r.choice(["Potion de soin", "Potion de vitesse"]),
+                        description="Une fiole mystérieuse",
+                        rarity=_r.choice([Rarity.COMMON, Rarity.RARE]),
+                        category=_r.choice([CategoryPotion.HEALTH, CategoryPotion.SPEED]),
+                        potency=_r.choice([10, 20, 30]),
+                        duration=_r.choice([3, 5, 7]),
+                    )
             else:
-                item = Potion(
-                    name=_r.choice(["Potion de soin", "Potion de vitesse"]),
-                    description="Une fiole mystérieuse",
-                    rarity=_r.choice([Rarity.COMMON, Rarity.RARE]),
-                    category=_r.choice([CategoryPotion.HEALTH, CategoryPotion.SPEED]),
-                    potency=_r.choice([10, 20, 30]),
-                    duration=_r.choice([3, 5, 7]),
-                )
+                # Choisir un item depuis CSV
+                row = _r.choice(csv_items)
+                if row["type"].lower() == "weapon":
+                    item = Weapon(
+                        name=row["name"],
+                        description=row.get("description", ""),
+                        rarity=Rarity[row["rarity"].upper()],
+                        damage=int(row.get("damage", 0)),
+                        category=CategoryWeapon[row["category"].upper()],
+                        range=float(row.get("range", 1.0)),
+                        durability=int(row.get("durability", 10)),
+                    )
+                elif row["type"].lower() == "potion":
+                    item = Potion(
+                        name=row["name"],
+                        description=row.get("description", ""),
+                        rarity=Rarity[row["rarity"].upper()],
+                        category=CategoryPotion[row["category"].upper()],
+                        potency=int(row.get("potency", 10)),
+                        duration=int(row.get("duration", 3)),
+                    )
+                else:
+                    # fallback aléatoire si type inconnu
+                    continue
             self.items.append({"x": x, "y": y, "item": item})
             placed += 1
             tries += 1
