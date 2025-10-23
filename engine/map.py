@@ -1,7 +1,7 @@
-import os, csv, random, logging
+import os, csv, random, logging, sys
 import random as _r
 if __name__ != "__main__": # to avoid circular import when run as main
-    import sys; sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     from system.game_logging import get_episode_logger
 
     from items import Weapon, Rarity, Potion
@@ -11,10 +11,9 @@ if __name__ != "__main__": # to avoid circular import when run as main
     from .room import Room
 else:
     # Exécution directe : lancer le main du projet (subprocess)
-    import subprocess, sys, os
-
-    main_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "main.py")
-    subprocess.run([sys.executable, main_path])
+    import subprocess
+    
+    subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "main.py")])
 
 
 class Map:
