@@ -454,7 +454,7 @@ class Map:
         Args:
             count (int, optional): Nombre d'items à placer. Default is 3.
         """
-        dont_use_csv = os.environ.get("DONT_USE_CSV_ITEMS", "true").strip().lower() not in ["false", "0"]
+        dont_use_csv = os.environ.get("DONT_USE_CSV_ITEMS", "true").strip().lower() not in ["false", "0","f","no","n","non","off","disable","disabled","none","null","nil","0.0","faux","negatif","fals"]
         
         # Si CSV est activé, on charge les items du fichier
         csv_items = []
