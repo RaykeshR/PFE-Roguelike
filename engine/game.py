@@ -9,6 +9,7 @@ except ImportError:
 
 from engine.map import Map
 from engine.player_controller import PlayerController
+# from entities.players import players as PlayerController # TODO : Alternative import si structure différente
 from system.game_logging import get_episode_logger
 from items import Weapon, Potion
 from items.category_weapon import CategoryWeapon
