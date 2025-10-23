@@ -10,13 +10,7 @@ if __name__ != "__main__": # to avoid circular import when run as main
     from entities.monster import Monster
     from .room import Room
 else:
-    # TODO Exécution directe : lancer le main du projet
-    # main_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "main.py")
-    # if os.path.exists(main_path):
-    #     import runpy
-    #     runpy.run_path(main_path, run_name="__main__")
-    # else:
-    #     raise FileNotFoundError(f"Impossible de trouver main.py à {main_path}")
+    # Exécution directe : lancer le main du projet (subprocess)
     import subprocess, sys, os
 
     main_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "main.py")
