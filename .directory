@@ -1,0 +1,5 @@
+[Desktop Entry]
+Name=PFE-Roguelike (Version Github)
+Comment=Projet de Fin d Etude - Roguelike (Version Github)
+Icon=./src/gameplay.png
+Type=Directory
