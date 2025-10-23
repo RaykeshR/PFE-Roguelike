@@ -143,6 +143,7 @@ class Monster():
         a = self.rl_agent.select(s)
         s2, r, done, _ = self._try_action_on_map(game_map, a, player_pos)
         self.rl_agent.update(s, a, r, s2, done)
+        location_type = game_map.get_location_type(self.x, self.y)
         # log transition RL
         ep = get_episode_logger()
         ep.log_transition(
@@ -154,6 +155,8 @@ class Monster():
             done=bool(done),
             tick=game_map.ticks,
             pos=[self.x, self.y],
+            location=location_type, # AJOUT: Passer le contexte
+
         )
         self.rl_steps += 1
         if self.rl_steps % 10 == 0:
