@@ -19,7 +19,7 @@ def run_game():
     """Lance la boucle de jeu (affichage + saisie)"""
     log = logging.getLogger("pfe_roguelike.engine")
     game_map = Map()
-    player = PlayerController(game_map)
+    player = PlayerController(game_map) # TODO : Alternative import si structure différente
     log.info("Partie initialisée", extra={"extra": {"start": game_map.start, "rooms": len(game_map.rooms)}})
     profiler = PlayerProfiler()
     director = AIDirector()
