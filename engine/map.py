@@ -1,12 +1,26 @@
 import os, csv, random, logging
 import random as _r
-from system.game_logging import get_episode_logger
+if __name__ != "__main__": # to avoid circular import when run as main
+    import sys; sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from system.game_logging import get_episode_logger
 
-from items import Weapon, Rarity, Potion
-from items.category_weapon import CategoryWeapon
-from items.category_potion import CategoryPotion
-from entities.monster import Monster
-from .room import Room
+    from items import Weapon, Rarity, Potion
+    from items.category_weapon import CategoryWeapon
+    from items.category_potion import CategoryPotion
+    from entities.monster import Monster
+    from .room import Room
+else:
+    # TODO Exécution directe : lancer le main du projet
+    # main_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "main.py")
+    # if os.path.exists(main_path):
+    #     import runpy
+    #     runpy.run_path(main_path, run_name="__main__")
+    # else:
+    #     raise FileNotFoundError(f"Impossible de trouver main.py à {main_path}")
+    import subprocess, sys, os
+
+    main_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "main.py")
+    subprocess.run([sys.executable, main_path])
 
 
 class Map:
@@ -468,6 +482,7 @@ class Map:
             except Exception as e:
                 print(f"Erreur lecture CSV items: {e}")
                 dont_use_csv = True  # fallback vers aléatoire si problème CSV
+                import sys;sys.exit(1)
 
         placed = 0
         tries = 0
