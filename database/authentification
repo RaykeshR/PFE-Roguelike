@@ -1,73 +1,77 @@
-import uuid
-from fastapi import FastAPI
-from fastapi_users import FastAPIUsers
-from fastapi_users.db import SQLAlchemyUserDatabase
-from fastapi_users.authentication import JWTAuthentication
-from fastapi_users import schemas
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
-from fastapi_users.db import SQLAlchemyBaseUserTableUUID
+import requests
 
-# -------------------
-# 1. Config DB
-# -------------------
-DATABASE_URL = "postgresql+asyncpg://postgres:TON_PASSWORD@localhost:5432/TA_BASE"
+API_URL = "http://127.0.0.1:8000"  # ton backend FastAPI
+token = None  # variable globale pour stocker le JWT du joueur connecté
 
-Base = declarative_base()
-engine = create_async_engine(DATABASE_URL, echo=True)
-async_session_maker = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
-# -------------------
-# 2. Modèle User lié à ta table existante
-# -------------------
-class User(SQLAlchemyBaseUserTableUUID, Base):
-    pass
+def register_user(username: str, email: str, password: str):
+    """
+    Inscrit un nouvel utilisateur via l'API FastAPI.
+    """
+    payload = {"username": username, "email": email, "password": password}
+    try:
+        response = requests.post(f"{API_URL}/register", json=payload)
+        if response.status_code == 200:
+            data = response.json()
+            print(f"✅ Utilisateur créé : {data['user']['username']} ({data['user']['email']})")
+            return data["user"]
+        else:
+            print(f"❌ Erreur : {response.json().get('detail', response.text)}")
+            return None
+    except Exception as e:
+        print("⚠️ Erreur lors de l’inscription :", str(e))
+        return None
 
-async def get_user_db(session: AsyncSession = async_session_maker()):
-    yield SQLAlchemyUserDatabase(session, User)
 
-# -------------------
-# 3. Auth JWT
-# -------------------
-SECRET = "SECRET_KEY_A_CHANGER"
-auth_backends = [
-    JWTAuthentication(secret=SECRET, lifetime_seconds=3600)
-]
+def login_user(username: str, password: str):
+    """
+    Connecte un utilisateur via l'API et récupère le token JWT.
+    """
+    global token
+    payload = {"username": username, "password": password}
+    try:
+        response = requests.post(f"{API_URL}/login", json=payload)
+        if response.status_code == 200:
+            data = response.json()
+            token = data["token"]
+            print(f"✅ Connexion réussie : {data['message']}")
+            print(f"🔑 Token : {token[:20]}...")  # affichage partiel du token
+            return token
+        else:
+            print(f"❌ Erreur : {response.json().get('detail', response.text)}")
+            return None
+    except Exception as e:
+        print("⚠️ Erreur lors de la connexion :", str(e))
+        return None
 
-class UserRead(schemas.BaseUser[uuid.UUID]):
-    pass
 
-class UserCreate(schemas.BaseUserCreate):
-    pass
+def start_game():
+    """
+    Lance une partie via l’API (authentifiée avec le token JWT).
+    """
+    global token
+    if not token:
+        print("❌ Vous devez d'abord vous connecter.")
+        return
 
-class UserUpdate(schemas.BaseUserUpdate):
-    pass
+    headers = {"Authorization": f"Bearer {token}"}
+    try:
+        response = requests.post(f"{API_URL}/game/start", headers=headers)
+        if response.status_code == 200:
+            print(response.json()["message"])
+        else:
+            print(f"❌ Erreur : {response.json().get('detail', response.text)}")
+    except Exception as e:
+        print("⚠️ Erreur lors du démarrage de la partie :", str(e))
+if __name__ == "__main__":
+    # Exemple simple d'utilisation
+    print("=== Test de l'authentification ===")
 
-fastapi_users = FastAPIUsers[User, uuid.UUID](
-    get_user_db,
-    auth_backends,
-    User,
-    UserCreate,
-    UserUpdate,
-    UserRead,
-)
+    username = input("Nom d'utilisateur : ")
+    password = input("Mot de passe : ")
 
-# -------------------
-# 4. FastAPI app
-# -------------------
-app = FastAPI()
+    # Connexion
+    login_user(username, password)
 
-# Routes d'authentification toutes prêtes 🚀
-app.include_router(
-    fastapi_users.get_auth_router(auth_backends[0]), prefix="/auth/jwt", tags=["auth"]
-)
-app.include_router(
-    fastapi_users.get_register_router(UserRead, UserCreate), prefix="/auth", tags=["auth"]
-)
-app.include_router(
-    fastapi_users.get_users_router(UserRead, UserUpdate), prefix="/users", tags=["users"]
-)
-
-@app.get("/")
-async def root():
-    return {"message": "Bienvenue sur l’API de connexion"}
+    # Lancer le jeu
+    start_game()
