@@ -19,7 +19,7 @@ class PlayerProfiler:
         if not self.recent_actions:
             return "standard"
 
-        attacks = [a for a in self.recent_actions if a['type'] == 'attack' and a['distance'] != -1]
+        attacks =[a for a in self.recent_actions if a['type'] == 'attack' and a['distance'] != -1]
         moves = [a for a in self.recent_actions if a['type'] == 'move']
 
         if not attacks:
