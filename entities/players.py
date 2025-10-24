@@ -294,7 +294,12 @@ class players:
             if (px, py) == (self.x, self.y):
                 print("\nVous avez été touché par un projectile !")
                 self._log.warning("Joueur touché par projectile", extra={"extra": {"pos": (self.x, self.y)}})
-                raise SystemExit(0)
+                damage = pr[5] if len(pr) >= 6 else 10
+                self.player.set_pv(max(0, int(self.player.get_pv()) - damage))
+                if self.get_hp() <= 0:
+                    print("Vous êtes mort ! Fin du jeu.")
+                    self._log.error("Joueur est mort", extra={"extra": {"pos": (self.x, self.y)}})
+                    raise SystemExit(0)
 
         # Ramassage automatique des items présents sur la case
         items_here = self.map.get_items_at(self.x, self.y)
