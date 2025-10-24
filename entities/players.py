@@ -315,7 +315,7 @@ class players:
             self.set_inventory(inv)
             for it in taken:
                 self._log.info("Ramassage item", extra={"extra": {"pos": (self.x, self.y), "item": getattr(it, "name", str(it))}})
-            print(f"Vous avez ramassé {len(taken)} objet(s). Inventaire: {[getattr(i,'name',str(i)) for i in (self.player.get_inventory() or [])]}")
+            print(f"Vous avez ramassé {len(taken)} objet(s). Inventaire: {[getattr(i,'name',str(i)) for i in (self.get_inventory() or [])]}")
 
         # Vérifier porte finale
         if (self.x, self.y) == self.map.end:
