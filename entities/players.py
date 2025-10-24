@@ -305,7 +305,7 @@ class players:
             self.set_inventory(inv)
             for it in taken:
                 self._log.info("Ramassage item", extra={"extra": {"pos": (self.x, self.y), "item": getattr(it, "name", str(it))}})
-            print(f"Vous avez ramassé {len(taken)} objet(s). Inventaire: {[getattr(i,'name',str(i)) for i in (self.get_inventory() or [])]}")
+            print(f"Vous avez ramassé {len(taken)} objet(s). Inventaire: {[getattr(i,'name',str(i)) for i in (self.player.get_inventory() or [])]}")
 
         # Vérifier porte finale
         if (self.x, self.y) == self.map.end:
@@ -315,7 +315,7 @@ class players:
             self.map.generate()
             self.x, self.y = self.map.start
             # synchroniser la position dans le modèle
-            self.player.set_position(self.x, self.y)
+            self.set_position(self.x, self.y)
 
 
     def joueur_attaque(self, monstre):
