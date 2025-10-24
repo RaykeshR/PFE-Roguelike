@@ -2,7 +2,7 @@ id,name,description,rarity,type,damage,defense,range,category,durability,potency
 1,Epée émoussée,Une épée émoussée mais encore utilisable,common,weapon,5,0,1.0,melee,90,0,0
 2,Sword,A sharp blade.,legendary,weapon,10,1,1.0,melee,100,0,0
 3,Bow,A ranged weapon.,legendary,weapon,8,1,5.0,distance,100,0,0
-4,Health Potion,Restores health over time.,common,potion,0,0,0.0,heal,100,50,5
+4,Health Potion,Restores health over time.,common,potion,0,0,0.0,health,100,50,5
 
 
 
