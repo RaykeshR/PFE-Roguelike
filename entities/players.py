@@ -2,7 +2,7 @@
 import os
 import random
 import logging
-from engine.map import Map
+#from engine.map import Map
 from random import randint
 from PIL import Image
 from .monster import Monster
@@ -18,7 +18,7 @@ from typing import Optional, List
 
 class players:
     #constructeur
-    def __init__(self, name="player", pv=100, inventory=None, equiped_item=None, is_human=True, x=0.0, y=0.0,game_map=Map()):
+    def __init__(self, name="player", pv=100, inventory=None, equiped_item=None, is_human=True, x=0.0, y=0.0,game_map=None):
         self.pv=pv
         self.inventory=inventory if inventory is not None else []
         self.equiped_item=equiped_item if equiped_item is not None else []
@@ -52,6 +52,11 @@ class players:
     #retourne l'inventory
     def get_inventory(self):
         return self.inventory
+    
+    #retourne la taille de l'inventaire
+    def get_inventory_size(self) -> int:
+        inv = self.get_inventory() or []
+        return len(inv)
 
     #retourne si le jourur est humain
     def get_is_human(self):

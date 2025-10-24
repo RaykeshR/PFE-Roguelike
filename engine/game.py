@@ -8,8 +8,7 @@ except ImportError:
     msvcrt = None
 
 from engine.map import Map
-from engine.player_controller import PlayerController
-# from entities.players import players as PlayerController # TODO : Alternative import si structure différente
+from entities.players import players as PlayerController
 from system.game_logging import get_episode_logger
 from items import Weapon, Potion
 from items.category_weapon import CategoryWeapon
@@ -19,7 +18,7 @@ def run_game():
     """Lance la boucle de jeu (affichage + saisie)"""
     log = logging.getLogger("pfe_roguelike.engine")
     game_map = Map()
-    player = PlayerController(game_map) # TODO : Alternative import si structure différente
+    player = PlayerController(name="player", pv=100, inventory=None, equiped_item=None, is_human=True, x=0.0, y=0.0,game_map=game_map) 
     log.info("Partie initialisée", extra={"extra": {"start": game_map.start, "rooms": len(game_map.rooms)}})
     profiler = PlayerProfiler()
     director = AIDirector()
