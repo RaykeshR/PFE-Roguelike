@@ -295,7 +295,7 @@ class players:
                 print("\nVous avez été touché par un projectile !")
                 self._log.warning("Joueur touché par projectile", extra={"extra": {"pos": (self.x, self.y)}})
                 damage = pr[5] if len(pr) >= 6 else 10
-                self.player.set_pv(max(0, int(self.player.get_pv()) - damage))
+                self.set_pv(max(0, int(self.get_pv()) - damage))
                 if self.get_hp() <= 0:
                     print("Vous êtes mort ! Fin du jeu.")
                     self._log.error("Joueur est mort", extra={"extra": {"pos": (self.x, self.y)}})
