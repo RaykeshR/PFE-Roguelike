@@ -1,14 +1,21 @@
-import os
-import random
+import os, csv, random, logging, sys
 import random as _r
-import logging
-from system.game_logging import get_episode_logger
+if __name__ != "__main__": # to avoid circular import when run as main
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from system.game_logging import get_episode_logger
 
-from items import Weapon, Rarity, Potion
-from items.category_weapon import CategoryWeapon
-from items.category_potion import CategoryPotion
-from entities.monster import Monster
-from .room import Room
+    from items import Weapon, Rarity, Potion
+    from items.category_weapon import CategoryWeapon
+    from items.category_potion import CategoryPotion
+    from entities.monster import Monster
+    from .room import Room
+    from dotenv import load_dotenv
+    from pathlib import Path
+else:
+    # Exécution directe : lancer le main du projet (subprocess)
+    import subprocess
+    
+    subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "main.py")])
 
 
 class Map:
@@ -364,8 +371,6 @@ class Map:
                         queue.append((nx, ny))
             return None
 
-        path = bfs_path((sx, sy), (ex, ey))
-
         def carve(x, y):
             # Creuser seulement dans l'espace vide; ne jamais remplacer un sol de salle '.'
             if 0 <= x < self.width and 0 <= y < self.height:
@@ -375,18 +380,75 @@ class Map:
                 elif self.tiles[y][x] == '+':
                     self.walkable.add((x, y))
 
+        # --- Tentative principale ---
+        path = bfs_path((sx, sy), (ex, ey))
+
         if path:
             for (cx, cy) in path:
                 if (cx, cy) not in (start, end):
                     carve(cx, cy)
         else:
-            # Fallback: couloir en L mais en ne creusant que dans l'espace vide
-            for x in range(min(sx, ex), max(sx, ex) + 1):
-                if (x, sy) not in (start, end):
-                    carve(x, sy)
-            for y in range(min(sy, ey), max(sy, ey) + 1):
-                if (ex, y) not in (start, end):
-                    carve(ex, y)
+            # --- Nouveau fallback plus permissif ---
+            def smart_fallback_corridor(sx, sy, ex, ey):
+                from random import shuffle
+                visited = set()
+                path = []
+                stack = [(sx, sy)]
+
+                def safe(x, y):
+                    return (0 <= x < self.width and 0 <= y < self.height 
+                            and self.tiles[y][x] in (' ', '+') 
+                            and (x, y) not in visited)
+
+                while stack:
+                    cx, cy = stack.pop()
+                    visited.add((cx, cy))
+                    path.append((cx, cy))
+                    if (cx, cy) == (ex, ey):
+                        return path
+                    nbs = list(neighbors(cx, cy))
+                    shuffle(nbs)  # rend le trajet moins rigide (permissif)
+                    for nx, ny in nbs:
+                        if safe(nx, ny):
+                            stack.append((nx, ny))
+                return None
+
+            alt_path = smart_fallback_corridor(sx, sy, ex, ey)
+            
+            if alt_path:
+                for (cx, cy) in alt_path:
+                    if (cx, cy) not in (start, end):
+                        carve(cx, cy)
+            else:
+                # # Fallback: couloir en L mais en ne creusant que dans l'espace vide
+                # for x in range(min(sx, ex), max(sx, ex) + 1):
+                #     if (x, sy) not in (start, end):
+                #         carve(x, sy)
+                # for y in range(min(sy, ey), max(sy, ey) + 1):
+                #     if (ex, y) not in (start, end):
+                #         carve(ex, y)
+                #################################################################################
+                # Fallback: couloir en L mais sans traverser de salles
+                # for x in range(min(sx, ex), max(sx, ex) + 1):
+                #     if (x, sy) not in (start, end) and self.tiles[sy][x] == ' ':
+                #         carve(x, sy)
+                # for y in range(min(sy, ey), max(sy, ey) + 1):
+                #     if (ex, y) not in (start, end) and self.tiles[y][ex] == ' ':
+                #         carve(ex, y)
+                #################################################################################
+                def safe_carve(x, y):
+                    if self.tiles[y][x] == '.':  # ne pas écraser une salle
+                        return
+                    carve(x, y)
+
+                for x in range(min(sx, ex), max(sx, ex) + 1):
+                    if (x, sy) not in (start, end):
+                        safe_carve(x, sy)
+                for y in range(min(sy, ey), max(sy, ey) + 1):
+                    if (ex, y) not in (start, end):
+                        safe_carve(ex, y)
+
+
 
     def get_room_containing(self, x, y):
         for room in self.rooms:
@@ -443,6 +505,37 @@ class Map:
             tries += 1
 
     def _place_items(self, count=3):
+        """   
+        Place des items sur la carte.
+
+        Les items peuvent être choisis aléatoirement ou depuis un fichier CSV en fonction
+        de la variable d'environnement `DONT_USE_CSV_ITEMS`.
+
+        Comportement :
+            - Si `DONT_USE_CSV_ITEMS` est défini à `false` ou `0`, les items sont chargés depuis le fichier CSV situé dans `items/items.csv`.
+            - Si la lecture du CSV échoue ou si `DONT_USE_CSV_ITEMS` est autre chose, des items aléatoires simples (Weapon ou Potion) sont générés.
+
+        Args:
+            count (int, optional): Nombre d'items à placer. Default is 3.
+        """
+        dotenv_path = Path("database/.env")
+        load_dotenv(dotenv_path=dotenv_path)
+        dont_use_csv = os.environ.get("DONT_USE_CSV_ITEMS", "true").strip().lower() not in ["false", "0","f","no","n","non","off","disable","disabled","none","null","nil","0.0","faux","negatif","fals"]
+        
+        # Si CSV est activé, on charge les items du fichier
+        csv_items = []
+        if not dont_use_csv:
+            csv_path = os.path.join("items", "items.csv")
+            try:
+                with open(csv_path, newline='', encoding='utf-8') as f:
+                    reader = csv.DictReader(f)
+                    for row in reader:
+                        csv_items.append(row)
+            except Exception as e:
+                print(f"Erreur lecture CSV items: {e}")
+                dont_use_csv = True  # fallback vers aléatoire si problème CSV
+                import sys;sys.exit(1)
+
         placed = 0
         tries = 0
         flat_walkable = list(self.walkable)
@@ -455,26 +548,54 @@ class Map:
             if self.tiles[y][x] != ".":
                 tries += 1
                 continue
-            # Créer un item simple aléatoire
-            if _r.random() < 0.7:
-                item = Weapon(
-                    name=_r.choice(["Dague", "Épée", "Arc"]),
-                    description="Un objet trouvé au sol",
-                    rarity=_r.choice([Rarity.COMMON, Rarity.RARE, Rarity.EPIC]),
-                    damage=_r.choice([4, 6, 8, 10]),
-                    category=_r.choice([CategoryWeapon.MELEE, CategoryWeapon.DISTANCE]),
-                    range=_r.choice([1.0, 1.5, 3.0, 5.0]),
-                    durability=_r.choice([5, 10, 15]),
-                )
+
+            # Choisir un item
+            if dont_use_csv or not csv_items:
+                # Créer un item simple aléatoire
+                if _r.random() < 0.7:
+                    item = Weapon(
+                        name=_r.choice(["Dague", "Épée", "Arc"]),
+                        description="Un objet trouvé au sol",
+                        rarity=_r.choice([Rarity.COMMON, Rarity.RARE, Rarity.EPIC]),
+                        damage=_r.choice([4, 6, 8, 10]),
+                        category=_r.choice([CategoryWeapon.MELEE, CategoryWeapon.DISTANCE]),
+                        range=_r.choice([1.0, 1.5, 3.0, 5.0]),
+                        durability=_r.choice([5, 10, 15]),
+                    )
+                else:
+                    item = Potion(
+                        name=_r.choice(["Potion de soin", "Potion de vitesse"]),
+                        description="Une fiole mystérieuse",
+                        rarity=_r.choice([Rarity.COMMON, Rarity.RARE]),
+                        category=_r.choice([CategoryPotion.HEALTH, CategoryPotion.SPEED]),
+                        potency=_r.choice([10, 20, 30]),
+                        duration=_r.choice([3, 5, 7]),
+                    )
             else:
-                item = Potion(
-                    name=_r.choice(["Potion de soin", "Potion de vitesse"]),
-                    description="Une fiole mystérieuse",
-                    rarity=_r.choice([Rarity.COMMON, Rarity.RARE]),
-                    category=_r.choice([CategoryPotion.HEALTH, CategoryPotion.SPEED]),
-                    potency=_r.choice([10, 20, 30]),
-                    duration=_r.choice([3, 5, 7]),
-                )
+                # Choisir un item depuis CSV
+                row = _r.choice(csv_items)
+                if row["type"].lower() == "weapon":
+                    item = Weapon(
+                        name=row["name"],
+                        description=row.get("description", ""),
+                        rarity=Rarity[row["rarity"].upper()],
+                        damage=int(row.get("damage", 0)),
+                        category=CategoryWeapon[row["category"].upper()],
+                        range=float(row.get("range", 1.0)),
+                        durability=int(row.get("durability", 10)),
+                    )
+                elif row["type"].lower() == "potion":
+                    item = Potion(
+                        name=row["name"],
+                        description=row.get("description", ""),
+                        rarity=Rarity[row["rarity"].upper()],
+                        category=CategoryPotion[row["category"].upper()],
+                        potency=int(row.get("potency", 10)),
+                        duration=int(row.get("duration", 3)),
+                    )
+                else:
+                    # fallback aléatoire si type inconnu
+                    continue
             self.items.append({"x": x, "y": y, "item": item})
             placed += 1
             tries += 1
@@ -534,6 +655,7 @@ class Map:
                 px, py, dx, dy, owner = pr[:5]
                 owner_id = pr[5] if len(pr) >= 6 else None
             else:
+                logging.warning(f"Projectile ignoré, format inattendu: {pr}")
                 continue
             nx, ny = px + dx, py + dy
             if 0 <= nx < self.width and 0 <= ny < self.height and self.tiles[ny][nx] != "#":
