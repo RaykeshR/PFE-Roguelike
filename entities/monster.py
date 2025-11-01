@@ -34,8 +34,12 @@ class Monster():
         self.pv+=soin
 
     def get_equiped_item(self):
-        return self.equiped_item
+        # ancien: return self.equiped_item
+        return self.weapon
     
+    def set_equiped_item(self, equiped_item):
+        self.weapon = equiped_item
+
     def get_x(self):
         return self.x
     
@@ -49,17 +53,18 @@ class Monster():
         self.pv = pv
 
     def set_equiped_item(self, equiped_item):
-        self.equiped_item = equiped_item
+        self.weapon = equiped_item
     
     def set_x(self, x):
-        self.x = x
+        self.x = int(x)
     
     def set_y(self, y):
-        self.y = y
+        self.y = int(y)
     
     def set_position(self, x, y):
-        self.x = x
-        self.y = y
+        self.x = int(x)
+        self.y = int(y)
+
     
     def set_speed(self, speed: float):
         self.speed = max(0.0, float(speed))
@@ -88,9 +93,9 @@ class Monster():
 
     def _try_action_on_map(self, game_map, action, player_pos):
         """
-        Tente un déplacement 4-dir sur ta Map.
-        Renvoie (next_state, reward, done, applied_bool).
-        Reward: -1/step, -5 si mur, +20 si atteint joueur.
+        Tente un déplacement.
+        Return (next_state, reward, done, applied_bool).
+        Reward: -1/step, -5 si mur, +20 si joueur autour de lui.
         """
         ax, ay = self._offset_from_action(action)
         nx, ny = self.x + ax, self.y + ay
@@ -119,9 +124,7 @@ class Monster():
         d_new = abs(px - nx) + abs(py - ny)
 
         # Reward dense : bonus si on se rapproche, malus si on s'éloigne
-        # Le coefficient 0.6 est doux; ajuste 0.3–1.0 selon ton feeling
         reward += 0.6 * (d_old - d_new)
-
 
         if applied:
             self.x, self.y = nx, ny
@@ -186,8 +189,8 @@ class Monster():
         self.pv = 0
         dropped_item=self.die(drop_rate)
         return dropped_item
-    
-    def kill_all_monsters():
+
+    def kill_all_monsters(self):
         """
         Instantly kill all monsters in the list.
         """
