@@ -147,6 +147,17 @@ class players:
         """
         self.pv+=soin
     
+    def take_damage(self, damage):
+        """
+        Inflige des dégâts au joueur.
+        damage: montant des points de vie à retirer.
+        """
+        self.pv -= damage
+        print("le joueur",self.name,"subit",damage,"dégâts. PV restants :",self.pv)
+        if self.pv<0:
+            self.pv=0
+            self.die()
+    
     def die(self):
         """
         Gère la mort du joueur.
@@ -290,21 +301,24 @@ class players:
         self.map.reveal_from((self.x, self.y))
         self._log.info("Position joueur mise à jour", extra={"extra": {"pos": (self.x, self.y)}})
 
+        """
+        Gere la logique des projecitles
+        """
         # Check collision projectile (simple): mort => message et quitter
-        for pr in list(self.map.projectiles):
-            px, py = pr[0], pr[1]
-            owner = pr[4] if len(pr) >= 5 else "enemy"
-            if owner != "enemy":
-                continue
-            if (px, py) == (self.x, self.y):
-                print("\nVous avez été touché par un projectile !")
-                self._log.warning("Joueur touché par projectile", extra={"extra": {"pos": (self.x, self.y)}})
-                damage = pr[5] if len(pr) >= 6 else 10
-                self.set_pv(max(0, int(self.get_pv()) - damage))
-                if self.get_hp() <= 0:
-                    print("Vous êtes mort ! Fin du jeu.")
-                    self._log.error("Joueur est mort", extra={"extra": {"pos": (self.x, self.y)}})
-                    raise SystemExit(0)
+        # for pr in list(self.map.projectiles):
+        #     px, py = pr[0], pr[1]
+        #     owner = pr[4] if len(pr) >= 5 else "enemy"
+        #     if owner != "enemy":
+        #         continue
+        #     if (px, py) == (self.x, self.y):
+        #         print("\nVous avez été touché par un projectile !")
+        #         self._log.warning("Joueur touché par projectile", extra={"extra": {"pos": (self.x, self.y)}})
+        #         damage = pr[5] if len(pr) >= 6 else 10
+        #         self.set_pv(max(0, int(self.get_pv()) - damage))
+        #         if self.get_hp() <= 0:
+        #             print("Vous êtes mort ! Fin du jeu.")
+        #             self._log.error("Joueur est mort", extra={"extra": {"pos": (self.x, self.y)}})
+        #             raise SystemExit(0)
 
         # Ramassage automatique des items présents sur la case
         items_here = self.map.get_items_at(self.x, self.y)

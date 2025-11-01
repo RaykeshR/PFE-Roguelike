@@ -31,7 +31,7 @@ class Map:
         self.tiles = [[" " for _ in range(self.width)] for _ in range(self.height)]
         self.discovered = set()
         self.enemies = []  # [{"x":int,"y":int,"dx":int,"dy":int}]
-        self.projectiles = []  # tuples: (x,y,dx,dy[,owner,owner_id])
+        # self.projectiles = []  # tuples: (x,y,dx,dy[,owner,owner_id])
         self.attack_flash = {}  # {(x,y): expire_tick}
         self.hit_flash = {}  # {(x,y): expire_tick}
         self.items = []  # list of {"x": int, "y": int, "item": Item}
@@ -93,7 +93,7 @@ class Map:
         self.tiles = [[" " for _ in range(self.width)] for _ in range(self.height)]
         self.discovered = set()
         self.enemies = []
-        self.projectiles = []
+        # self.projectiles = []
         self.attack_flash = {}
         self.hit_flash = {}
         self.items = []
@@ -197,7 +197,7 @@ class Map:
             },
         )
 
-    def draw(self, player_pos):
+    def draw(self, player_pos, player=None):
         self.clear_screen()
         grid = [[" " for _ in range(self.width)] for _ in range(self.height)]
 
@@ -243,13 +243,13 @@ class Map:
             if 0 <= ey < self.height and 0 <= ex < self.width:
                 if (ex, ey) in visible or (ex, ey) in self.discovered:
                     grid[ey][ex] = "M"
-        for pr in self.projectiles:
-            if len(pr) >= 4:
-                px2, py2 = pr[0], pr[1]
-                owner = pr[4] if len(pr) >= 5 else "enemy"
-                if 0 <= py2 < self.height and 0 <= px2 < self.width:
-                    if (px2, py2) in visible or (px2, py2) in self.discovered:
-                        grid[py2][px2] = "^" if owner == "player" else "*"
+        # for pr in self.projectiles:
+        #     if len(pr) >= 4:
+        #         px2, py2 = pr[0], pr[1]
+        #         owner = pr[4] if len(pr) >= 5 else "enemy"
+        #         if 0 <= py2 < self.height and 0 <= px2 < self.width:
+        #             if (px2, py2) in visible or (px2, py2) in self.discovered:
+        #                 grid[py2][px2] = "^" if owner == "player" else "*"
 
         # Effet de flash d'attaque temporaire
         if getattr(self, 'attack_flash', None):
@@ -295,6 +295,24 @@ class Map:
         else:
             for row in grid:
                 print("".join(row))
+                # --- HUD joueur ---
+        """
+        bar de vie du joueur
+        """
+        if player is not None:
+            pv = player.get_pv()
+            max_pv = 100  # ou player.get_max_pv()
+            bar_len = 20
+            filled = int((pv / max_pv) * bar_len)
+            filled = max(0, min(bar_len, filled))
+            
+            # tu peux choisir ton style de barre :
+            bar = "[" + "█" * filled + " " * (bar_len - filled) + "]"
+            
+            # afficher la barre avec le texte à droite
+            print(f"{bar}  {pv}/{max_pv}")
+
+        
         print("\nLégende: @=Joueur, #=Mur, +=Porte, S=Départ, E=Arrivée, !=Item, *=Proj ennemi, ^=Proj joueur, X=Hit")
 
     def create_corridor(self, start, end, grid=None):
@@ -620,63 +638,82 @@ class Map:
             return True
         return False
 
-    def tick(self, player_pos=None):
+    def tick(self, player=None):
+        player_pos = (player.x, player.y) if player else None
         # if self.enemies:
         #     print("Type des ennemis :", type(self.enemies[0]))
         self.ticks += 1
-        if self.ticks % 10 == 0:
-            for e in self.enemies:
-                # projectiles ennemis avec propriétaire
-                self.projectiles.append((e.x, e.y, e.dx, e.dy, "enemy", id(e)))
+        # if self.ticks % 10 == 0:
+        #     for e in self.enemies:
+        #         # projectiles ennemis avec propriétaire
+        #         self.projectiles.append((e.x, e.y, e.dx, e.dy, "enemy", id(e)))
         # log positions projectiles (supporte formats étendus)
-        if self.projectiles:
-            ep = get_episode_logger()
-            proj_log = []
-            for pr in self.projectiles:
-                if len(pr) >= 4:
-                    entry = [pr[0], pr[1], pr[2], pr[3]]
-                    if len(pr) >= 5:
-                        entry.append(pr[4])  # owner
-                    if len(pr) >= 6:
-                        entry.append(pr[5])  # owner_id
-                    proj_log.append(entry)
-            ep.log_step({
-                "tick": self.ticks,
-                "projectiles": proj_log
-            })
+        # if self.projectiles:
+        #     ep = get_episode_logger()
+        #     proj_log = []
+        #     for pr in self.projectiles:
+        #         if len(pr) >= 4:
+        #             entry = [pr[0], pr[1], pr[2], pr[3]]
+        #             if len(pr) >= 5:
+        #                 entry.append(pr[4])  # owner
+        #             if len(pr) >= 6:
+        #                 entry.append(pr[5])  # owner_id
+        #             proj_log.append(entry)
+        #     ep.log_step({
+        #         "tick": self.ticks,
+        #         "projectiles": proj_log
+        #     })
 
-        new_projectiles = []
-        for pr in self.projectiles:
-            if len(pr) == 4:
-                px, py, dx, dy = pr
-                owner = "enemy"
-                owner_id = None
-            elif len(pr) >= 5:
-                px, py, dx, dy, owner = pr[:5]
-                owner_id = pr[5] if len(pr) >= 6 else None
-            else:
-                logging.warning(f"Projectile ignoré, format inattendu: {pr}")
-                continue
-            nx, ny = px + dx, py + dy
-            if 0 <= nx < self.width and 0 <= ny < self.height and self.tiles[ny][nx] != "#":
-                if owner_id is not None:
-                    new_projectiles.append((nx, ny, dx, dy, owner, owner_id))
-                else:
-                    new_projectiles.append((nx, ny, dx, dy, owner))
-        self.projectiles = new_projectiles
+        # new_projectiles = []
+        # for pr in self.projectiles:
+        #     if len(pr) == 4:
+        #         px, py, dx, dy = pr
+        #         owner = "enemy"
+        #         owner_id = None
+        #     elif len(pr) >= 5:
+        #         px, py, dx, dy, owner = pr[:5]
+        #         owner_id = pr[5] if len(pr) >= 6 else None
+        #     else:
+        #         logging.warning(f"Projectile ignoré, format inattendu: {pr}")
+        #         continue
+        #     nx, ny = px + dx, py + dy
+        #     if 0 <= nx < self.width and 0 <= ny < self.height and self.tiles[ny][nx] != "#":
+        #         if owner_id is not None:
+        #             new_projectiles.append((nx, ny, dx, dy, owner, owner_id))
+        #         else:
+        #             new_projectiles.append((nx, ny, dx, dy, owner))
+        # self.projectiles = new_projectiles
 
-        # -------- [RL] déplacement + update Q-learning ----------
+        # --------  Q-learning des monstres ----------
         if player_pos is not None:
             for m in list(self.enemies):
+                """
+                Avance le monstre m vers le joueur selon sa vitesse et son RL.
+                """
                 m._move_acc += m.speed
                 while m._move_acc >= 1.0:
                     reached = m.rl_step(self, player_pos)
                     m._move_acc -= 1.0
                     if reached:
-                        # TODO: gérer l'attaque/dégâts au joueur
-                        break
-        # -------------------------------------------------------
+                        """
+                        L'ennemi a atteint le joueur; inflige des dégâts.
+                        """
+                        dmg = m.get_damage()
+                        player.take_damage(dmg)
+                        px, py = player_pos
+                        self.add_hit_flash([(px, py)], duration_ticks=6)
 
+                        # log
+                        ep = get_episode_logger()
+                        ep.log_step({
+                            "tick": self.ticks,
+                            "event": "enemy_attack",
+                            "enemy_id": id(m),
+                            "player_pos": [px, py],
+                            "damage": dmg,
+                        })
+                        break
+        # ---------------------------------------------
 
     def _compute_visible(self, current_room):
         visible = set()

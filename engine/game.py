@@ -46,13 +46,13 @@ def run_game():
         # Boucle avec saisie continue (Windows)
         print("Contrôles: ZQSD, Attaque=A, Inventaire=I, Aide=H, Quitter=X (maintenir possible)")
         while playing:
-            game_map.draw((player.x, player.y))
+            game_map.draw((player.x, player.y), player)
             print_hud()
             time.sleep(0.08)
             # for i in game_map.get_matrix():print(i)
             # import sys
             # sys.exit(0)
-            game_map.tick((player.x, player.y))
+            game_map.tick(player)
             if msvcrt.kbhit():
                 key = msvcrt.getwch().lower()
                 if key == "x":
@@ -79,10 +79,10 @@ def run_game():
     else:
         # Fallback: saisie par ligne
         while playing:
-            game_map.draw((player.x, player.y))
+            game_map.draw((player.x, player.y), player)
             print_hud()
             print("Déplacez-vous avec ZQSD | A=Attaque | I=Inventaire | H=Aide | X=Quitter")
-            game_map.tick((player.x, player.y))
+            game_map.tick(player)
             cmd = input("> ").lower()
             if cmd == "x":
                 playing = False

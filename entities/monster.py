@@ -37,8 +37,16 @@ class Monster():
         # ancien: return self.equiped_item
         return self.weapon
     
-    def set_equiped_item(self, equiped_item):
-        self.weapon = equiped_item
+    def get_equiped_item(self):
+        return self.weapon
+
+    def get_damage(self):
+        """
+        return damage of equipied weapon or default damage (5).
+        """
+        if self.weapon:
+            return self.weapon.damage
+        return 5
 
     def get_x(self):
         return self.x
@@ -72,10 +80,9 @@ class Monster():
 
     ###### RL methods ######
 
-
     def _ensure_rl(self):
         if self.rl_agent is None:
-            self.rl_agent = QLearningAgent()
+            self.rl_agent = QLearningAgent(epsilon=0.2)
 
     def _state(self, player_pos, clip=6):
         px, py = player_pos
