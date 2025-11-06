@@ -30,6 +30,7 @@ CREATE TABLE joueurs (
     niveau INT DEFAULT 1,
     xp INT DEFAULT 0,
     pv INT DEFAULT 100, -- points de vie
+    q_table_path VARCHAR(255) UNIQUE, 
     created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -82,38 +83,3 @@ CREATE TABLE rooms (
 if __name__ == "__main__":
     initialiser_base_de_donnees()
 
-def ajouter_joueur(nom):
-    """Ajoute un nouveau joueur et retourne son ID."""
-    # Le %s est un placeholder. psycopg2 le remplace par la valeur dans `params`
-    # C'est une protection contre les injections SQL.
-# Demander le nom du joueur
-    nom = input("Entrez le nom du joueur : ")
-
-# Insérer le joueur dans la base
-    execute_query("INSERT INTO joueurs (nom) VALUES (%s);", (nom,))
-
-    print(f"✅ Joueur '{nom}' ajouté dans la base avec succès !")
-
-
-def get_joueur_par_nom(nom):
-    """Récupère les informations d'un joueur."""
-    query = "SELECT id, nom, niveau, xp FROM joueurs WHERE nom = %s;"
-    params = (nom,)
-    return execute_query(query, params, fetch="one")
-
-
-# --- DÉBUT DU JEU ---
-# if __name__ == "__main__":
-#     initialiser_base_de_donnees()
-    
-#     # Test d'ajout et de récupération
-#     nom_joueur = "Gandalf"
-#     joueur_id = ajouter_joueur(nom_joueur)
-    
-#     # Il est possible que le joueur existe déjà, on le récupère
-#     if not joueur_id:
-#         print(f"Le joueur '{nom_joueur}' existe déjà. On récupère ses infos.")
-#         joueur_data = get_joueur_par_nom(nom_joueur)
-#         if joueur_data:
-#             joueur_id = joueur_data[0]
-#             print(f"Infos récupérées pour {joueur_data[1]} (ID: {joueur_data[0]})")
