@@ -16,7 +16,15 @@ def run_etl():
 
     client = MongoClient(mongo_url)
     db = client["RoguelikePFE_Analytics"]
-    collection = db["game_episodes"]
+    
+    # Collection pour les épisodes complets (bon pour l'analyse)
+    collection_episodes = db["game_episodes"]
+    
+    # NOUVELLE COLLECTION : optimisée pour l'entraînement RL
+    collection_transitions = db["rl_transitions"]
+    # Optionnel : créer un index pour accélérer les requêtes
+    collection_transitions.create_index([("episode_id", 1)])
+    
     print(" Connecté à MongoDB.")
 
     # Chemin vers les logs
@@ -36,21 +44,36 @@ def run_etl():
                 # Extrait l'ID de l'épisode du nom de fichier
                 episode_id = filename.replace('episode_', '').replace('.jsonl', '')
 
-                # Vérifie si cet épisode est déjà dans la base
-                if collection.find_one({"episode_id": episode_id}):
+                # Vérifie si cet épisode est déjà dans la base (pour la collection d'épisodes)
+                if collection_episodes.find_one({"episode_id": episode_id}):
                     continue
 
                 print(f" Traitement du fichier : {filename}")
-                with open(filepath, 'r', encoding='utf-8') as f:
-                    episode_data = [json.loads(line) for line in f]
                 
+                transitions_a_inserer = []
+                episode_data = []
+                
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    for line in f:
+                        log_entry = json.loads(line)
+                        episode_data.append(log_entry)
+                        
+                        # Si c'est une transition, on la cible
+                        if log_entry.get("type") == "transition":
+                            transitions_a_inserer.append(log_entry)
+                
+                # Insère l'ensemble de l'épisode comme un seul document
                 if episode_data:
-                    # Insère l'ensemble de l'épisode comme un seul document
-                    collection.insert_one({
+                    collection_episodes.insert_one({
                         "episode_id": episode_id, 
                         "events": episode_data
                     })
-                    print(f"  -> Episode {episode_id} inséré.")
+                    print(f"  -> Episode {episode_id} inséré dans [game_episodes].")
+
+                # Insère toutes les transitions de cet épisode en une seule fois
+                if transitions_a_inserer:
+                    collection_transitions.insert_many(transitions_a_inserer)
+                    print(f"  -> {len(transitions_a_inserer)} transitions insérées dans [rl_transitions].")
 
 if __name__ == "__main__":
     run_etl()

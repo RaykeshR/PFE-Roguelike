@@ -63,3 +63,41 @@ def execute_query(query, params=None, fetch=None):
         # Redonne la connexion au pool pour qu'elle soit réutilisée
         if conn:
             connection_pool.putconn(conn)
+
+# Dans PFE-Roguelike/database/db_sql.py (meilleur endroit)
+
+def ajouter_joueur(nom, utilisateur_id):
+    """
+    Ajoute un nouveau joueur, crée son chemin de Q-Table et le stocke.
+    Retourne les infos du nouveau joueur.
+    """
+    
+    # 1. Insérer le joueur et récupérer son NOUVEL ID
+    # (Note: 'RETURNING id' fonctionne sur Postgres)
+    query_insert = """
+    INSERT INTO joueurs (nom, utilisateur_id, q_table_path) 
+    VALUES (%s, %s, %s) 
+    RETURNING id;
+    """
+    
+    # On met un chemin temporaire
+    temp_path = f"temp_path_for_{nom}"
+    new_id = execute_query(query_insert, (nom, utilisateur_id, temp_path), fetch="one")
+    
+    if not new_id:
+        print("Erreur lors de la création du joueur.")
+        return None
+        
+    joueur_id = new_id[0]
+    
+    # 2. Créer le chemin unique basé sur l'ID
+    q_table_path = f"models/qtables/joueur_{joueur_id}.pkl"
+    
+    # 3. Mettre à jour le joueur avec le chemin final
+    query_update = "UPDATE joueurs SET q_table_path = %s WHERE id = %s;"
+    execute_query(query_update, (q_table_path, joueur_id))
+    
+    print(f"✅ Joueur '{nom}' (ID: {joueur_id}) ajouté.")
+    print(f"   -> Fichier IA assigné : {q_table_path}")
+    
+    return get_joueur_par_id(joueur_id) # (Vous aurez besoin de créer cette fonction)
