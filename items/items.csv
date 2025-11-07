@@ -6,7 +6,7 @@ id,name,description,rarity,type,damage,defense,range,category,durability,potency
 5,Dague empoisonnée des ténèbres,Une petite lame recouverte de poison,rare,weapon,7,0,1.5,melee,85,10,3
 6,Bouclier en bois de boulot,Un bouclier simple mais utile contre les coups,common,weapon,0,5,0.0,shield,100,0,0
 7,Potion de soin,Redonne progressivement des points de vie,common,potion,0,0,0.0,health,0,50,5
-8,Potion de force,Augmente temporairement les dégâts physiques,common,potion,0,0,0.0,strengh,0,20,10
+8,Potion de force,Augmente temporairement les dégâts physiques,common,potion,0,0,0.0,strength,0,20,10
 9,Potion de vitesse,Augmente la vitesse de déplacement pendant un court instant,common,potion,0,0,0.0,speed,0,15,8
 10,Épée du roi Louis XIV,Une épée légendaire forgée pour un roi oublié,legendary,weapon,25,5,1.0,melee,120,0,0
 11,Arc du phénix flamboyant,Un arc légendaire tirant des flèches enflammées,legendary,weapon,20,0,6.0,distance,100,0,0
