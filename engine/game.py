@@ -20,8 +20,6 @@ def run_game():
     game_map = Map()
     player = PlayerController(name="player", pv=100, inventory=None, equiped_item=None, is_human=True, x=0.0, y=0.0,game_map=game_map) 
     log.info("Partie initialisée", extra={"extra": {"start": game_map.start, "rooms": len(game_map.rooms)}})
-    profiler = PlayerProfiler()
-    director = AIDirector()
     current_monster_strategy = "standard"
 
     # Episode logger
