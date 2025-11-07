@@ -30,3 +30,45 @@ class QLearningAgent:
 
     def decay(self):
         self.epsilon = max(self.min_epsilon, self.epsilon * self.eps_decay)
+
+
+
+
+import pickle
+import os
+from collections import defaultdict
+
+
+def save_q_table(q_data, path):
+    """Sauvegarde les données de la Q-table (un dictionnaire) dans un fichier pickle."""
+    try:
+        # S'assurer que le dossier existe
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        
+        # Sauvegarder les données Q
+        with open(path, 'wb') as f:
+            pickle.dump(dict(q_data), f) # On sauvegarde un dict normal
+        print(f"Q-Table sauvegardée à : {path}")
+    except Exception as e:
+        print(f"Erreur lors de la sauvegarde de la Q-Table à {path}: {e}")
+
+def load_q_table(path):
+    """Charge une Q-table depuis un fichier pickle.
+    Retourne un defaultdict vide si le fichier n'existe pas.
+    """
+    if not os.path.exists(path):
+        print(f"Aucune Q-Table trouvée à {path}. Création d'une nouvelle table.")
+        # Retourne une nouvelle Q-table vide
+        return defaultdict(lambda: defaultdict(float))
+        
+    try:
+        with open(path, 'rb') as f:
+            q_data_dict = pickle.load(f)
+            # Reconvertir en defaultdict pour l'agent
+            q_data = defaultdict(lambda: defaultdict(float))
+            q_data.update(q_data_dict)
+            print(f"Q-Table chargée depuis : {path}")
+            return q_data
+    except Exception as e:
+        print(f"Erreur lors du chargement de la Q-Table de {path}: {e}. Utilisation d'une table vide.")
+        return defaultdict(lambda: defaultdict(float))
