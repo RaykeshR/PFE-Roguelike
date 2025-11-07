@@ -86,33 +86,33 @@ def test_player_projectile_spawns_with_steps_and_range():
     assert pr[7] == int(round(3.0))
 
 
-# def test_projectile_moves_and_fades_after_range(capsys):
-#     # Forcer l'activation des couleurs pour capter les codes ANSI
-#     os.environ["USE_COLOR"] = "1"
-#     # Désactiver l'enrobage Colorama pour conserver les séquences ANSI dans stdout capturé
-#     os.environ["COLORAMA_WRAP"] = "0"
-#     game_map = Map(width=60, height=26, room_count=5)
-#     # Placer un projectile déjà au-delà de sa portée (steps >= max_steps)
-#     px, py = game_map.start
-#     pr = (px + 1, py, 1, 0, "player", None, 2, 2)
-#     game_map.projectiles.append(pr)
+def test_projectile_moves_and_fades_after_range(capsys):
+    # Forcer l'activation des couleurs pour capter les codes ANSI
+    os.environ["USE_COLOR"] = "1"
+    # Désactiver l'enrobage Colorama pour conserver les séquences ANSI dans stdout capturé
+    os.environ["COLORAMA_WRAP"] = "0"
+    game_map = Map(width=60, height=26, room_count=5)
+    # Placer un projectile déjà au-delà de sa portée (steps >= max_steps)
+    px, py = game_map.start
+    pr = (px + 1, py, 1, 0, "player", None, 2, 2)
+    game_map.projectiles.append(pr)
 
-#     # Render direct, sans tick, pour garantir la présence et la visibilité
-#     game_map.draw((px, py))
-#     captured = capsys.readouterr().out
-#     # 1) Le projectile doit être rendu (caractère '^')
-#     assert "^" in captured
-#     # 2) Si l'ANSI gris n'est pas présent (Windows/Colorama peuvent l'absorber),
-#     # on échoue avec un message diagnostique riche pour aider au debug local
-#     if "\x1b[90m" not in captured:
-#         use_color = os.environ.get("USE_COLOR")
-#         colorama_wrap = os.environ.get("COLORAMA_WRAP")
-#         pytest.fail(
-#             "Couleur grise non détectée dans le rendu. Diagnostics: "
-#             f"USE_COLOR={use_color}, COLORAMA_WRAP={colorama_wrap}. "
-#             "Sous Windows, Colorama peut retirer les séquences ANSI; "
-#             "vérifiez la console ou exécutez avec COLORAMA_WRAP=0."
-#         )
+    # Render direct, sans tick, pour garantir la présence et la visibilité
+    game_map.draw((px, py))
+    captured = capsys.readouterr().out
+    # 1) Le projectile doit être rendu (caractère '^')
+    assert "^" in captured
+    # 2) Si l'ANSI gris n'est pas présent (Windows/Colorama peuvent l'absorber),
+    # on échoue avec un message diagnostique riche pour aider au debug local
+    if "\x1b[90m" not in captured:
+        use_color = os.environ.get("USE_COLOR")
+        colorama_wrap = os.environ.get("COLORAMA_WRAP")
+        pytest.fail(
+            "Couleur grise non détectée dans le rendu. Diagnostics: "
+            f"USE_COLOR={use_color}, COLORAMA_WRAP={colorama_wrap}. "
+            "Sous Windows, Colorama peut retirer les séquences ANSI; "
+            "vérifiez la console ou exécutez avec COLORAMA_WRAP=0."
+        )
 
 
 def test_ranged_attack_without_target_renders_projectile(capsys):
