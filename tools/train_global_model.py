@@ -25,7 +25,7 @@ for epoch in range(NB_EPOCHS):
     print(f"--- Époque {epoch + 1}/{NB_EPOCHS} ---")
 
     # Optionnel mais recommandé : mélanger les données
-    random.shuffle(transitions) 
+    #random.shuffle(transitions) 
 
     for transition in transitions:
         # Récupérer les 5 ÉLÉMENTS INDISPENSABLES
