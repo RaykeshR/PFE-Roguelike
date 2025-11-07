@@ -46,6 +46,10 @@ class Map:
             try:
                 from colorama import Fore, Style, init as colorama_init
                 try:
+                    # wrap=False évite le ré-enrobage de stdout qui supprimait l'affichage des projectiles
+                    colorama_init(autoreset=False, strip=False, convert=False, wrap=False)
+                except TypeError:
+                    # Ancienne version de colorama sans paramètre wrap
                     colorama_init()
                 except Exception:
                     pass
@@ -264,6 +268,9 @@ class Map:
                             grid[py2][px2] = "^"
                             if steps is not None and max_steps is not None and steps >= max_steps:
                                 faded_cells.add((px2, py2))
+                            if os.environ.get("PFE_DEBUG_PROJECTILES") == "1":
+                                faded = steps is not None and max_steps is not None and steps >= max_steps
+                                print(f"[DBG] Draw projectile '^' at {(px2,py2)} faded={faded} steps={steps} max_steps={max_steps}")
                         else:
                             grid[py2][px2] = "*"
 
@@ -694,7 +701,16 @@ class Map:
                         new_projectiles.append((nx, ny, dx, dy, owner, owner_id))
                     else:
                         new_projectiles.append((nx, ny, dx, dy, owner))
+            else:
+                if os.environ.get("PFE_DEBUG_PROJECTILES") == "1":
+                    reason = "wall" if (0 <= nx < self.width and 0 <= ny < self.height and self.tiles[ny][nx] == "#") else "out_of_bounds"
+                    print(f"[DBG] Drop projectile at {(px,py)} moving to {(nx,ny)} blocked by {reason}")
         self.projectiles = new_projectiles
+
+        if os.environ.get("PFE_DEBUG_PROJECTILES") == "1":
+            if self.projectiles:
+                preview = ", ".join([f"({p[0]},{p[1]})" for p in self.projectiles[:5]])
+                print(f"[DBG] Tick {self.ticks}: {len(self.projectiles)} projectile(s): {preview}{' ...' if len(self.projectiles)>5 else ''}")
 
         # -------- [RL] déplacement + update Q-learning ----------
         if player_pos is not None:
