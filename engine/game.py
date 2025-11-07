@@ -1,7 +1,6 @@
 import time
 import logging
-from engine.player_profiler import PlayerProfiler
-from engine.ai_director import AIDirector
+
 try:
     import msvcrt  # Windows input non bloquant
 except ImportError:
@@ -12,6 +11,7 @@ from entities.players import players as PlayerController
 from system.game_logging import get_episode_logger
 from items import Weapon, Potion
 from items.category_weapon import CategoryWeapon
+
 
 
 def run_game():
