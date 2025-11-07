@@ -1,6 +1,6 @@
 import os
 import sys
-
+from dotenv import load_dotenv
 
 def main() -> int:
     try:
@@ -27,4 +27,6 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    dotenv_path = os.path.join(os.path.dirname(__file__), '.', 'database', '.env')
+    load_dotenv(dotenv_path=dotenv_path)
     raise SystemExit(main())

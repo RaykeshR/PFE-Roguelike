@@ -1,4 +1,5 @@
 import time
+import os
 import logging
 from engine.player_profiler import PlayerProfiler
 from engine.ai_director import AIDirector
@@ -209,6 +210,8 @@ def _player_attack(player: PlayerController, game_map: Map):
             sx, sy = player.x + dx, player.y + dy
             if 0 <= sx < game_map.width and 0 <= sy < game_map.height:
                 # steps=0, max_steps = portée de l'arme
+                if os.environ.get("PFE_DEBUG_PROJECTILES") == "1":
+                    print(f"[DBG] Emit projectile(no target) from {(player.x, player.y)} dir={(dx,dy)} start={(sx,sy)} max_steps={max_dist}")
                 game_map.projectiles.append((sx, sy, dx, dy, "player", None, 0, max_dist))
                 print("Tir dans le vide pour tester l'arme.")
         else:
@@ -227,6 +230,8 @@ def _player_attack(player: PlayerController, game_map: Map):
         sx, sy = px + dx, py + dy
         if 0 <= sx < game_map.width and 0 <= sy < game_map.height:
             # projectiles du joueur, propriétaire "player" avec suivi de portée
+            if os.environ.get("PFE_DEBUG_PROJECTILES") == "1":
+                print(f"[DBG] Emit projectile(to target) from {(px,py)} dir={(dx,dy)} start={(sx,sy)} max_steps={max_dist}")
             game_map.projectiles.append((sx, sy, dx, dy, "player", None, 0, max_dist))
     else:
         # flash mêlée sur la case de la cible

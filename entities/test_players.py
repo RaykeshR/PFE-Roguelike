@@ -32,6 +32,16 @@ def player_fixture():
         y=0.0,
         game_map=game_map
     )
+    # Assurer une position de départ avec au moins un déplacement possible
+    safe_pos = None
+    for (wx, wy) in game_map.walkable:
+        if (wx + 1, wy) in game_map.walkable:
+            safe_pos = (wx, wy)
+            break
+    if safe_pos:
+        sx, sy = safe_pos
+        player.set_position(sx, sy)
+        game_map.reveal_from((sx, sy))
     return player, game_map
 
 def test_player_move(player_fixture):
