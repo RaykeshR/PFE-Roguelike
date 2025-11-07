@@ -31,7 +31,7 @@ class Map:
         self.tiles = [[" " for _ in range(self.width)] for _ in range(self.height)]
         self.discovered = set()
         self.enemies = []  # [{"x":int,"y":int,"dx":int,"dy":int}]
-        self.projectiles = []  # tuples: (x,y,dx,dy[,owner,owner_id])
+        self.projectiles = []  # tuples: (x,y,dx,dy[,owner,owner_id[,steps,max_steps]])
         self.attack_flash = {}  # {(x,y): expire_tick}
         self.hit_flash = {}  # {(x,y): expire_tick}
         self.items = []  # list of {"x": int, "y": int, "item": Item}
@@ -62,6 +62,12 @@ class Map:
                     "X": Fore.RED,
                 }
                 self._color_reset = Style.RESET_ALL
+                # Couleur grise (pour projectiles au-delà de la portée)
+                try:
+                    from colorama import Fore as _Fore
+                    self._color_grey = _Fore.LIGHTBLACK_EX
+                except Exception:
+                    self._color_grey = ""
             except Exception:
                 # Fallback ANSI direct (sans colorama)
                 ESC = "\x1b["
@@ -78,6 +84,8 @@ class Map:
                     "X": ESC + "31m",   # rouge
                 }
                 self._color_reset = "\x1b[0m"
+                # Gris ANSI (bright black)
+                self._color_grey = "\x1b[90m"
 
         self.generate()
 
@@ -243,13 +251,21 @@ class Map:
             if 0 <= ey < self.height and 0 <= ex < self.width:
                 if (ex, ey) in visible or (ex, ey) in self.discovered:
                     grid[ey][ex] = "M"
+        faded_cells = set()
         for pr in self.projectiles:
             if len(pr) >= 4:
                 px2, py2 = pr[0], pr[1]
                 owner = pr[4] if len(pr) >= 5 else "enemy"
+                steps = pr[6] if len(pr) >= 7 else None
+                max_steps = pr[7] if len(pr) >= 8 else None
                 if 0 <= py2 < self.height and 0 <= px2 < self.width:
                     if (px2, py2) in visible or (px2, py2) in self.discovered:
-                        grid[py2][px2] = "^" if owner == "player" else "*"
+                        if owner == "player":
+                            grid[py2][px2] = "^"
+                            if steps is not None and max_steps is not None and steps >= max_steps:
+                                faded_cells.add((px2, py2))
+                        else:
+                            grid[py2][px2] = "*"
 
         # Effet de flash d'attaque temporaire
         if getattr(self, 'attack_flash', None):
@@ -281,16 +297,21 @@ class Map:
 
         # Couleurs ANSI (optionnelles)
         if self._color_map:
-            for row in grid:
+            for y_idx, row in enumerate(grid):
                 out = []
-                for c in row:
-                    prefix = self._color_map.get(c)
-                    if prefix:
-                        out.append(prefix)
+                for x_idx, c in enumerate(row):
+                    if (x_idx, y_idx) in faded_cells and self._color_grey:
+                        out.append(self._color_grey)
                         out.append(c)
                         out.append(self._color_reset)
                     else:
-                        out.append(c)
+                        prefix = self._color_map.get(c)
+                        if prefix:
+                            out.append(prefix)
+                            out.append(c)
+                            out.append(self._color_reset)
+                        else:
+                            out.append(c)
                 print("".join(out))
         else:
             for row in grid:
@@ -651,18 +672,28 @@ class Map:
                 px, py, dx, dy = pr
                 owner = "enemy"
                 owner_id = None
+                steps = None
+                max_steps = None
             elif len(pr) >= 5:
                 px, py, dx, dy, owner = pr[:5]
                 owner_id = pr[5] if len(pr) >= 6 else None
+                steps = pr[6] if len(pr) >= 7 else None
+                max_steps = pr[7] if len(pr) >= 8 else None
             else:
                 logging.warning(f"Projectile ignoré, format inattendu: {pr}")
                 continue
             nx, ny = px + dx, py + dy
             if 0 <= nx < self.width and 0 <= ny < self.height and self.tiles[ny][nx] != "#":
-                if owner_id is not None:
-                    new_projectiles.append((nx, ny, dx, dy, owner, owner_id))
+                # Incrémenter les steps si suivi activé
+                if steps is not None:
+                    steps = steps + 1
+                if steps is not None and max_steps is not None:
+                    new_projectiles.append((nx, ny, dx, dy, owner, owner_id, steps, max_steps))
                 else:
-                    new_projectiles.append((nx, ny, dx, dy, owner))
+                    if owner_id is not None:
+                        new_projectiles.append((nx, ny, dx, dy, owner, owner_id))
+                    else:
+                        new_projectiles.append((nx, ny, dx, dy, owner))
         self.projectiles = new_projectiles
 
         # -------- [RL] déplacement + update Q-learning ----------
