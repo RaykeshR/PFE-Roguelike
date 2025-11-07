@@ -59,7 +59,6 @@ def run_game():
                 elif key == "a":
                     _player_attack(player, game_map)
                 elif key in ("z", "q", "s", "d"):
-                    profiler.log_action('move')
                     old = (player.x, player.y)
                     player.move(key)
                     if (player.x, player.y) != old:
