@@ -46,13 +46,7 @@ def run_game():
         # Boucle avec saisie continue (Windows)
         print("Contrôles: ZQSD, Attaque=A, Inventaire=I, Aide=H, Quitter=X (maintenir possible)")
         while playing:
-            game_map.draw((player.x, player.y))
-            print_hud()
-            time.sleep(0.08)
-            # for i in game_map.get_matrix():print(i)
-            # import sys
-            # sys.exit(0)
-            game_map.tick((player.x, player.y))
+            # 1) Entrée utilisateur d'abord (pour afficher tout de suite les effets)
             if msvcrt.kbhit():
                 key = msvcrt.getwch().lower()
                 if key == "x":
@@ -76,13 +70,16 @@ def run_game():
                             "player": {"from": list(old), "to": [player.x, player.y]},
                             "action_player": key,
                         })
+            # 2) Rendu immédiatement après l'entrée pour afficher p.ex. un projectile initial contre un mur
+            game_map.draw((player.x, player.y))
+            print_hud()
+            time.sleep(0.08)
+            # 3) Tick logique (déplacement projectiles/IA)
+            game_map.tick((player.x, player.y))
     else:
         # Fallback: saisie par ligne
         while playing:
-            game_map.draw((player.x, player.y))
-            print_hud()
             print("Déplacez-vous avec ZQSD | A=Attaque | I=Inventaire | H=Aide | X=Quitter")
-            game_map.tick((player.x, player.y))
             cmd = input("> ").lower()
             if cmd == "x":
                 playing = False
@@ -103,6 +100,11 @@ def run_game():
                         "player": {"from": list(old), "to": [player.x, player.y]},
                         "action_player": cmd,
                     })
+            # Affichage tout de suite après l'entrée
+            game_map.draw((player.x, player.y))
+            print_hud()
+            # Puis tick
+            game_map.tick((player.x, player.y))
 
 
 
@@ -173,6 +175,14 @@ def _open_inventory_menu(player: PlayerController):
 
 
 def _player_attack(player: PlayerController, game_map: Map):
+    def _is_weapon_ranged(w) -> bool:
+        cat = getattr(w, 'category', None)
+        if isinstance(cat, CategoryWeapon):
+            return cat == CategoryWeapon.DISTANCE
+        if isinstance(cat, str):
+            c = cat.strip().lower()
+            return c in ("distance", "ranged", "range", "bow", "arc")
+        return False
     w = player.get_equipped_weapon()
     if not w:
         print("Aucune arme équipée.")
@@ -191,20 +201,21 @@ def _player_attack(player: PlayerController, game_map: Map):
             nearest_d = d
     if nearest is None:
         # Pas de cible: si arme à distance, tirer dans la dernière direction connue
-        is_ranged = getattr(w, 'category', None) == CategoryWeapon.DISTANCE
+        is_ranged = _is_weapon_ranged(w)
         if is_ranged:
             dx, dy = getattr(player, '_last_dir', (1, 0))
             if dx == 0 and dy == 0:
                 dx, dy = (1, 0)
             sx, sy = player.x + dx, player.y + dy
             if 0 <= sx < game_map.width and 0 <= sy < game_map.height:
-                game_map.projectiles.append((sx, sy, dx, dy, "player", None))
+                # steps=0, max_steps = portée de l'arme
+                game_map.projectiles.append((sx, sy, dx, dy, "player", None, 0, max_dist))
                 print("Tir dans le vide pour tester l'arme.")
         else:
             print("Aucune cible à portée.")
         return
     # Animation/projectiles si arme à distance
-    is_ranged = getattr(w, 'category', None) == CategoryWeapon.DISTANCE
+    is_ranged = _is_weapon_ranged(w)
     # projectile directionnel grossier vers la cible
     if is_ranged:
         dx = 0
@@ -215,8 +226,8 @@ def _player_attack(player: PlayerController, game_map: Map):
             dy = 1 if nearest.y > py else -1
         sx, sy = px + dx, py + dy
         if 0 <= sx < game_map.width and 0 <= sy < game_map.height:
-            # projectiles du joueur, propriétaire "player"
-            game_map.projectiles.append((sx, sy, dx, dy, "player", None))
+            # projectiles du joueur, propriétaire "player" avec suivi de portée
+            game_map.projectiles.append((sx, sy, dx, dy, "player", None, 0, max_dist))
     else:
         # flash mêlée sur la case de la cible
         try:

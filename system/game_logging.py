@@ -2,7 +2,7 @@ import json
 import os
 import threading
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class EpisodeLogger:
@@ -29,7 +29,7 @@ class EpisodeLogger:
         return target
 
     def _open_file(self):
-        day = datetime.utcnow().strftime("%Y-%m-%d")
+        day = datetime.now(timezone.utc).strftime("%Y-%m-%d")
         day_dir = os.path.join(self.base_logs_dir, day)
         os.makedirs(day_dir, exist_ok=True)
         fn = os.path.join(day_dir, f"episode_{self.episode_id}.jsonl")
@@ -54,7 +54,7 @@ class EpisodeLogger:
             self._open_file()
             payload = {
                 "type": "episode_start",
-                "ts": datetime.utcnow().isoformat() + "Z",
+                "ts": datetime.now(timezone.utc).isoformat(),
                 "episode_id": self.episode_id,
                 "meta": meta or {},
             }
@@ -64,7 +64,7 @@ class EpisodeLogger:
         with self._lock:
             payload = {
                 "type": "step",
-                "ts": datetime.utcnow().isoformat() + "Z",
+                "ts": datetime.now(timezone.utc).isoformat(),
                 "episode_id": self.episode_id,
                 "step": step or {},
             }
@@ -74,7 +74,7 @@ class EpisodeLogger:
         with self._lock:
             payload = {
                 "type": "transition",
-                "ts": datetime.utcnow().isoformat() + "Z",
+                "ts": datetime.now(timezone.utc).isoformat(),
                 "episode_id": self.episode_id,
                 "monster_id": monster_id,
                 "s": s,
@@ -97,7 +97,7 @@ class EpisodeLogger:
             payload = {
                 "type": "event",
                 "event": event_type,
-                "ts": datetime.utcnow().isoformat() + "Z",
+                "ts": datetime.now(timezone.utc).isoformat(),
                 "episode_id": self.episode_id,
             }
             if fields:
@@ -108,7 +108,7 @@ class EpisodeLogger:
         with self._lock:
             payload = {
                 "type": "episode_end",
-                "ts": datetime.utcnow().isoformat() + "Z",
+                "ts": datetime.now(timezone.utc).isoformat(),
                 "episode_id": self.episode_id,
                 "outcome": outcome,
                 "summary": summary or {},
