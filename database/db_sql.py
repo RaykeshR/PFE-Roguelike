@@ -195,3 +195,148 @@ def update_joueur_stats(joueur_id, pv, xp, niveau):
         print(f"Statistiques du joueur {joueur_id} mises à jour (PV={current_pv}, XP={xp}).")
     except Exception as e:
         print(f"Erreur lors de la mise à jour des stats du joueur {joueur_id}: {e}")
+
+
+try:
+    from items import Weapon, Potion, Rarity
+    from items.category_weapon import CategoryWeapon
+    from items.category_potion import CategoryPotion
+    print("Classes d'items importées pour le chargement.")
+except ImportError as e:
+    print(f"Attention: Erreur d'import des classes items. Le chargement échouera. {e}")
+    Weapon = None
+    Potion = None
+
+
+def sauvegarder_inventaire(joueur_id, inventaire_objets):
+    """
+    Sauvegarde l'inventaire complet d'un joueur.
+    Efface l'ancien inventaire et insère le nouveau basé sur la liste d'objets.
+    """
+    
+    # 1. Effacer l'ancien inventaire pour ce joueur
+    query_delete = "DELETE FROM inventaires WHERE joueur_id = %s;"
+    execute_query(query_delete, (joueur_id,))
+    
+    # 2. Compter les objets pour obtenir la quantité
+    #    (Ex: [<Dague>, <Potion>, <Dague>] -> {id_dague: 2, id_potion: 1})
+    item_counts = {}
+    
+    for item in inventaire_objets:
+        
+        item_db_id = getattr(item, 'db_id', None) 
+        
+        if item_db_id is not None:
+            item_counts[item_db_id] = item_counts.get(item_db_id, 0) + 1
+        else:
+            # Affiche un avertissement si l'objet n'a pas d'ID
+            nom_item = getattr(item, 'name', 'Objet Inconnu')
+            print(f"AVERTISSEMENT: L'objet '{nom_item}' n'a pas de 'db_id' et ne sera pas sauvegardé.")
+
+    # 3. Insérer les nouveaux objets comptés
+    if not item_counts:
+        # print(f"Inventaire du joueur {joueur_id} vide. Aucune sauvegarde d'item.")
+        return
+
+    query_insert = "INSERT INTO inventaires (joueur_id, item_id, quantite) VALUES (%s, %s, %s);"
+    
+    try:
+        for item_id, quantite in item_counts.items():
+            execute_query(query_insert, (joueur_id, item_id, quantite))
+        
+        print(f"Inventaire du joueur {joueur_id} sauvegardé ({len(item_counts)} types d'objets).")
+    
+    except Exception as e:
+        print(f"ERREUR lors de l'insertion de l'inventaire pour le joueur {joueur_id}: {e}")
+        # L'inventaire est maintenant effacé mais pas rempli. 
+        # C'est un risque de cette méthode simple.
+
+
+
+
+def charger_inventaire(joueur_id):
+    """
+    Charge l'inventaire d'un joueur, crée les objets Python (Weapon, Potion)
+    et retourne une liste d'objets.
+    """
+    if Weapon is None or Potion is None:
+        print("Erreur: Classes Item non chargées. Impossible de créer l'inventaire.")
+        return []
+
+    inventaire_objets = []
+    
+    # 1. Récupérer les items du joueur (ID et quantité)
+    query_inv = "SELECT item_id, quantite FROM inventaires WHERE joueur_id = %s;"
+    items_bruts = execute_query(query_inv, (joueur_id,), fetch="all")
+    
+    if not items_bruts:
+        return [] # Inventaire vide
+
+    # 2. Pour chaque item, récupérer ses détails complets
+    # (On pourrait optimiser avec un JOIN, mais c'est plus clair ainsi)
+    query_details = "SELECT * FROM items WHERE id = %s;"
+    
+    for item_id, quantite in items_bruts:
+        details = execute_query(query_details, (item_id,), fetch="one")
+        
+        if not details:
+            print(f"Erreur: Item ID {item_id} trouvé dans l'inventaire mais n'existe pas dans la table 'items'.")
+            continue
+        
+        # 3. Créer les objets Python
+        
+        # Convertir le tuple de la BDD en dictionnaire pour plus de lisibilité
+        # (ATTENTION: l'ordre DOIT correspondre à ta nouvelle table 'items')
+        try:
+            item_data = {
+                'id': details[0],
+                'nom': details[1],
+                'description': details[2],
+                'rarity': Rarity(details[3]) if details[3] else Rarity.COMMON, # Suppose que tu as un Enum Rarity
+                'item_type': details[4],
+                'damage': details[5],
+                'defense': details[6],
+                'range': details[7],
+                'category': details[8],
+                'durability': details[9],
+                'potency': details[10],
+                'duration': details[11]
+            }
+            
+            # --- Factory (création de l'objet) ---
+            obj = None
+            if item_data['item_type'] == 'weapon':
+                obj = Weapon(
+                    name=item_data['nom'],
+                    description=item_data['description'],
+                    rarity=item_data['rarity'],
+                    damage=item_data['damage'],
+                    category=item_data['category'], # (Tu devras peut-être convertir string en Enum)
+                    range=item_data['range'],
+                    durability=item_data['durability'],
+                    db_id=item_data['id'] # On attache l'ID de la BDD
+                )
+            elif item_data['item_type'] == 'potion':
+                obj = Potion(
+                    name=item_data['nom'],
+                    description=item_data['description'],
+                    rarity=item_data['rarity'],
+                    category=item_data['category'], # (Idem, convertir string en Enum)
+                    potency=item_data['potency'],
+                    duration=item_data['duration'],
+                    db_id=item_data['id']
+                )
+
+            # 4. Ajouter l'objet à la liste (autant de fois que la quantité)
+            if obj:
+                for _ in range(quantite):
+                    inventaire_objets.append(obj)
+            else:
+                print(f"Type d'item inconnu: {item_data['item_type']} pour l'item {item_data['nom']}")
+
+        except Exception as e:
+            print(f"Erreur lors de la reconstruction de l'item ID {item_id}: {e}")
+            print(f"Données brutes: {details}")
+
+    print(f"Inventaire du joueur {joueur_id} chargé : {len(inventaire_objets)} objet(s).")
+    return inventaire_objets
