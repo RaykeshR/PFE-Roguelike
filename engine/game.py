@@ -20,7 +20,9 @@ from database.db_sql import (
     get_joueurs_par_utilisateur_id, 
     ajouter_joueur,
     get_joueur_par_id,
-    update_joueur_stats
+    update_joueur_stats,
+    sauvegarder_inventaire,
+    charger_inventaire
 )
 from engine.rl import load_q_table, save_q_table
 
@@ -128,6 +130,8 @@ def run_game(joueur_id_connecte):
     q_table_path = joueur_data['q_table_path']
     shared_player_q_data = load_q_table(q_table_path)
     
+    inventaire_charge = charger_inventaire(joueur_id_connecte)
+
     # 3. Initialiser la Map EN LUI PASSANT la Q-Table partagée
     game_map = Map(shared_q_data=shared_player_q_data) 
     
@@ -137,7 +141,7 @@ def run_game(joueur_id_connecte):
         pv=joueur_data['pv'],
         niveau=joueur_data['niveau'],
         xp=joueur_data['xp'], 
-        inventory=None, # (Tu devras aussi charger ça de la DB plus tard)
+        inventory=inventaire_charge,
         equiped_item=None, # (Idem)
         is_human=True, 
         x=0.0, y=0.0,
@@ -235,6 +239,8 @@ def run_game(joueur_id_connecte):
     
     # 2. Sauvegarder l'état du joueur (PV, XP, etc.)
     update_joueur_stats(player.db_id, player.get_hp(), player.xp, player.niveau) 
+    sauvegarder_inventaire(player.db_id, player.get_inventory())
+    
     print("Sauvegarde terminée. Au revoir.")
 
 
