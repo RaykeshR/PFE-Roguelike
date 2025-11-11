@@ -166,3 +166,32 @@ def get_joueur_par_id(joueur_id):
     query = "SELECT id, nom, niveau, xp, pv, q_table_path FROM joueurs WHERE id = %s;"
     joueur = execute_query(query, (joueur_id,), fetch="one")
     return joueur # Retourne un tuple
+
+def update_joueur_stats(joueur_id, pv, xp, niveau):
+    """
+    Met à jour les statistiques d'un joueur (PV, XP, Niveau) dans la base de données.
+    """
+    # On s'assure que les PV ne sont pas négatifs, 
+    # mais on garde la valeur telle quelle si le joueur est mort (pv <= 0)
+    # Si le joueur est vivant mais n'a plus tous ses PV, il reprendra avec ces PV.
+    current_pv = max(0, pv) 
+    
+    # Si tu veux que le joueur recommence toujours avec 100 PV, 
+    # décommente la ligne suivante :
+    # current_pv = 100 # Le joueur est soigné à chaque sauvegarde
+
+    query = """
+    UPDATE joueurs 
+    SET 
+        pv = %s, 
+        xp = %s, 
+        niveau = %s
+    WHERE 
+        id = %s;
+    """
+    
+    try:
+        execute_query(query, (current_pv, xp, niveau, joueur_id))
+        print(f"Statistiques du joueur {joueur_id} mises à jour (PV={current_pv}, XP={xp}).")
+    except Exception as e:
+        print(f"Erreur lors de la mise à jour des stats du joueur {joueur_id}: {e}")

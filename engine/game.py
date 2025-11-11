@@ -19,7 +19,8 @@ from database.db_sql import (
     verifier_utilisateur, 
     get_joueurs_par_utilisateur_id, 
     ajouter_joueur,
-    get_joueur_par_id 
+    get_joueur_par_id,
+    update_joueur_stats
 )
 from engine.rl import load_q_table, save_q_table
 
@@ -133,7 +134,9 @@ def run_game(joueur_id_connecte):
     # 4. Initialiser le PlayerController avec les données de la DB
     player = PlayerController(
         name=joueur_data['nom'], 
-        pv=joueur_data['pv'], 
+        pv=joueur_data['pv'],
+        niveau=joueur_data['niveau'],
+        xp=joueur_data['xp'], 
         inventory=None, # (Tu devras aussi charger ça de la DB plus tard)
         equiped_item=None, # (Idem)
         is_human=True, 
@@ -187,7 +190,7 @@ def run_game(joueur_id_connecte):
                 elif key == "a":
                     _player_attack(player, game_map)
                 elif key in ("z", "q", "s", "d"):
-                    profiler.log_action('move')
+                    #profiler.log_action('move')
                     old = (player.x, player.y)
                     player.move(key)
                     if (player.x, player.y) != old:
@@ -383,5 +386,6 @@ def _player_attack(player: PlayerController, game_map: Map):
         try:
             game_map.enemies.remove(nearest)
             print(f"Monstre vaincu. Ennemis restants: {len(game_map.enemies)}")
+            player.ajouter_xp(25)
         except ValueError:
             pass
