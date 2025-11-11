@@ -1,5 +1,6 @@
 import os
 import psycopg2
+import bcrypt
 from psycopg2 import pool
 from dotenv import load_dotenv
 
@@ -64,7 +65,50 @@ def execute_query(query, params=None, fetch=None):
         if conn:
             connection_pool.putconn(conn)
 
-# Dans PFE-Roguelike/database/db_sql.py (meilleur endroit)
+def creer_utilisateur(username, mdp_en_clair):
+    """Crée un nouvel utilisateur avec un mot de passe haché."""
+    try:
+        # Hacher le mot de passe
+        sel = bcrypt.gensalt()
+        mdp_hache = bcrypt.hashpw(mdp_en_clair.encode('utf-8'), sel)
+        
+        query = "INSERT INTO utilisateurs (username, mdp) VALUES (%s, %s) RETURNING id, username;"
+        # On stocke le haché en string
+        result = execute_query(query, (username, mdp_hache.decode('utf-8')), fetch="one")
+        return result
+    except Exception as e:
+        print(f"Erreur : L'utilisateur '{username}' existe peut-être déjà. {e}")
+        return None
+
+def verifier_utilisateur(username, mdp_en_clair_a_tester):
+    """Vérifie le mot de passe d'un utilisateur."""
+    # 1. Récupérer l'utilisateur et son VRAI mot de passe haché
+    query = "SELECT id, username, mdp FROM utilisateurs WHERE username = %s;"
+    user_data = execute_query(query, (username,), fetch="one")
+    
+    if not user_data:
+        print("Utilisateur non trouvé.")
+        return None
+        
+    user_id, db_username, db_mdp_hache = user_data
+    
+    # 2. Comparer le mot de passe fourni avec le haché de la DB
+    if bcrypt.checkpw(mdp_en_clair_a_tester.encode('utf-8'), db_mdp_hache.encode('utf-8')):
+        print(f"Connexion réussie pour {db_username} (ID: {user_id}).")
+        # Retourne les infos de l'utilisateur (sauf le mdp)
+        return {'id': user_id, 'username': db_username}
+    else:
+        print("Mot de passe incorrect.")
+        return None
+
+# --- Fonctions pour les Joueurs (Personnages) ---
+
+def get_joueurs_par_utilisateur_id(utilisateur_id):
+    """Récupère tous les personnages (joueurs) d'un utilisateur."""
+    query = "SELECT id, nom, niveau, xp, pv, q_table_path FROM joueurs WHERE utilisateur_id = %s;"
+    joueurs = execute_query(query, (utilisateur_id,), fetch="all")
+    return joueurs if joueurs else []
+
 
 def ajouter_joueur(nom, utilisateur_id):
     """
@@ -101,3 +145,24 @@ def ajouter_joueur(nom, utilisateur_id):
     print(f"   -> Fichier IA assigné : {q_table_path}")
     
     return get_joueur_par_id(joueur_id) # (Vous aurez besoin de créer cette fonction)
+
+def creer_utilisateur(username, mdp_en_clair):
+    """Crée un nouvel utilisateur avec un mot de passe haché."""
+    try:
+        # Hacher le mot de passe
+        sel = bcrypt.gensalt()
+        mdp_hache = bcrypt.hashpw(mdp_en_clair.encode('utf-8'), sel)
+        
+        query = "INSERT INTO utilisateurs (username, mdp) VALUES (%s, %s) RETURNING id, username;"
+        # On stocke le haché en string
+        result = execute_query(query, (username, mdp_hache.decode('utf-8')), fetch="one")
+        return result
+    except Exception as e:
+        print(f"Erreur : L'utilisateur '{username}' existe peut-être déjà. {e}")
+        return None
+
+def get_joueur_par_id(joueur_id):
+    """Récupère un joueur spécifique par son ID."""
+    query = "SELECT id, nom, niveau, xp, pv, q_table_path FROM joueurs WHERE id = %s;"
+    joueur = execute_query(query, (joueur_id,), fetch="one")
+    return joueur # Retourne un tuple
