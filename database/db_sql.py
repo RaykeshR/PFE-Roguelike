@@ -31,7 +31,7 @@ def execute_query(query, params=None, fetch=None):
     Fonction unique pour exécuter des requêtes.
     - query: La requête SQL (string).
     - params: Les paramètres pour éviter l'injection SQL (tuple).
-    - fetch: "one", "all" ou None. Si None, c'est une requête d'écriture (INSERT, UPDATE, CREATE).
+    - fetch: "one", "all" ou None.
     """
     if not connection_pool:
         print(" Le pool de connexion n'est pas disponible.")
@@ -39,29 +39,33 @@ def execute_query(query, params=None, fetch=None):
 
     conn = None
     try:
-        # Récupère une connexion depuis le pool
         conn = connection_pool.getconn()
-        # 'with' s'assure que le curseur est bien fermé après usage
         with conn.cursor() as cur:
             cur.execute(query, params)
             
-            # Si c'est une requête de LECTURE
+            result = None
+            # 1. Récupérer les résultats s'il y en a
             if fetch == "all":
-                return cur.fetchall()
-            if fetch == "one":
-                return cur.fetchone()
+                result = cur.fetchall()
+            elif fetch == "one":
+                result = cur.fetchone()
             
-            # Si c'est une requête d'ÉCRITURE, on valide la transaction
-            conn.commit()
+            # 2. Valider (Commit) si ce n'est PAS une simple lecture
+            # On vérifie si la requête commence par SELECT
+            is_select_query = query.strip().upper().startswith("SELECT")
+            
+            if not is_select_query:
+                conn.commit()
+            
+            # 3. Retourner le résultat (qui peut être None)
+            return result
 
     except Exception as e:
         print(f" Erreur lors de l'exécution de la requête : {e}")
-        # Si une erreur survient, annule la transaction
         if conn:
             conn.rollback()
         return None
     finally:
-        # Redonne la connexion au pool pour qu'elle soit réutilisée
         if conn:
             connection_pool.putconn(conn)
 
