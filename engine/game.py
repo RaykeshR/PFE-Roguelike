@@ -169,7 +169,7 @@ def run_game(joueur_id_connecte):
         w_stats = ""
         if w:
             w_stats = f" (DMG {getattr(w,'damage','?')}, Dur {getattr(w,'durability','?')}, Portée {getattr(w,'range','?')})"
-        print(f"PV: {player.get_hp()} | Arme: {player.get_equipped_weapon_name()}{w_stats} | Inventaire: {player.get_inventory_size()} (I pour ouvrir) | Aide: H | Attaque: A")
+        print(f"PV: {player.get_hp()} | Niv: {player.get_niveau()} | XP: {player.get_xp()} | Arme: {player.get_equipped_weapon_name()}{w_stats} | Inventaire: {player.get_inventory_size()} (I pour ouvrir) | Aide: H | Attaque: A")
 
     if msvcrt:
         # Boucle avec saisie continue (Windows)
