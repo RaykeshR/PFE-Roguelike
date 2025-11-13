@@ -1,6 +1,7 @@
 from engine.rl import QLearningAgent #
 from pymongo import MongoClient
 import pickle # Pour sauvegarder le modèle
+import os
 
 # 1. Initialiser un NOUVEL agent (le futur "Super Monstre")
 agent = QLearningAgent()
@@ -18,7 +19,7 @@ print(f"{len(transitions)} transitions chargées.")
 
 # 4. Définir le nombre "d'époques" (Epochs)
 # Une époque = passer en revue tout le jeu de données
-NB_EPOCHS = 10 
+NB_EPOCHS = 5 
 
 # 5. La boucle d'entraînement
 for epoch in range(NB_EPOCHS):
@@ -45,6 +46,6 @@ print("Entraînement terminé !")
 # 6. Sauvegarder la Q-Table résultante
 # C'est cette Q-Table (agent.Q) qui est le "Super Monstre"
 with open("models/global_q_table.pkl", "wb") as f:
-    pickle.dump(agent.Q, f)
+    pickle.dump(dict(agent.Q), f)
 
 print("Modèle global sauvegardé dans 'models/global_q_table.pkl'")
