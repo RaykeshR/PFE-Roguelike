@@ -163,7 +163,7 @@ class players:
         print(f"Vous gagnez {montant} XP. (Total : {self.xp})")
         
         # Logique de montée de niveau (simple, à ajuster)
-        xp_pour_niveau_sup = self.niveau * 100 
+        xp_pour_niveau_sup = self.niveau * 100 # 100xp => niveau 2, 200xp => niveau 3, etc.
         
         while self.xp >= xp_pour_niveau_sup:
             self.niveau += 1
@@ -343,7 +343,15 @@ class players:
                 print("\nVous avez été touché par un projectile !")
                 self._log.warning("Joueur touché par projectile", extra={"extra": {"pos": (self.x, self.y)}})
                 damage = pr[5] if len(pr) >= 6 else 10
-                self.set_pv(max(0, int(self.get_pv()) - damage))
+                pv_avant = int(self.get_pv())
+                self.set_pv(max(0, pv_avant - damage))
+                pv_apres = int(self.get_pv())
+                print(f"Vous perdez {damage} PV. PV restants: {pv_apres}/{pv_avant}")
+                # Retirer le projectile pour éviter les dégâts multiples
+                try:
+                    self.map.projectiles.remove(pr)
+                except ValueError:
+                    pass
                 if self.get_hp() <= 0:
                     print("Vous êtes mort ! Fin du jeu.")
                     self._log.error("Joueur est mort", extra={"extra": {"pos": (self.x, self.y)}})
