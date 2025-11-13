@@ -656,7 +656,8 @@ class Map:
         if self.ticks % 10 == 0:
             for e in self.enemies:
                 # projectiles ennemis avec propriétaire
-                self.projectiles.append((e.x, e.y, e.dx, e.dy, "enemy", 10, id(e)))
+                Degat_des_monstres = 10 + _r.randint(-1,1)*5
+                self.projectiles.append((e.x, e.y, e.dx, e.dy, "enemy", Degat_des_monstres, id(e)))
         # log positions projectiles (supporte formats étendus)
         if self.projectiles:
             ep = get_episode_logger()
