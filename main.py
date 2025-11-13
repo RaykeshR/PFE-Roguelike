@@ -10,7 +10,7 @@ def main():
     print("Bienvenue dans le jeu Roguelike !")
     run_game()
 
-if __name__ == "__main__":
+if __name__ == "__main__": 
     dotenv_path = os.path.join(os.path.dirname(__file__), '.', 'database', '.env')
     load_dotenv(dotenv_path=dotenv_path)
     main()
