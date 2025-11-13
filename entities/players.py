@@ -18,7 +18,7 @@ from typing import Optional, List
 
 class players:
     #constructeur
-    def __init__(self, name="player", pv=100, inventory=None, equiped_item=None, is_human=True, x=0.0, y=0.0,game_map=None):
+    def __init__(self, name="player", pv=100, inventory=None, equiped_item=None, is_human=True, x=0.0, y=0.0,game_map=None, niveau=1, xp=0):
         self.pv=pv
         self.inventory=inventory if inventory is not None else []
         self.equiped_item=equiped_item if equiped_item is not None else []
@@ -26,6 +26,8 @@ class players:
         self.name=name
         self.map=game_map
         self.x,self.y=self.map.start
+        self.niveau = int(niveau)
+        self.xp = int(xp)
         self.map.reveal_from((self.x,self.y))
         self._log = logging.getLogger("pfe_roguelike.engine.player")
         self._log.info("Joueur initialisé", extra={"extra": {"pos": (self.x, self.y)}})
@@ -48,6 +50,18 @@ class players:
         return self.pv
     def get_hp(self)->int:
         return int(self.get_pv())
+
+    def get_xp(self):
+        return self.xp
+    
+    def get_niveau(self):
+        return self.niveau
+        
+    def set_xp(self, xp):
+        self.xp = int(xp)
+        
+    def set_niveau(self, niveau):
+        self.niveau = int(niveau)
 
     #retourne l'inventory
     def get_inventory(self):
@@ -139,6 +153,35 @@ class players:
 
     ### OTHERS METHODS ###
 
+
+    def ajouter_xp(self, montant):
+        """Ajoute de l'XP au joueur et gère la montée de niveau."""
+        if not self.get_is_alive():
+            return
+            
+        self.xp += int(montant)
+        print(f"Vous gagnez {montant} XP. (Total : {self.xp})")
+        
+        # Logique de montée de niveau (simple, à ajuster)
+        xp_pour_niveau_sup = self.niveau * 100 # 100xp => niveau 2, 200xp => niveau 3, etc.
+        
+        while self.xp >= xp_pour_niveau_sup:
+            self.niveau += 1
+            self.xp -= xp_pour_niveau_sup
+            
+            # Amélioration des stats
+            pv_gain = 10 # Par exemple
+            self.pv += pv_gain
+            
+            print(f"🎉 LEVEL UP! Vous êtes niveau {self.niveau}. 🎉")
+            print(f"Vous gagnez {pv_gain} PV max. (PV actuels : {self.pv})")
+            
+            self._log.info("Level Up!", extra={"extra": {"lvl": self.niveau, "xp": self.xp}})
+            
+            # Mettre à jour le seuil pour le prochain niveau
+            xp_pour_niveau_sup = self.niveau * 100
+
+    
     #pour retrouver des pv
     def heal(self,soin):
         """
@@ -300,7 +343,15 @@ class players:
                 print("\nVous avez été touché par un projectile !")
                 self._log.warning("Joueur touché par projectile", extra={"extra": {"pos": (self.x, self.y)}})
                 damage = pr[5] if len(pr) >= 6 else 10
-                self.set_pv(max(0, int(self.get_pv()) - damage))
+                pv_avant = int(self.get_pv())
+                self.set_pv(max(0, pv_avant - damage))
+                pv_apres = int(self.get_pv())
+                print(f"Vous perdez {damage} PV. PV restants: {pv_apres}/{pv_avant}")
+                # Retirer le projectile pour éviter les dégâts multiples
+                try:
+                    self.map.projectiles.remove(pr)
+                except ValueError:
+                    pass
                 if self.get_hp() <= 0:
                     print("Vous êtes mort ! Fin du jeu.")
                     self._log.error("Joueur est mort", extra={"extra": {"pos": (self.x, self.y)}})

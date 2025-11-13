@@ -7,7 +7,7 @@ import random
 
 class Monster():
     list_monster = []
-    def __init__(self, weapon : Weapon, pv=100, x=0.0, y=0.0, dx=1, dy=0, speed=0.33):
+    def __init__(self, weapon : Weapon, pv=100, x=0.0, y=0.0, dx=1, dy=0, speed=0.33,shared_q_data=None):
         self.pv=pv
         self.weapon=weapon
         self.x=int(x)
@@ -20,6 +20,7 @@ class Monster():
         self.rl_agent = None
         self.rl_steps = 0
 
+        self.shared_q_data = shared_q_data
         Monster.list_monster.append(self)
     
     ###### getters and setters ######
@@ -76,6 +77,11 @@ class Monster():
     def _ensure_rl(self):
         if self.rl_agent is None:
             self.rl_agent = QLearningAgent()
+
+            # On lui dit d'utiliser la Q-Table PARTAGÉE
+            if self.shared_q_data is not None:
+                # Tous les monstres pointent vers le MÊME dictionnaire
+                self.rl_agent.Q = self.shared_q_data
 
     def _state(self, player_pos, clip=6):
         px, py = player_pos
