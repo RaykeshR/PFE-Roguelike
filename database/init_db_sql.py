@@ -1,15 +1,25 @@
-from db_sql import execute_query
+from .db_sql import execute_query
 
 def initialiser_base_de_donnees():
     """Crée les tables si elles n'existent pas."""
     schema = """
+
+    -- Effacer les tables existantes dans le bon ordre (inverse de la création)
+DROP TABLE IF EXISTS rooms CASCADE;
+DROP TABLE IF EXISTS inventaires CASCADE;
+DROP TABLE IF EXISTS parties CASCADE;
+DROP TABLE IF EXISTS items CASCADE;
+DROP TABLE IF EXISTS categories CASCADE;
+DROP TABLE IF EXISTS joueurs CASCADE;
+DROP TABLE IF EXISTS monster_templates CASCADE;
+DROP TABLE IF EXISTS utilisateurs CASCADE;
     
     -- Table des utilisateurs (les personnes qui jouent)
 CREATE TABLE utilisateurs (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(100),
-    mdp VARCHAR(50),
+    mdp VARCHAR(100),
     created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -43,11 +53,19 @@ CREATE TABLE categories (
 -- Items disponibles dans le jeu
 CREATE TABLE items (
     id SERIAL PRIMARY KEY,
-    nom VARCHAR(50) NOT NULL,
+    nom VARCHAR(100) NOT NULL,
     description TEXT,
-    categorie_id INT REFERENCES categories(id),
-    puissance INT,   -- ex: dégâts d'une arme
-    effet TEXT       -- ex: "soigne 20 PV" pour une potion
+    rarity VARCHAR(50),      -- common, rare, epic, legendary
+    item_type VARCHAR(50),   -- 'weapon' ou 'potion'
+    
+    -- Stats (la plupart peuvent être 0)
+    damage INT DEFAULT 0,
+    defense INT DEFAULT 0,
+    range FLOAT DEFAULT 0.0,
+    category VARCHAR(50),    -- 'melee', 'distance', 'health', 'speed', etc.
+    durability INT DEFAULT 0,
+    potency INT DEFAULT 0,
+    duration INT DEFAULT 0
 );
 
 -- Inventaire des joueurs (relation N-N entre joueurs et items)

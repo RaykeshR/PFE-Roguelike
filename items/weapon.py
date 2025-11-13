@@ -7,12 +7,13 @@ class Weapon(Item):
     """
     A class representing a weapon item.
     """
-    def __init__(self, name: str, description: str, rarity:Rarity, damage: int, category: CategoryWeapon, range: float = 1.0, durability: int = 100):
+    def __init__(self, name: str, description: str, rarity:Rarity, damage: int, category: CategoryWeapon, range: float = 1.0, durability: int = 100, db_id=None):
         super().__init__(name, description, rarity)
         self.damage = damage
         self.category = category
         self.range = range
         self.durability = durability
+        self.db_id = db_id 
     
     #### Getters and Setters ####
     

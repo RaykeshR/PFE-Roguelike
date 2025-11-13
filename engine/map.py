@@ -19,7 +19,7 @@ else:
 
 
 class Map:
-    def __init__(self, width=60, height=26, room_count=5):
+    def __init__(self, width=60, height=26, room_count=5,shared_q_data=None):
         self.width = width
         self.height = height
         self.room_count = room_count
@@ -42,6 +42,7 @@ class Map:
         self.use_color = os.environ.get("USE_COLOR", "1") != "0"
         self._color_map = None
         self._color_reset = ""
+        self.shared_q_data = shared_q_data
         if self.use_color:
             try:
                 from colorama import Fore, Style, init as colorama_init
@@ -527,7 +528,7 @@ class Map:
                 dx, dy = _r.choice([(1,0),(-1,0),(0,1),(0,-1)])
                 # arme optionnelle ; tu peux mettre None
                 weapon = None
-                m = Monster(weapon=weapon, pv=50, x=x, y=y, dx=dx, dy=dy, speed=0.33)
+                m = Monster(weapon=weapon, pv=50, x=x, y=y, dx=dx, dy=dy, speed=0.33,shared_q_data=self.shared_q_data)
                 self.enemies.append(m)
                 placed += 1
             tries += 1

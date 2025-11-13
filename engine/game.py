@@ -14,13 +14,143 @@ from items import Weapon, Potion
 from items.category_weapon import CategoryWeapon
 
 
+import getpass
+from database.db_sql import (
+    creer_utilisateur, 
+    verifier_utilisateur, 
+    get_joueurs_par_utilisateur_id, 
+    ajouter_joueur,
+    get_joueur_par_id,
+    update_joueur_stats,
+    sauvegarder_inventaire,
+    charger_inventaire
+)
+from engine.rl import load_q_table, save_q_table
 
-def run_game():
+def menu_principal():
+    """Gère le menu de connexion et de sélection de personnage."""
+    print("=== 🛡️  Bienvenue dans PFE-Roguelike 🛡️  ===")
+    
+    utilisateur_connecte = None
+    while not utilisateur_connecte:
+        choix = input("1: Se connecter\n2: Créer un compte\nChoix: ").strip()
+        
+        if choix == "1":
+            username = input("Nom d'utilisateur: ").strip()
+            mdp = getpass.getpass("Mot de passe: ").strip()
+            utilisateur_connecte = verifier_utilisateur(username, mdp)
+        
+        elif choix == "2":
+            username = input("Nouveau nom d'utilisateur: ").strip()
+            mdp = getpass.getpass("Nouveau mot de passe: ").strip()
+            utilisateur_connecte = creer_utilisateur(username, mdp)
+            if utilisateur_connecte:
+                print(f"Compte '{username}' créé avec succès.")
+                # 'creer_utilisateur' retourne (id, username)
+                utilisateur_connecte = {'id': utilisateur_connecte[0], 'username': utilisateur_connecte[1]}
+
+    # --- Étape 2: Sélection du Personnage ---
+    
+    print(f"\n👋 Bonjour, {utilisateur_connecte['username']}!")
+    
+    joueur_selectionne_id = None
+    while not joueur_selectionne_id:
+        joueurs_existants = get_joueurs_par_utilisateur_id(utilisateur_connecte['id'])
+        
+        print("\n--- Vos Personnages ---")
+        if not joueurs_existants:
+            print("(Aucun personnage trouvé)")
+        else:
+            for i, joueur in enumerate(joueurs_existants):
+                # (id, nom, niveau, xp, pv, q_table_path)
+                print(f"  {i+1}: {joueur[1]} (Niv. {joueur[2]}, {joueur[4]} PV)")
+        
+        print("\nN: Nouveau personnage")
+        print("Q: Quitter")
+        choix = input("Votre choix: ").strip().lower()
+
+        if choix == "q":
+            return # Quitte le programme
+        
+        if choix == "n":
+            nom_perso = input("Nom du nouveau personnage: ").strip()
+            if nom_perso:
+                # 'ajouter_joueur' retourne le tuple du nouveau joueur
+                nouveau_joueur = ajouter_joueur(nom_perso, utilisateur_connecte['id'])
+                joueur_selectionne_id = nouveau_joueur[0] # L'ID est le premier élément
+            else:
+                print("Le nom ne peut pas être vide.")
+        
+        else:
+            try:
+                # Convertir le choix (ex: '1') en index de liste (ex: 0)
+                index = int(choix) - 1
+                if 0 <= index < len(joueurs_existants):
+                    joueur_selectionne_id = joueurs_existants[index][0] # On prend l'ID
+                else:
+                    print("Choix invalide.")
+            except ValueError:
+                print("Choix invalide.")
+                
+    # --- Étape 3: Lancer le jeu ---
+    print(f"Chargement du personnage ID: {joueur_selectionne_id}...")
+    # On passe l'ID à la fonction run_game
+    run_game(joueur_id_connecte=joueur_selectionne_id)
+
+
+
+
+def run_game(joueur_id_connecte):
     """Lance la boucle de jeu (affichage + saisie)"""
     log = logging.getLogger("pfe_roguelike.engine")
     game_map = Map()
     player = PlayerController(name="player", pv=100, inventory=None, equiped_item=None, is_human=True, x=0.0, y=0.0,game_map=game_map) 
     log.info("Partie initialisée", extra={"extra": {"start": game_map.start, "rooms": len(game_map.rooms)}})
+    
+
+
+    # 1. Récupérer les données du joueur depuis la DB
+    # (id, nom, niveau, xp, pv, q_table_path)
+    joueur_data_tuple = get_joueur_par_id(joueur_id_connecte)
+    
+    if not joueur_data_tuple:
+        log.error(f"Joueur {joueur_id_connecte} non trouvé ! Lancement impossible.")
+        return
+
+    # Pour que ce soit plus simple à lire, on peut en faire un dict
+    joueur_data = {
+        'id': joueur_data_tuple[0],
+        'nom': joueur_data_tuple[1],
+        'niveau': joueur_data_tuple[2],
+        'xp': joueur_data_tuple[3],
+        'pv': joueur_data_tuple[4],
+        'q_table_path': joueur_data_tuple[5]
+    }
+
+    # 2. Charger la Q-Table *partagée* du joueur
+    q_table_path = joueur_data['q_table_path']
+    shared_player_q_data = load_q_table(q_table_path)
+    
+    inventaire_charge = charger_inventaire(joueur_id_connecte)
+
+    # 3. Initialiser la Map EN LUI PASSANT la Q-Table partagée
+    game_map = Map(shared_q_data=shared_player_q_data) 
+    
+    # 4. Initialiser le PlayerController avec les données de la DB
+    player = PlayerController(
+        name=joueur_data['nom'], 
+        pv=joueur_data['pv'],
+        niveau=joueur_data['niveau'],
+        xp=joueur_data['xp'], 
+        inventory=inventaire_charge,
+        equiped_item=None, # (Idem)
+        is_human=True, 
+        x=0.0, y=0.0,
+        game_map=game_map
+    ) 
+    player.q_table_path = q_table_path 
+    player.db_id = joueur_data['id'] # Garde l'ID pour la sauvegarde
+
     current_monster_strategy = "standard"
 
     # Episode logger
@@ -59,6 +189,7 @@ def run_game():
                 elif key == "a":
                     _player_attack(player, game_map)
                 elif key in ("z", "q", "s", "d"):
+                    #profiler.log_action('move')
                     old = (player.x, player.y)
                     player.move(key)
                     if (player.x, player.y) != old:
@@ -103,6 +234,17 @@ def run_game():
             print_hud()
             # Puis tick
             game_map.tick((player.x, player.y))
+    
+    print(f"\nPartie terminée. Sauvegarde de la progression de {player.name}...")
+    
+    # 1. Sauvegarder la Q-Table
+    save_q_table(shared_player_q_data, player.q_table_path)
+    
+    # 2. Sauvegarder l'état du joueur (PV, XP, etc.)
+    update_joueur_stats(player.db_id, player.get_hp(), player.xp, player.niveau) 
+    sauvegarder_inventaire(player.db_id, player.get_inventory())
+    
+    print("Sauvegarde terminée. Au revoir.")
 
 
 
@@ -266,5 +408,6 @@ def _player_attack(player: PlayerController, game_map: Map):
         try:
             game_map.enemies.remove(nearest)
             print(f"Monstre vaincu. Ennemis restants: {len(game_map.enemies)}")
+            player.ajouter_xp(25)
         except ValueError:
             pass
