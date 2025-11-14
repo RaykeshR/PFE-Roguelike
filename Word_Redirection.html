@@ -18,17 +18,20 @@
     </script>
 
 <script>
-    const a = document.getElementById('openDoc');
-        a.addEventListener('click', function (ev) {
-        // met à jour l'URL de l'onglet courant (sans recharger)
-        history.replaceState({}, "", "/redirection-effectuee");
-        });
-        </script>
+    document.getElementById("btn").addEventListener("click", function () {
+      const urlDoc = "https://reseaueseo-my.sharepoint.com/:w:/r/personal/sabri_messaoudi_reseau_eseo_fr/Documents/Note%20de%20Travail%20PFE.docx?d=w94d9488edfa142df962016daa36a74ba&csf=1&web=1&e=UM8vt7";
+
+      // 1. On ouvre le document dans un nouvel onglet (autorisé car clic utilisateur)
+      window.open(urlDoc, "_blank");
+
+      // 2. On change l’URL locale en ajoutant une nouvelle entrée dans l’historique
+      history.pushState({}, "", "/redirection-effectuee");
+
+      // Maintenant, si l'utilisateur fait "retour", il revient à la page précédente.
+    });
+</script>
 </head>
 <body>
-    <!-- lien ouvert par un clic utilisateur : pas de popup-block -->
-    <a id="openDoc" href="https://reseaueseo-my.sharepoint.com/:w:/r/personal/sabri_messaoudi_reseau_eseo_fr/Documents/Note%20de%20Travail%20PFE.docx?d=w94d9488edfa142df962016daa36a74ba&csf=1&web=1&e=UM8vt7" target="_blank" rel="noopener noreferrer">
-        Ouvrir la note de travail dans un nouvel onglet
-    </a>
+    <button id="btn">Ouvrir la note de travail</button>
 </body>
 </html>
