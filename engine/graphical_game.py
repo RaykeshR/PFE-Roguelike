@@ -13,6 +13,7 @@ if __name__ != "__main__": # to avoid circular import when run as main
     from items.category_weapon import CategoryWeapon
     from engine.rl import load_q_table, save_q_table
     from pygame.locals import *
+    from engine.GUI.gui import GameGUI, Button  # ton fichier renommé
 else:
     # Exécution directe : lancer le main du projet (subprocess)
     import subprocess
@@ -34,62 +35,22 @@ from database.db_sql import (
 
 def graphical_menu_principal():
     """Gère le menu graphique principal du jeu."""
-    pygame.init()
-    LARGEUR_ECRAN_MENU = 1000
-    HAUTEUR_ECRAN_MENU = 500
-    SCREEN = pygame.display.set_mode((LARGEUR_ECRAN_MENU, HAUTEUR_ECRAN_MENU))
-    CLOCK = pygame.time.Clock()
-    COULEUR_DE_FOND = (255,255,255)
-    COULEUR_DE_FOND_DES_BOUTTON = (200,200,200)
-    BLACK = (0,0,0)
-    FONT = pygame.font.Font(None, 36) # Police par défaut, taille 36
+    gui = GameGUI(
+        width=1000,
+        height=500,
+        bg_color=(255, 255, 255),
+        title="PFE-Roguelike"
+    )
 
-    def draw_text(text, pos, color=BLACK):
-        """Dessine du texte à l'écran."""
-        SCREEN.blit(FONT.render(text, True, color), pos)
+    # Menu principal
+    gui.add_button("main", Button(400, 200, 200, 50, "Jouer", gui.font, callback=menu_principal))
+    gui.add_button("main", Button(400, 300, 200, 50, "Options", gui.font))
 
-    def main_menu():
-        running = True
-        state = "main"
-        while running: # Boucle principale du menu
-            SCREEN.fill(COULEUR_DE_FOND)
-            mouse_pos = pygame.mouse.get_pos()
-            click = False
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    click = True
+    # Menu options
+    gui.add_button("options", Button(400, 400, 200, 50, "Retour", gui.font))
 
-            if state == "main":
-                # boutons
-                play_rect = pygame.Rect(200, 150, 200, 50)
-                options_rect = pygame.Rect(200, 220, 200, 50)
-                pygame.draw.rect(SCREEN, COULEUR_DE_FOND_DES_BOUTTON, play_rect)
-                pygame.draw.rect(SCREEN, COULEUR_DE_FOND_DES_BOUTTON, options_rect)
-                draw_text("Jouer", (play_rect.x+60, play_rect.y+10))
-                draw_text("Options", (options_rect.x+50, options_rect.y+10))
-
-                if click:
-                    if play_rect.collidepoint(mouse_pos):
-                        print("Lancer le jeu…")
-                        # Ici tu pourrais changer vers un état 'game'
-                    elif options_rect.collidepoint(mouse_pos):
-                        state = "options"
-
-            elif state == "options":
-                draw_text("Options du jeu", (200, 50))
-                back_rect = pygame.Rect(200, 300, 200, 50)
-                pygame.draw.rect(SCREEN, COULEUR_DE_FOND_DES_BOUTTON, back_rect)
-                draw_text("Retour", (back_rect.x+60, back_rect.y+10))
-                if click and back_rect.collidepoint(mouse_pos):
-                    state = "main"
-
-            pygame.display.flip()
-            CLOCK.tick(30)
-
-    main_menu()
-    pygame.quit()
+    gui.run_menu()
+    gui.quit()
 
 
 def menu_principal():
