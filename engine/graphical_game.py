@@ -465,14 +465,26 @@ def run_game(joueur_id_connecte):
                                      (ix * TILE_SIZE + TILE_SIZE // 2, iy * TILE_SIZE + TILE_SIZE // 2),
                                      TILE_SIZE // 3)
         
-        # Dessiner les ennemis
+        # Dessiner les ennemis avec effet de brillance (shader)
         for enemy in game_map.enemies:
             ex, ey = enemy.x, enemy.y
             if 0 <= ey < game_map.height and 0 <= ex < game_map.width:
                 if (ex, ey) in visible or (ex, ey) in game_map.discovered:
+                    enemy_screen_x = ex * TILE_SIZE + TILE_SIZE // 2
+                    enemy_screen_y = ey * TILE_SIZE + TILE_SIZE // 2
+                    # Effet de brillance rouge pulsante
+                    glow_radius = TILE_SIZE // 2 + int(1.5 * (game_map.ticks % 40) / 40)
+                    glow_surface = pygame.Surface((glow_radius * 2, glow_radius * 2), pygame.SRCALPHA)
+                    glow_color = (*COLOR_ENEMY, 80) if len(COLOR_ENEMY) == 3 else COLOR_ENEMY
+                    pygame.draw.circle(glow_surface, glow_color, (glow_radius, glow_radius), glow_radius)
+                    screen.blit(glow_surface, (enemy_screen_x - glow_radius, enemy_screen_y - glow_radius))
                     pygame.draw.circle(screen, COLOR_ENEMY,
-                                     (ex * TILE_SIZE + TILE_SIZE // 2, ey * TILE_SIZE + TILE_SIZE // 2),
+                                     (enemy_screen_x, enemy_screen_y),
                                      TILE_SIZE // 2 - 2)
+                    # Indicateur d'arme (petit point jaune si équipé)
+                    if enemy.weapon:
+                        pygame.draw.circle(screen, (255, 255, 0),
+                                         (enemy_screen_x + 4, enemy_screen_y - 4), 2)
         
         # Dessiner les projectiles
         for pr in game_map.projectiles:
@@ -498,10 +510,18 @@ def run_game(joueur_id_connecte):
                                        ((hx + 1) * TILE_SIZE, hy * TILE_SIZE),
                                        (hx * TILE_SIZE, (hy + 1) * TILE_SIZE), 3)
         
-        # Dessiner le joueur
+        # Dessiner le joueur avec effet de brillance (shader)
         player_x = int(player.x) * TILE_SIZE + TILE_SIZE // 2
         player_y = int(player.y) * TILE_SIZE + TILE_SIZE // 2
+        # Effet de brillance animé
+        glow_radius = TILE_SIZE // 2 + int(2 * (game_map.ticks % 30) / 30)
+        glow_surface = pygame.Surface((glow_radius * 2, glow_radius * 2), pygame.SRCALPHA)
+        glow_color = (*COLOR_PLAYER, 100) if len(COLOR_PLAYER) == 3 else COLOR_PLAYER
+        pygame.draw.circle(glow_surface, glow_color, (glow_radius, glow_radius), glow_radius)
+        screen.blit(glow_surface, (player_x - glow_radius, player_y - glow_radius))
         pygame.draw.circle(screen, COLOR_PLAYER, (player_x, player_y), TILE_SIZE // 2 - 1)
+        # Highlight blanc pour effet de brillance
+        pygame.draw.circle(screen, (255, 255, 255), (player_x - 2, player_y - 2), 3)
     
     def add_message(text, color=(255, 255, 255), duration_ticks=180):
         """Ajoute un message à afficher dans le HUD."""
@@ -1093,7 +1113,9 @@ def _player_attack(player: PlayerController, game_map: Map, add_message_callback
     if not nearest.get_is_alive():
         dropped = None
         try:
-            dropped = nearest.die(drop_rate=1.0)
+            # Probabilité de drop d'arme : 60% si le monstre a une arme
+            drop_rate = 0.6 if nearest.weapon else 0.0
+            dropped = nearest.die(drop_rate=drop_rate)
         except Exception:
             dropped = None
         if dropped is not None:

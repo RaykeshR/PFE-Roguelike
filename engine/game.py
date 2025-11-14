@@ -400,7 +400,9 @@ def _player_attack(player: PlayerController, game_map: Map):
     if not nearest.get_is_alive():
         dropped = None
         try:
-            dropped = nearest.die(drop_rate=1.0)
+            # Probabilité de drop d'arme : 60% si le monstre a une arme
+            drop_rate = 0.6 if nearest.weapon else 0.0
+            dropped = nearest.die(drop_rate=drop_rate)
         except Exception:
             dropped = None
         if dropped is not None:
