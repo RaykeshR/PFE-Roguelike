@@ -518,6 +518,42 @@ class Map:
                     for i in range(target_room.width):
                         self.discovered.add((target_room.x + i, target_room.y + j))
 
+    def _generate_monster_weapon(self):
+        """Génère une arme aléatoire pour un monstre."""
+        weapon_names_melee = ["Épée", "Hache", "Masse", "Dague", "Lance", "Glaive"]
+        weapon_names_ranged = ["Arc", "Arbalète", "Boomerang", "Fronde"]
+        
+        # Probabilité 70% mêlée, 30% distance
+        is_ranged = _r.random() < 0.3
+        
+        if is_ranged:
+            name = _r.choice(weapon_names_ranged)
+            category = CategoryWeapon.DISTANCE
+            damage = _r.randint(5, 12)
+            range_val = _r.uniform(3.0, 6.0)
+        else:
+            name = _r.choice(weapon_names_melee)
+            category = CategoryWeapon.MELEE
+            damage = _r.randint(8, 15)
+            range_val = _r.uniform(1.0, 2.0)
+        
+        # Rareté aléatoire (plus souvent commun/rare)
+        rarity_weights = [Rarity.COMMON, Rarity.COMMON, Rarity.RARE, Rarity.RARE, Rarity.EPIC, Rarity.LEGENDARY]
+        rarity = _r.choice(rarity_weights)
+        
+        durability = _r.randint(20, 50)
+        description = f"Une {name.lower()} utilisée par un monstre."
+        
+        return Weapon(
+            name=name,
+            description=description,
+            rarity=rarity,
+            damage=damage,
+            category=category,
+            range=range_val,
+            durability=durability
+        )
+    
     def _place_enemies(self, count=2):
         placed = 0
         tries = 0
@@ -526,8 +562,8 @@ class Map:
             x, y = _r.choice(flat_walkable)
             if (x, y) != self.start and (x, y) != self.end and self.tiles[y][x] == ".":
                 dx, dy = _r.choice([(1,0),(-1,0),(0,1),(0,-1)])
-                # arme optionnelle ; tu peux mettre None
-                weapon = None
+                # Générer une arme aléatoire pour le monstre (80% de chance d'avoir une arme)
+                weapon = self._generate_monster_weapon() if _r.random() < 0.8 else None
                 m = Monster(weapon=weapon, pv=50, x=x, y=y, dx=dx, dy=dy, speed=0.33,shared_q_data=self.shared_q_data)
                 self.enemies.append(m)
                 placed += 1
