@@ -164,7 +164,13 @@ class players:
             return
             
         self.xp += montant_int
-        print(f"Vous gagnez {montant_int} XP. (Total : {self.xp})")
+        
+        msg_callback = getattr(self, '_add_message_callback', None)
+        xp_msg = f"Vous gagnez {montant_int} XP. (Total : {self.xp})"
+        if msg_callback:
+            msg_callback(xp_msg, (100, 200, 255))
+        else:
+            print(xp_msg)
         
         # Logique de montée de niveau (simple, à ajuster)
         # XP nécessaire pour passer au niveau suivant = niveau actuel * 100
@@ -178,8 +184,15 @@ class players:
             pv_gain = 10 # Par exemple
             self.pv += pv_gain
             
-            print(f"🎉 LEVEL UP! Vous êtes niveau {self.niveau}. 🎉")
-            print(f"Vous gagnez {pv_gain} PV max. (PV actuels : {self.pv})")
+            levelup_msg = f"🎉 LEVEL UP! Vous êtes niveau {self.niveau}. 🎉"
+            pv_msg = f"Vous gagnez {pv_gain} PV max. (PV actuels : {self.pv})"
+            
+            if msg_callback:
+                msg_callback(levelup_msg, (255, 255, 0))
+                msg_callback(pv_msg, (100, 255, 100))
+            else:
+                print(levelup_msg)
+                print(pv_msg)
             
             self._log.info("Level Up!", extra={"extra": {"lvl": self.niveau, "xp": self.xp}})
             
@@ -345,20 +358,36 @@ class players:
             if owner != "enemy":
                 continue
             if (px, py) == (self.x, self.y):
-                print("\nVous avez été touché par un projectile !")
+                # Utiliser le callback de messages si disponible (mode graphique), sinon print (mode console)
+                msg_callback = getattr(self, '_add_message_callback', None)
+                if msg_callback:
+                    msg_callback("Vous avez été touché par un projectile !", (255, 100, 100))
+                else:
+                    print("\nVous avez été touché par un projectile !")
+                
                 self._log.warning("Joueur touché par projectile", extra={"extra": {"pos": (self.x, self.y)}})
                 damage = pr[5] if len(pr) >= 6 else 10
                 pv_avant = int(self.get_pv())
                 self.set_pv(max(0, pv_avant - damage))
                 pv_apres = int(self.get_pv())
-                print(f"Vous perdez {damage} PV. PV restants: {pv_apres}/{pv_avant}")
+                
+                damage_msg = f"Vous perdez {damage} PV. PV restants: {pv_apres}/{pv_avant}"
+                if msg_callback:
+                    msg_callback(damage_msg, (255, 150, 150))
+                else:
+                    print(damage_msg)
+                
                 # Retirer le projectile pour éviter les dégâts multiples
                 try:
                     self.map.projectiles.remove(pr)
                 except ValueError:
                     pass
                 if self.get_hp() <= 0:
-                    print("Vous êtes mort ! Fin du jeu.")
+                    death_msg = "Vous êtes mort ! Fin du jeu."
+                    if msg_callback:
+                        msg_callback(death_msg, (255, 0, 0))
+                    else:
+                        print(death_msg)
                     self._log.error("Joueur est mort", extra={"extra": {"pos": (self.x, self.y)}})
                     raise SystemExit(0)
 
@@ -371,13 +400,24 @@ class players:
             self.set_inventory(inv)
             for it in taken:
                 self._log.info("Ramassage item", extra={"extra": {"pos": (self.x, self.y), "item": getattr(it, "name", str(it))}})
-            print(f"Vous avez ramassé {len(taken)} objet(s). Inventaire: {[getattr(i,'name',str(i)) for i in (self.get_inventory() or [])]}")
+            
+            msg_callback = getattr(self, '_add_message_callback', None)
+            pickup_msg = f"Vous avez ramassé {len(taken)} objet(s). Inventaire: {[getattr(i,'name',str(i)) for i in (self.get_inventory() or [])]}"
+            if msg_callback:
+                msg_callback(pickup_msg, (100, 255, 100))
+            else:
+                print(pickup_msg)
 
         # Vérifier porte finale
         if (self.x, self.y) == self.map.end:
-            print("\nVous avez atteint la porte finale ! Nouvelle map générée...")
+            msg_callback = getattr(self, '_add_message_callback', None)
+            final_msg = "Vous avez atteint la porte finale ! Nouvelle map générée..."
+            if msg_callback:
+                msg_callback(final_msg, (100, 255, 255))
+            else:
+                print(f"\n{final_msg}")
+                input("Appuyez sur Entrée pour continuer...")
             self._log.info("Porte finale atteinte, regénération map")
-            input("Appuyez sur Entrée pour continuer...")
             self.map.generate()
             self.x, self.y = self.map.start
             # synchroniser la position dans le modèle
