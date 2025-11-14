@@ -10,13 +10,26 @@ def main():
     logger.info("Application démarrée")
     print("Bienvenue dans le jeu Roguelike !")
     try:
-        if int(input("voulez vous "+"\x1b["+"31m"+"la version graphique ?"+"\x1b[90m"+" (1: oui / 0: non) : "))==0:
-            print("\x1b[0m");menu_principal()
+        choix = input("voulez vous "+"\x1b["+"31m"+"la version graphique ?"+"\x1b[90m"+" (1: oui / 0: non) : ")
+        print("\x1b[0m")
+        if int(choix) == 0:
+            menu_principal()
         else:
-            print("\x1b[0m");graphical_menu_principal()
+            graphical_menu_principal()
+    except ValueError:
+        # Si l'utilisateur entre autre chose qu'un nombre, utiliser la version graphique par défaut
+        logger.warning("Choix invalide, utilisation de la version graphique par défaut")
+        print("\x1b[0m")
+        graphical_menu_principal()
     except Exception as e:
-        logger.error(f"Commande illégale : {e}")
-        print("\x1b[0m");menu_principal()
+        logger.error(f"Erreur lors du démarrage : {e}")
+        print("\x1b[0m")
+        # En cas d'erreur, essayer la version graphique d'abord
+        try:
+            graphical_menu_principal()
+        except Exception:
+            # Si la version graphique échoue, fallback sur la version console
+            menu_principal()
 if __name__ == "__main__": 
     dotenv_path = os.path.join(os.path.dirname(__file__), '.', 'database', '.env')
     load_dotenv(dotenv_path=dotenv_path)
