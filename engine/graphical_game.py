@@ -45,7 +45,8 @@ def graphical_menu_principal():
     gui.user_data = {
         'utilisateur_connecte': None,
         'joueur_selectionne_id': None,
-        'joueurs_liste': []
+        'joueurs_liste': [],
+        'character_list_ref': None  # Référence à la liste scrollable pour mise à jour
     }
     
     # ========== CALLBACKS ==========
@@ -117,17 +118,22 @@ def graphical_menu_principal():
         if not utilisateur:
             return
         
+        # Mettre à jour le label avec le nom d'utilisateur
+        username_label = gui.user_data.get('username_label_ref')
+        if username_label:
+            username_label.set_text(f"👋 Bonjour, {utilisateur['username']} !")
+        
         joueurs = get_joueurs_par_utilisateur_id(utilisateur['id'])
         gui.user_data['joueurs_liste'] = joueurs
         
-        # Met à jour la liste scrollable
-        for element in gui.elements.get("selection_personnage", []):
-            if isinstance(element, ScrollableList):
-                if joueurs:
-                    items = [f"{j[1]} (Niv. {j[2]}, {j[4]} PV)" for j in joueurs]
-                else:
-                    items = ["Aucun personnage"]
-                element.set_items(items)
+        # Met à jour la liste scrollable via la référence stockée
+        character_list = gui.user_data.get('character_list_ref')
+        if character_list:
+            if joueurs:
+                items = [f"{j[1]} (Niv. {j[2]}, {j[4]} PV)" for j in joueurs]
+            else:
+                items = ["Aucun personnage"]
+            character_list.set_items(items)
     
     def selectionner_personnage(index, item_text):
         """Callback quand un personnage est sélectionné dans la liste."""
@@ -269,12 +275,16 @@ def graphical_menu_principal():
     panel_character = Panel(200, 80, 600, 460, bg_color=(60, 60, 70), border_color=(100, 100, 120))
     
     utilisateur_label = Label(500, 120, "Sélectionnez un personnage", gui.font, (255, 255, 255), "center")
+    utilisateur_label._is_username_label = True  # Marquer pour pouvoir le mettre à jour
     panel_character.add_element(utilisateur_label)
+    gui.user_data['username_label_ref'] = utilisateur_label  # Stocker la référence
     
     # Liste scrollable des personnages
     character_list = ScrollableList(240, 160, 520, 180, font=pygame.font.Font(None, 28))
     character_list.callback = selectionner_personnage
     panel_character.add_element(character_list)
+    # Stocker la référence pour pouvoir la mettre à jour
+    gui.user_data['character_list_ref'] = character_list
     
     panel_character.add_element(Label(500, 360, "Créer un nouveau personnage:", pygame.font.Font(None, 28), (200, 200, 200), "center"))
     
@@ -529,9 +539,9 @@ def run_game(joueur_id_connecte):
                     playing = False
                     ep.end_episode("quit", {"tick": game_map.ticks})
                 elif event.key == pygame.K_h:
-                    print("Aide: ZQSD pour bouger, I inventaire, X quitter.")
+                    _show_help_menu(screen, SCREEN_WIDTH, SCREEN_HEIGHT, hud_font)
                 elif event.key == pygame.K_i:
-                    _open_inventory_menu(player)
+                    _open_inventory_menu_pygame(screen, player, SCREEN_WIDTH, SCREEN_HEIGHT, font, hud_font)
                 elif event.key == pygame.K_a:
                     _player_attack(player, game_map)
                 elif event.key == pygame.K_UP or event.key == pygame.K_w or key == "z":
