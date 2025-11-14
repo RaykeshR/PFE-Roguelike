@@ -212,6 +212,9 @@ class InputBox:
 
     def get_text(self):
         return self.text
+    
+    def set_text(self, text):
+        self.text = text[:self.max_length]
 
 
 class ProgressBar:
@@ -276,6 +279,98 @@ class Panel:
                 element.update()
 
 
+class Label:
+    """Widget pour afficher du texte statique."""
+    def __init__(self, x, y, text, font=None, color=(0, 0, 0), align="left"):
+        self.x = x
+        self.y = y
+        self.text = text
+        self.font = font or pygame.font.Font(None, 24)
+        self.color = color
+        self.align = align
+
+    def draw(self, screen):
+        text_surf = self.font.render(self.text, True, self.color)
+        if self.align == "center":
+            rect = text_surf.get_rect(center=(self.x, self.y))
+        elif self.align == "right":
+            rect = text_surf.get_rect(right=self.x, top=self.y)
+        else:  # left
+            rect = text_surf.get_rect(left=self.x, top=self.y)
+        screen.blit(text_surf, rect)
+
+    def set_text(self, text):
+        self.text = text
+
+    def handle_event(self, event):
+        pass  # Les labels ne gèrent pas d'événements
+
+
+class ScrollableList:
+    """Liste scrollable pour afficher des éléments."""
+    def __init__(self, x, y, width, height, items=None, font=None, item_height=40):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.items = items or []
+        self.font = font or pygame.font.Font(None, 24)
+        self.item_height = item_height
+        self.scroll_offset = 0
+        self.selected_index = None
+        self.callback = None
+
+    def draw(self, screen):
+        # Fond
+        pygame.draw.rect(screen, (255, 255, 255), self.rect)
+        pygame.draw.rect(screen, (0, 0, 0), self.rect, 2)
+        
+        # Clip pour ne dessiner que dans la zone visible
+        clip_rect = screen.get_clip()
+        screen.set_clip(self.rect)
+        
+        visible_items = self.rect.height // self.item_height
+        start_index = max(0, self.scroll_offset)
+        
+        for i in range(start_index, min(len(self.items), start_index + visible_items + 1)):
+            y_pos = self.rect.y + (i - self.scroll_offset) * self.item_height
+            item_rect = pygame.Rect(self.rect.x, y_pos, self.rect.width, self.item_height)
+            
+            # Highlight si sélectionné
+            if i == self.selected_index:
+                pygame.draw.rect(screen, (200, 220, 255), item_rect)
+            
+            # Texte de l'item
+            text_surf = self.font.render(str(self.items[i]), True, (0, 0, 0))
+            screen.blit(text_surf, (self.rect.x + 10, y_pos + 10))
+        
+        screen.set_clip(clip_rect)
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(event.pos):
+                # Scroll avec molette
+                if event.button == 4:  # Scroll up
+                    self.scroll_offset = max(0, self.scroll_offset - 1)
+                elif event.button == 5:  # Scroll down
+                    max_scroll = max(0, len(self.items) - self.rect.height // self.item_height)
+                    self.scroll_offset = min(max_scroll, self.scroll_offset + 1)
+                elif event.button == 1:  # Clic gauche
+                    rel_y = event.pos[1] - self.rect.y
+                    clicked_index = self.scroll_offset + (rel_y // self.item_height)
+                    if 0 <= clicked_index < len(self.items):
+                        self.selected_index = clicked_index
+                        if self.callback:
+                            self.callback(clicked_index, self.items[clicked_index])
+
+    def set_items(self, items):
+        self.items = items
+        self.selected_index = None
+        self.scroll_offset = 0
+
+    def get_selected(self):
+        if self.selected_index is not None and 0 <= self.selected_index < len(self.items):
+            return self.items[self.selected_index]
+        return None
+
+
 class GameGUI:
     """Classe principale pour gérer l'interface graphique du jeu."""
     def __init__(self, width=1000, height=500, title="PFE-Roguelike", bg_color=(255, 255, 255), fps=30):
@@ -290,10 +385,11 @@ class GameGUI:
         self.font = pygame.font.Font(None, 36)
         self.running = True
         self.state = "main"
-        self.state_history = []  # Pile pour l'historique des états
-        self.elements = {}  # Dictionnaire pour stocker tous les éléments UI par menu
-        self.background_images = {}  # Images de fond par menu
-        self.settings = {}  # Paramètres du jeu
+        self.state_history = []
+        self.elements = {}
+        self.background_images = {}
+        self.settings = {}
+        self.user_data = {}  # Données utilisateur (connexion, sélection personnage, etc.)
 
     def add_element(self, menu_name, element):
         """Ajoute un élément UI à un menu spécifique."""
@@ -338,7 +434,6 @@ class GameGUI:
             if event.type == pygame.QUIT:
                 self.running = False
             
-            # Gestion du retour arrière avec Échap
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 self.go_back()
             
@@ -401,6 +496,7 @@ class GameGUI:
             self.clock.tick(self.fps)
 
     def quit(self):
+        self.running = False
         pygame.quit()
 
 
@@ -408,7 +504,7 @@ class GameGUI:
 if __name__ == "__main__":
     gui = GameGUI()
 
-    # Callbacks pour les boutons
+    # Callbacks
     def start_game():
         print("Démarrage du jeu...")
         gui.change_state("game")
@@ -418,15 +514,12 @@ if __name__ == "__main__":
 
     def volume_changed(value):
         gui.settings['volume'] = value
-        print(f"Volume: {value}")
 
     def fullscreen_changed(checked):
         gui.settings['fullscreen'] = checked
-        print(f"Plein écran: {checked}")
 
     def name_entered(text):
         gui.settings['player_name'] = text
-        print(f"Nom du joueur: {text}")
 
     # Menu principal
     gui.add_button("main", Button(400, 200, 200, 50, "Jouer", gui.font, callback=start_game))
@@ -448,7 +541,7 @@ if __name__ == "__main__":
     gui.add_element("options", panel)
     gui.add_button("options", Button(400, 400, 200, 50, "Retour", gui.font, callback=gui.go_back))
 
-    # Menu de jeu (exemple avec barre de vie)
+    # Menu de jeu
     health_bar = ProgressBar(50, 50, 300, 30, 100, 75, label="Vie")
     gui.add_element("game", health_bar)
     gui.add_button("game", Button(400, 400, 200, 50, "Menu Principal", gui.font, callback=lambda: gui.change_state("main", False)))
