@@ -70,12 +70,10 @@ def graphical_menu_principal():
         utilisateur = verifier_utilisateur(username, password)
         
         if utilisateur:
-            gui.user_data['utilisateur_connecte'] = {
-                'id': utilisateur[0],
-                'username': utilisateur[1]
-            }
+            # verifier_utilisateur retourne un dict {'id': ..., 'username': ...}
+            gui.user_data['utilisateur_connecte'] = utilisateur
             update_login_message(f"Bienvenue, {username}!", (100, 255, 100))
-            time.sleep(0.5)
+            # Ne pas utiliser time.sleep dans la boucle Pygame, utiliser un timer
             charger_liste_personnages()
             gui.change_state("selection_personnage")
         else:
@@ -101,12 +99,13 @@ def graphical_menu_principal():
         utilisateur = creer_utilisateur(username, password)
         
         if utilisateur:
+            # creer_utilisateur retourne un tuple (id, username)
             gui.user_data['utilisateur_connecte'] = {
                 'id': utilisateur[0],
                 'username': utilisateur[1]
             }
             update_register_message(f"Compte créé! Bienvenue, {username}!", (100, 255, 100))
-            time.sleep(0.5)
+            # Ne pas utiliser time.sleep dans la boucle Pygame
             charger_liste_personnages()
             gui.change_state("selection_personnage")
         else:
@@ -144,10 +143,10 @@ def graphical_menu_principal():
             update_character_message("Veuillez sélectionner un personnage", (255, 100, 100))
             return
         
-        gui.quit()
-        # Lance le jeu après fermeture de la GUI
-        pygame.quit()
-        run_game(joueur_id_connecte=joueur_id)
+        # Ferme la GUI mais garde Pygame actif
+        gui.running = False
+        # Stocker l'ID du joueur pour le lancer après la fermeture de la GUI
+        gui.user_data['_joueur_a_lancer'] = joueur_id
     
     def creer_nouveau_personnage(name_input):
         """Crée un nouveau personnage."""
@@ -219,7 +218,7 @@ def graphical_menu_principal():
     username_input_login = InputBox(300, 220, 400, 50, gui.font, placeholder="Nom d'utilisateur")
     panel_login.add_element(username_input_login)
     
-    password_input_login = InputBox(300, 290, 400, 50, gui.font, placeholder="Mot de passe")
+    password_input_login = InputBox(300, 290, 400, 50, gui.font, placeholder="Mot de passe", password=True)
     panel_login.add_element(password_input_login)
     
     login_message = Label(500, 360, "", pygame.font.Font(None, 24), (255, 100, 100), "center")
@@ -244,10 +243,10 @@ def graphical_menu_principal():
     username_input_register = InputBox(300, 200, 400, 50, gui.font, placeholder="Nom d'utilisateur")
     panel_register.add_element(username_input_register)
     
-    password_input_register = InputBox(300, 270, 400, 50, gui.font, placeholder="Mot de passe")
+    password_input_register = InputBox(300, 270, 400, 50, gui.font, placeholder="Mot de passe", password=True)
     panel_register.add_element(password_input_register)
     
-    password_confirm_input = InputBox(300, 340, 400, 50, gui.font, placeholder="Confirmer mot de passe")
+    password_confirm_input = InputBox(300, 340, 400, 50, gui.font, placeholder="Confirmer mot de passe", password=True)
     panel_register.add_element(password_confirm_input)
     
     register_message = Label(500, 410, "", pygame.font.Font(None, 24), (255, 100, 100), "center")
@@ -302,7 +301,15 @@ def graphical_menu_principal():
     
     # ========== LANCEMENT ==========
     gui.run_menu()
-    gui.quit()
+    
+    # Si un joueur doit être lancé, lancer le jeu après la fermeture de la GUI
+    joueur_a_lancer = gui.user_data.get('_joueur_a_lancer')
+    if joueur_a_lancer:
+        # Ne pas quitter Pygame, on en a besoin pour le jeu
+        # La fenêtre GUI sera fermée mais Pygame reste actif
+        run_game(joueur_id_connecte=joueur_a_lancer)
+    else:
+        gui.quit()
 
 
 def menu_principal():
@@ -311,7 +318,7 @@ def menu_principal():
 
 
 def run_game(joueur_id_connecte):
-    """Lance la boucle de jeu (affichage + saisie)"""
+    """Lance la boucle de jeu graphique avec Pygame"""
     log = logging.getLogger("pfe_roguelike.engine")
     
     # 1. Récupérer les données du joueur depuis la DB
@@ -364,80 +371,229 @@ def run_game(joueur_id_connecte):
         "end": game_map.end,
     })
 
+    # Initialiser Pygame pour le jeu
+    # Si Pygame n'est pas initialisé, l'initialiser
+    if not pygame.get_init():
+        pygame.init()
+    
+    # Configuration de l'écran
+    TILE_SIZE = 20
+    MAP_WIDTH = game_map.width * TILE_SIZE
+    MAP_HEIGHT = game_map.height * TILE_SIZE
+    HUD_HEIGHT = 100
+    SCREEN_WIDTH = MAP_WIDTH
+    SCREEN_HEIGHT = MAP_HEIGHT + HUD_HEIGHT
+    
+    # Créer une nouvelle fenêtre pour le jeu (ferme l'ancienne si elle existe)
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    pygame.display.set_caption("PFE-Roguelike - Jeu")
+    print(f"[DEBUG] Fenêtre Pygame créée: {SCREEN_WIDTH}x{SCREEN_HEIGHT}")
+    clock = pygame.time.Clock()
+    font = pygame.font.Font(None, 24)
+    hud_font = pygame.font.Font(None, 20)
+    
+    # Couleurs
+    COLOR_WALL = (50, 50, 50)
+    COLOR_FLOOR = (200, 200, 200)
+    COLOR_PLAYER = (0, 255, 0)
+    COLOR_ENEMY = (255, 0, 0)
+    COLOR_ITEM = (255, 255, 0)
+    COLOR_DOOR = (139, 69, 19)
+    COLOR_START = (0, 255, 255)
+    COLOR_END = (255, 0, 255)
+    COLOR_PROJECTILE_PLAYER = (0, 200, 255)
+    COLOR_PROJECTILE_ENEMY = (255, 100, 0)
+    COLOR_HIT = (255, 0, 0)
+    COLOR_UNDISCOVERED = (30, 30, 30)
+    
     playing = True
     
-    def print_hud():
+    def draw_map_pygame():
+        """Dessine la carte avec Pygame"""
+        # Calculer visibilité
+        current_room = game_map.get_room_containing(player.x, player.y)
+        if current_room is game_map._visible_cache_room and game_map._visible_cache_set:
+            visible = game_map._visible_cache_set
+        else:
+            visible = game_map._compute_visible(current_room)
+            game_map._visible_cache_room = current_room
+            game_map._visible_cache_set = visible
+        
+        # Dessiner la carte
+        for y in range(game_map.height):
+            for x in range(game_map.width):
+                screen_x = x * TILE_SIZE
+                screen_y = y * TILE_SIZE
+                
+                if (x, y) in visible or (x, y) in game_map.discovered:
+                    tile = game_map.tiles[y][x]
+                    if tile == "#":
+                        pygame.draw.rect(screen, COLOR_WALL, (screen_x, screen_y, TILE_SIZE, TILE_SIZE))
+                    elif tile == "+":
+                        pygame.draw.rect(screen, COLOR_DOOR, (screen_x, screen_y, TILE_SIZE, TILE_SIZE))
+                    else:
+                        pygame.draw.rect(screen, COLOR_FLOOR, (screen_x, screen_y, TILE_SIZE, TILE_SIZE))
+                    
+                    # Départ et arrivée
+                    if (x, y) == game_map.start:
+                        pygame.draw.rect(screen, COLOR_START, (screen_x, screen_y, TILE_SIZE, TILE_SIZE))
+                    elif (x, y) == game_map.end:
+                        pygame.draw.rect(screen, COLOR_END, (screen_x, screen_y, TILE_SIZE, TILE_SIZE))
+                else:
+                    pygame.draw.rect(screen, COLOR_UNDISCOVERED, (screen_x, screen_y, TILE_SIZE, TILE_SIZE))
+        
+        # Dessiner les items
+        for obj in game_map.items:
+            ix, iy = obj["x"], obj["y"]
+            if 0 <= iy < game_map.height and 0 <= ix < game_map.width:
+                if (ix, iy) in visible or (ix, iy) in game_map.discovered:
+                    pygame.draw.circle(screen, COLOR_ITEM, 
+                                     (ix * TILE_SIZE + TILE_SIZE // 2, iy * TILE_SIZE + TILE_SIZE // 2),
+                                     TILE_SIZE // 3)
+        
+        # Dessiner les ennemis
+        for enemy in game_map.enemies:
+            ex, ey = enemy.x, enemy.y
+            if 0 <= ey < game_map.height and 0 <= ex < game_map.width:
+                if (ex, ey) in visible or (ex, ey) in game_map.discovered:
+                    pygame.draw.circle(screen, COLOR_ENEMY,
+                                     (ex * TILE_SIZE + TILE_SIZE // 2, ey * TILE_SIZE + TILE_SIZE // 2),
+                                     TILE_SIZE // 2 - 2)
+        
+        # Dessiner les projectiles
+        for pr in game_map.projectiles:
+            if len(pr) >= 4:
+                px2, py2 = pr[0], pr[1]
+                owner = pr[4] if len(pr) >= 5 else "enemy"
+                if 0 <= py2 < game_map.height and 0 <= px2 < game_map.width:
+                    if (px2, py2) in visible or (px2, py2) in game_map.discovered:
+                        color = COLOR_PROJECTILE_PLAYER if owner == "player" else COLOR_PROJECTILE_ENEMY
+                        pygame.draw.circle(screen, color,
+                                         (px2 * TILE_SIZE + TILE_SIZE // 2, py2 * TILE_SIZE + TILE_SIZE // 2),
+                                         TILE_SIZE // 4)
+        
+        # Effet de hit
+        if getattr(game_map, 'hit_flash', None):
+            for (hx, hy), expire in game_map.hit_flash.items():
+                if 0 <= hy < game_map.height and 0 <= hx < game_map.width:
+                    if (hx, hy) in visible or (hx, hy) in game_map.discovered:
+                        pygame.draw.line(screen, COLOR_HIT,
+                                       (hx * TILE_SIZE, hy * TILE_SIZE),
+                                       ((hx + 1) * TILE_SIZE, (hy + 1) * TILE_SIZE), 3)
+                        pygame.draw.line(screen, COLOR_HIT,
+                                       ((hx + 1) * TILE_SIZE, hy * TILE_SIZE),
+                                       (hx * TILE_SIZE, (hy + 1) * TILE_SIZE), 3)
+        
+        # Dessiner le joueur
+        player_x = int(player.x) * TILE_SIZE + TILE_SIZE // 2
+        player_y = int(player.y) * TILE_SIZE + TILE_SIZE // 2
+        pygame.draw.circle(screen, COLOR_PLAYER, (player_x, player_y), TILE_SIZE // 2 - 1)
+    
+    def draw_hud():
+        """Dessine le HUD avec Pygame"""
+        hud_y = MAP_HEIGHT
+        pygame.draw.rect(screen, (40, 40, 50), (0, hud_y, SCREEN_WIDTH, HUD_HEIGHT))
+        
         w = player.get_equipped_weapon()
+        w_name = player.get_equipped_weapon_name()
         w_stats = ""
         if w:
-            w_stats = f" (DMG {getattr(w,'damage','?')}, Dur {getattr(w,'durability','?')}, Portée {getattr(w,'range','?')})"
-        print(f"PV: {player.get_hp()} | Niv: {player.get_niveau()} | XP: {player.get_xp()} | Arme: {player.get_equipped_weapon_name()}{w_stats} | Inventaire: {player.get_inventory_size()} (I pour ouvrir) | Aide: H | Attaque: A")
-
-    if msvcrt:
-        print("Contrôles: ZQSD, Attaque=A, Inventaire=I, Aide=H, Quitter=X")
-        while playing:
-            if msvcrt.kbhit():
-                key = msvcrt.getwch().lower()
-                if key == "x":
+            w_stats = f"DMG:{getattr(w,'damage','?')} Dur:{getattr(w,'durability','?')} Portée:{getattr(w,'range','?')}"
+        
+        texts = [
+            f"PV: {player.get_hp()}",
+            f"Niv: {player.get_niveau()}",
+            f"XP: {player.get_xp()}",
+            f"Arme: {w_name}",
+            w_stats if w_stats else "",
+            f"Inventaire: {player.get_inventory_size()}",
+            "ZQSD: Déplacer | A: Attaquer | I: Inventaire | X: Quitter"
+        ]
+        
+        y_offset = hud_y + 10
+        for i, text in enumerate(texts):
+            if text:
+                text_surf = hud_font.render(text, True, (255, 255, 255))
+                screen.blit(text_surf, (10, y_offset + i * 20))
+    
+    # Boucle principale du jeu
+    while playing:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                playing = False
+                ep.end_episode("quit", {"tick": game_map.ticks})
+            elif event.type == pygame.KEYDOWN:
+                key = event.unicode.lower() if event.unicode else ""
+                # Gérer les touches spéciales
+                if event.key == pygame.K_x:
                     playing = False
                     ep.end_episode("quit", {"tick": game_map.ticks})
-                elif key == "h":
+                elif event.key == pygame.K_h:
                     print("Aide: ZQSD pour bouger, I inventaire, X quitter.")
-                    time.sleep(0.6)
-                elif key == "i":
+                elif event.key == pygame.K_i:
                     _open_inventory_menu(player)
-                elif key == "a":
+                elif event.key == pygame.K_a:
                     _player_attack(player, game_map)
-                elif key in ("z", "q", "s", "d"):
+                elif event.key == pygame.K_UP or event.key == pygame.K_w or key == "z":
                     old = (player.x, player.y)
-                    player.move(key)
+                    player.move("z")
                     if (player.x, player.y) != old:
-                        log.info("Déplacement joueur", extra={"extra": {"from": old, "to": (player.x, player.y), "input": key}})
+                        log.info("Déplacement joueur", extra={"extra": {"from": old, "to": (player.x, player.y), "input": "z"}})
                         ep.log_step({
                             "tick": game_map.ticks,
                             "player": {"from": list(old), "to": [player.x, player.y]},
-                            "action_player": key,
+                            "action_player": "z",
                         })
-            
-            game_map.draw((player.x, player.y))
-            print_hud()
-            time.sleep(0.08)
-            game_map.tick((player.x, player.y))
-    else:
-        while playing:
-            print("Déplacez-vous avec ZQSD | A=Attaque | I=Inventaire | H=Aide | X=Quitter")
-            cmd = input("> ").lower()
-            if cmd == "x":
-                playing = False
-                ep.end_episode("quit", {"tick": game_map.ticks})
-            elif cmd == "h":
-                print("Aide: ZQSD pour bouger, I inventaire, X quitter.")
-            elif cmd == "i":
-                _open_inventory_menu(player)
-            elif cmd == "a":
-                _player_attack(player, game_map)
-            elif cmd in ("z", "q", "s", "d"):
-                old = (player.x, player.y)
-                player.move(cmd)
-                if (player.x, player.y) != old:
-                    log.info("Déplacement joueur", extra={"extra": {"from": old, "to": (player.x, player.y), "input": cmd}})
-                    ep.log_step({
-                        "tick": game_map.ticks,
-                        "player": {"from": list(old), "to": [player.x, player.y]},
-                        "action_player": cmd,
-                    })
-            
-            game_map.draw((player.x, player.y))
-            print_hud()
-            game_map.tick((player.x, player.y))
+                elif event.key == pygame.K_LEFT or key == "q":
+                    old = (player.x, player.y)
+                    player.move("q")
+                    if (player.x, player.y) != old:
+                        log.info("Déplacement joueur", extra={"extra": {"from": old, "to": (player.x, player.y), "input": "q"}})
+                        ep.log_step({
+                            "tick": game_map.ticks,
+                            "player": {"from": list(old), "to": [player.x, player.y]},
+                            "action_player": "q",
+                        })
+                elif event.key == pygame.K_DOWN or event.key == pygame.K_s or key == "s":
+                    old = (player.x, player.y)
+                    player.move("s")
+                    if (player.x, player.y) != old:
+                        log.info("Déplacement joueur", extra={"extra": {"from": old, "to": (player.x, player.y), "input": "s"}})
+                        ep.log_step({
+                            "tick": game_map.ticks,
+                            "player": {"from": list(old), "to": [player.x, player.y]},
+                            "action_player": "s",
+                        })
+                elif event.key == pygame.K_RIGHT or event.key == pygame.K_d or key == "d":
+                    old = (player.x, player.y)
+                    player.move("d")
+                    if (player.x, player.y) != old:
+                        log.info("Déplacement joueur", extra={"extra": {"from": old, "to": (player.x, player.y), "input": "d"}})
+                        ep.log_step({
+                            "tick": game_map.ticks,
+                            "player": {"from": list(old), "to": [player.x, player.y]},
+                            "action_player": "d",
+                        })
+        
+        # Rendu
+        screen.fill((0, 0, 0))
+        draw_map_pygame()
+        draw_hud()
+        pygame.display.flip()
+        
+        # Tick logique
+        game_map.tick((player.x, player.y))
+        
+        clock.tick(30)  # 30 FPS
     
+    # Sauvegarde
     print(f"\nPartie terminée. Sauvegarde de la progression de {player.name}...")
-    
     save_q_table(shared_player_q_data, player.q_table_path)
     update_joueur_stats(player.db_id, player.get_hp(), player.xp, player.niveau) 
     sauvegarder_inventaire(player.db_id, player.get_inventory())
-    
     print("Sauvegarde terminée. Au revoir.")
+    
+    pygame.quit()
 
 
 def _open_inventory_menu(player: PlayerController):

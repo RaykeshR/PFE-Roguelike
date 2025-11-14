@@ -159,11 +159,16 @@ class players:
         if not self.get_is_alive():
             return
             
-        self.xp += int(montant)
-        print(f"Vous gagnez {montant} XP. (Total : {self.xp})")
+        montant_int = int(montant)
+        if montant_int <= 0:
+            return
+            
+        self.xp += montant_int
+        print(f"Vous gagnez {montant_int} XP. (Total : {self.xp})")
         
         # Logique de montée de niveau (simple, à ajuster)
-        xp_pour_niveau_sup = self.niveau * 100 # 100xp => niveau 2, 200xp => niveau 3, etc.
+        # XP nécessaire pour passer au niveau suivant = niveau actuel * 100
+        xp_pour_niveau_sup = self.niveau * 100 
         
         while self.xp >= xp_pour_niveau_sup:
             self.niveau += 1

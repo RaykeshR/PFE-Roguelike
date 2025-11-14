@@ -160,7 +160,7 @@ class Checkbox:
 
 class InputBox:
     """Widget de saisie de texte."""
-    def __init__(self, x, y, width, height, font=None, placeholder="", max_length=20, callback=None):
+    def __init__(self, x, y, width, height, font=None, placeholder="", max_length=20, callback=None, password=False):
         self.rect = pygame.Rect(x, y, width, height)
         self.font = font or pygame.font.Font(None, 32)
         self.placeholder = placeholder
@@ -170,6 +170,7 @@ class InputBox:
         self.callback = callback
         self.cursor_visible = True
         self.cursor_timer = 0
+        self.password = password  # Si True, masque le texte avec des *
 
     def draw(self, screen):
         # Dessine la bordure
@@ -178,8 +179,14 @@ class InputBox:
         pygame.draw.rect(screen, color, self.rect, 2, border_radius=3)
         
         # Dessine le texte ou le placeholder
-        display_text = self.text if self.text else self.placeholder
-        text_color = (0, 0, 0) if self.text else (150, 150, 150)
+        if self.text:
+            # Si c'est un champ mot de passe, afficher des * au lieu du texte
+            display_text = "*" * len(self.text) if self.password else self.text
+            text_color = (0, 0, 0)
+        else:
+            display_text = self.placeholder
+            text_color = (150, 150, 150)
+        
         text_surf = self.font.render(display_text, True, text_color)
         screen.blit(text_surf, (self.rect.x + 5, self.rect.y + 10))
         
