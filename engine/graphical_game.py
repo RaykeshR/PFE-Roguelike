@@ -1,20 +1,26 @@
-import time
-import os
-import logging
+import time, os, logging, sys
 
 try:
     import msvcrt  # Windows input non bloquant
 except ImportError:
     msvcrt = None
+if __name__ != "__main__": # to avoid circular import when run as main
+    import pygame, getpass
+    from engine.map import Map
+    from entities.players import players as PlayerController
+    from system.game_logging import get_episode_logger
+    from items import Weapon, Potion
+    from items.category_weapon import CategoryWeapon
+    from engine.rl import load_q_table, save_q_table
+    from pygame.locals import *
+else:
+    # Exécution directe : lancer le main du projet (subprocess)
+    import subprocess
+    
+    subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "main.py")])
+    exit(0)
 
-from engine.map import Map
-from entities.players import players as PlayerController
-from system.game_logging import get_episode_logger
-from items import Weapon, Potion
-from items.category_weapon import CategoryWeapon
 
-
-import getpass
 from database.db_sql import (
     creer_utilisateur, 
     verifier_utilisateur, 
@@ -25,9 +31,68 @@ from database.db_sql import (
     sauvegarder_inventaire,
     charger_inventaire
 )
-from engine.rl import load_q_table, save_q_table
 
 def graphical_menu_principal():
+    """Gère le menu graphique principal du jeu."""
+    pygame.init()
+    LARGEUR_ECRAN_MENU = 1000
+    HAUTEUR_ECRAN_MENU = 500
+    SCREEN = pygame.display.set_mode((LARGEUR_ECRAN_MENU, HAUTEUR_ECRAN_MENU))
+    CLOCK = pygame.time.Clock()
+    COULEUR_DE_FOND = (255,255,255)
+    COULEUR_DE_FOND_DES_BOUTTON = (200,200,200)
+    BLACK = (0,0,0)
+    FONT = pygame.font.Font(None, 36) # Police par défaut, taille 36
+
+    def draw_text(text, pos, color=BLACK):
+        """Dessine du texte à l'écran."""
+        SCREEN.blit(FONT.render(text, True, color), pos)
+
+    def main_menu():
+        running = True
+        state = "main"
+        while running: # Boucle principale du menu
+            SCREEN.fill(COULEUR_DE_FOND)
+            mouse_pos = pygame.mouse.get_pos()
+            click = False
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    click = True
+
+            if state == "main":
+                # boutons
+                play_rect = pygame.Rect(200, 150, 200, 50)
+                options_rect = pygame.Rect(200, 220, 200, 50)
+                pygame.draw.rect(SCREEN, COULEUR_DE_FOND_DES_BOUTTON, play_rect)
+                pygame.draw.rect(SCREEN, COULEUR_DE_FOND_DES_BOUTTON, options_rect)
+                draw_text("Jouer", (play_rect.x+60, play_rect.y+10))
+                draw_text("Options", (options_rect.x+50, options_rect.y+10))
+
+                if click:
+                    if play_rect.collidepoint(mouse_pos):
+                        print("Lancer le jeu…")
+                        # Ici tu pourrais changer vers un état 'game'
+                    elif options_rect.collidepoint(mouse_pos):
+                        state = "options"
+
+            elif state == "options":
+                draw_text("Options du jeu", (200, 50))
+                back_rect = pygame.Rect(200, 300, 200, 50)
+                pygame.draw.rect(SCREEN, COULEUR_DE_FOND_DES_BOUTTON, back_rect)
+                draw_text("Retour", (back_rect.x+60, back_rect.y+10))
+                if click and back_rect.collidepoint(mouse_pos):
+                    state = "main"
+
+            pygame.display.flip()
+            CLOCK.tick(30)
+
+    main_menu()
+    pygame.quit()
+
+
+def menu_principal():
     """Gère le menu de connexion et de sélection de personnage."""
     print("=== 🛡️  Bienvenue dans PFE-Roguelike 🛡️  ===")
     
