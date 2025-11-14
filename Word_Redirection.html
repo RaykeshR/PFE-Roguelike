@@ -14,11 +14,18 @@
         // window.location.replace("https://reseaueseo-my.sharepoint.com/:w:/r/personal/sabri_messaoudi_reseau_eseo_fr/Documents/Note%20de%20Travail%20PFE.docx?d=w94d9488edfa142df962016daa36a74ba&csf=1&web=1&e=UM8vt7");
          
         // Ouvrir en nouvel onglet + changer l’URL locale
-        window.addEventListener("load", function () {
-            const url = "https://reseaueseo-my.sharepoint.com/:w:/r/personal/sabri_messaoudi_reseau_eseo_fr/Documents/Note%20de%20Travail%20PFE.docx?d=w94d9488edfa142df962016daa36a74ba&csf=1&web=1&e=UM8vt7";
-            window.open(url, "_blank");// 1. ouvrir le nouveau lien dans un nouvel onglet
+        // TODO
+    </script>
+    <!-- lien ouvert par un clic utilisateur : pas de popup-block -->
+    <a id="openDoc" href="https://reseaueseo-my.sharepoint.com/:w:/r/personal/sabri_messaoudi_reseau_eseo_fr/Documents/Note%20de%20Travail%20PFE.docx?d=w94d9488edfa142df962016daa36a74ba&csf=1&web=1&e=UM8vt7" target="_blank" rel="noopener noreferrer">
+        Ouvrir la note de travail dans un nouvel onglet
+    </a>
 
-            history.replaceState({}, "", "/redirection-effectuee");// 2. changer l’URL de l’onglet courant sans recharger la page
+    <script>
+        const a = document.getElementById('openDoc');
+        a.addEventListener('click', function (ev) {
+        // met à jour l'URL de l'onglet courant (sans recharger)
+        history.replaceState({}, "", "/redirection-effectuee");
         });
     </script>
 </head>
