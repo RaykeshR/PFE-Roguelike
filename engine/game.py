@@ -1,6 +1,4 @@
-import time
-import os
-import logging
+import time, os, logging
 
 try:
     import msvcrt  # Windows input non bloquant
