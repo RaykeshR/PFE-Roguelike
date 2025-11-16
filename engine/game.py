@@ -175,7 +175,7 @@ def run_game(joueur_id_connecte):
         # Boucle avec saisie continue (Windows)
         print("Contrôles: ZQSD, Attaque=A, Inventaire=I, Aide=H, Quitter=X (maintenir possible)")
         while playing:
-            # 1) Entrée utilisateur d'abord (pour afficher tout de suite les effets)
+            # 1) Entrée utilisateur
             if msvcrt.kbhit():
                 key = msvcrt.getwch().lower()
                 if key == "x":
