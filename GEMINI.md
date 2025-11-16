@@ -1,0 +1,66 @@
+# Project Overview
+
+This project is a Roguelike game developed in Python. It offers both a graphical user interface (GUI) version using `pygame` and `arcade`, and a console-based version.
+
+The game's architecture includes:
+- A PostgreSQL database for managing user accounts, player characters, and their inventory.
+- MongoDB for logging game actions and events, likely for analytics and debugging.
+- A Q-learning reinforcement learning agent to control the behavior of non-player characters (NPCs). The agent's learned data (Q-table) is persisted as pickle files.
+
+## Building and Running
+
+### 1. Setup and Installation
+
+First, create a Python virtual environment and install the required dependencies.
+
+```bash
+# Create a virtual environment
+python -m venv .venv
+
+# Activate the environment
+# On Windows
+.venv\Scripts\activate
+# On macOS/Linux
+source .venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### 2. Running the Game
+
+To start the game, run the `main.py` script.
+
+```bash
+python main.py
+```
+
+The application will prompt you to choose between the graphical and console versions.
+
+### 3. Running Tests
+
+The project uses `pytest` for testing. To run the test suite, execute the `run_tests.py` script.
+
+```bash
+python run_tests.py
+```
+
+You can also run specific tests by setting the `PYTEST_K` environment variable. For example, to run tests related to the map:
+
+```bash
+PYTEST_K=map python run_tests.py
+```
+
+## Development Conventions
+
+- **Testing:** Tests are located in the `engine` and `entities` directories, in files with the `test_*.py` pattern.
+- **Configuration:** Database credentials and other sensitive information are managed through a `.env` file in the `database` directory.
+- **Modularity:** The project is organized into several modules:
+    - `engine`: Core game logic, including the game loop and reinforcement learning agent.
+    - `entities`: Game objects such as players and monsters.
+    - `database`: Handles all database interactions for both PostgreSQL and MongoDB.
+    - `items`: Defines in-game items like weapons and potions.
+    - `system`: Manages logging and other system-level functionalities.
+- **Database:**
+    - **PostgreSQL:** Used for core game data (users, players, inventory).
+    - **MongoDB:** Used for logging and analytics.
