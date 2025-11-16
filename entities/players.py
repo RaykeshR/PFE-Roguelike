@@ -307,7 +307,7 @@ class players:
         dx, dy = 0, 0
         haut = ["z", "w", "up"]
         bas = ["s", "down"]
-        gauche = ["q", "a", "left"]
+        gauche = ["q", "left"]
         droite = ["d", "right"]
         if direction in haut: dy = -1
         elif direction in bas: dy = 1
