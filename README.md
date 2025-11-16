@@ -139,3 +139,18 @@ git push --mirror
 
 </details> 
 
+<details>
+<summary>Autre : </summary>
+<details>
+<summary>Geminni-cli : </summary>
+1. ouvrir un terminal (WSL, ...)
+2. taper : `npm install -g @google/gemini-cli` / `sudo npm install -g @google/gemini-cli`
+3. Changer de dossier : `cd .../PFE-Roguelike`
+4. lancer gemini : avec `gemini`
+5. login avec google
+6. tester avec une question
+7. lancer la commande : `/init`
+    
+</details> 
+
+</details> 
