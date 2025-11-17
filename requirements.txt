@@ -12,5 +12,9 @@ psycopg2-binary
 PILLOW
 psycopg2
 dotenv
+pymongo
 colorama
 pytest
+fastapi
+seaborn
+bcrypt
