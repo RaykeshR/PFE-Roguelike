@@ -11,6 +11,9 @@
 [![My Skills](https://skillicons.dev/icons?i=powershell)](https://learn.microsoft.com/fr-fr/powershell/scripting/overview?view=powershell-7.4)
 [![My Skills](https://skillicons.dev/icons?i=windows)](https://www.microsoft.com/fr-fr/windows?r=1)
 
+Le site est accessible via ce [Lien qui fait une Redirection d'URL](https://raykeshr.github.io/PFE-Roguelike/) vers une page d'accueil pour le site du Github : PFE-Roguelike
+Note de Travail : [Fichier Word](https://raykeshr.github.io/PFE-Roguelike/Word_Redirection.html) <!-- si ça ne marche pas cliquer ici : [Fichier Word](https://reseaueseo-my.sharepoint.com/:w:/r/personal/sabri_messaoudi_reseau_eseo_fr/Documents/Note%20de%20Travail%20PFE.docx?d=w94d9488edfa142df962016daa36a74ba&csf=1&web=1&e=UM8vt7) -->
+
 
 #### Sommaire 
 
@@ -28,12 +31,12 @@ TODO :octocat: :neckbeard: :bowtie: :shipit:
 <summary>Création d'environnements virtuels : </summary>
 
 ## Un package manquant : 
-
+<!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
 ```
 .venv\Scripts\activate && python -m pip install --upgrade pip && pip install -r requirements.txt
 ```
 
-### 1. Clonner le Repo
+### 1. Cloner le Repo
 
 avec GitHub (Copie les fichiers localement)
 
@@ -68,7 +71,7 @@ On peut aussi (Si c'est un problème de l'éditeur) `$ . .venv\Scripts\activate.
 
 ```pip freeze > requirements.txt``` pour remplir automatiquement les requirements
 
-Pour tout les étapes précédente (sur CMD ou powershell>=7) : 
+Pour toutes les étapes précédentes (sur CMD ou powershell>=7) : 
 
 
 ```
@@ -81,7 +84,7 @@ en cas d'erreur (supprimer le dossier .venv ou lancer):
 
 Avec  pip freeze  :
 
-    Pour tout les étapes précédente (sur CMD ou powershell>=7) : 
+    Pour toutes les étapes précédentes (sur CMD ou powershell>=7) : 
     ```python -m venv .venv && .venv\Scripts\activate && python -m pip install --upgrade pip && pip install -r requirements.txt && pip freeze > requirements.txt```
     
     en cas d'erreur (supprimer le dossier .venv ou lancer): 
@@ -92,7 +95,7 @@ Avec  pip freeze  :
 Ajouter : `.venv`
 (Ne prend pas en compte la modification du dossier .venv)
 
-### 7. Lancer le fichier MainWindow.py 
+### 7. Lancer le fichier main.py 
 
 Commande : `python main.py `
 (Lance le fichier principal avec python)
@@ -111,7 +114,7 @@ Modifier .git\info\exclude
 </details> 
 
 <details>
-<summary>Nettoyer un depot git : </summary>
+<summary>Nettoyer un dépôt git : </summary>
 Télécharger BFG Repo-Cleaner sur le site (.jar): 
 https://rtyley.github.io/bfg-repo-cleaner/
 
@@ -133,5 +136,48 @@ git push --force --tags
 git push --force origin --tags -->
 
 git push --mirror
+
+</details> 
+
+<details>
+<summary>Autre : </summary>
+<details>
+<summary>Gemini-cli : </summary>
+1. ouvrir un terminal (WSL, ...)
+2. taper : `npm install -g @google/gemini-cli` / `sudo npm install -g @google/gemini-cli`
+3. Changer de dossier : `cd .../PFE-Roguelike`
+4. lancer gemini : avec `gemini`
+5. login avec google
+6. tester avec une question
+7. lancer la commande : `/init`
+    
+</details> 
+<details>
+<summary>Gemini-cli + MCP Github : </summary>
+
+Le Model Context Protocol (MCP) est un protocole standard ouvert conçu pour connecter des modèles d'intelligence artificielle (IA) (LLM, ...)
+Ici, le MCP Github permettra à gemini d'accéder aux code source sans passer par une recherche web à chaque fois.
+
+1. ouvrir un terminal (WSL, ...)
+2. taper : `cd ~/.gemini`
+3. modifier le fichier settings.json et ajouter au json : 
+```
+    , 
+    "mcpServers": {
+        "github": {
+            "httpUrl": "https://api.githubcopilot.com/mcp/",
+            "headers": {
+                    "Authorization": "Bearer ghp_..."
+                },
+                "timeout": 5000
+        }
+    }
+
+```    
+
+> [!NOTE]  
+> Pour obtenir le "Bearer ghp_..." ou plus précisément le `ghp_...` il faut mettre un PAT ( Personal access tokens (classic) : [https://github.com/settings/tokens](https://github.com/settings/tokens) ) nommé de préférence "Gemini MCP" avec les droits voulus.
+
+</details> 
 
 </details> 
