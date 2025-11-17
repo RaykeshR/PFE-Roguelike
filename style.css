@@ -219,8 +219,21 @@ footer {
     font-size: 0.9rem;
 }
 
-#preformatted-code{
-    background: rgba(0,0,0,0.3); 
+.stat-list {
+    text-align: left;
+    margin-top: 1rem;
+}
+
+.footer-link-container {
+    margin-top: 1rem;
+}
+
+.footer-link {
+    color:  #00d4ff;
+}
+
+.code-block{
+    background: rgba(0,0,0, 0.3); 
     padding: 1rem; 
     border-radius: 5px; 
     overflow-x: auto;
