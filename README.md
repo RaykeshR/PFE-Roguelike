@@ -36,7 +36,7 @@ TODO :octocat: :neckbeard: :bowtie: :shipit:
 .venv\Scripts\activate && python -m pip install --upgrade pip && pip install -r requirements.txt
 ```
 
-### 1. Clonner le Repo
+### 1. Cloner le Repo
 
 avec GitHub (Copie les fichiers localement)
 
@@ -71,7 +71,7 @@ On peut aussi (Si c'est un problème de l'éditeur) `$ . .venv\Scripts\activate.
 
 ```pip freeze > requirements.txt``` pour remplir automatiquement les requirements
 
-Pour tout les étapes précédente (sur CMD ou powershell>=7) : 
+Pour toutes les étapes précédentes (sur CMD ou powershell>=7) : 
 
 
 ```
@@ -84,7 +84,7 @@ en cas d'erreur (supprimer le dossier .venv ou lancer):
 
 Avec  pip freeze  :
 
-    Pour tout les étapes précédente (sur CMD ou powershell>=7) : 
+    Pour toutes les étapes précédentes (sur CMD ou powershell>=7) : 
     ```python -m venv .venv && .venv\Scripts\activate && python -m pip install --upgrade pip && pip install -r requirements.txt && pip freeze > requirements.txt```
     
     en cas d'erreur (supprimer le dossier .venv ou lancer): 
@@ -95,7 +95,7 @@ Avec  pip freeze  :
 Ajouter : `.venv`
 (Ne prend pas en compte la modification du dossier .venv)
 
-### 7. Lancer le fichier MainWindow.py 
+### 7. Lancer le fichier main.py 
 
 Commande : `python main.py `
 (Lance le fichier principal avec python)
@@ -114,7 +114,7 @@ Modifier .git\info\exclude
 </details> 
 
 <details>
-<summary>Nettoyer un depot git : </summary>
+<summary>Nettoyer un dépôt git : </summary>
 Télécharger BFG Repo-Cleaner sur le site (.jar): 
 https://rtyley.github.io/bfg-repo-cleaner/
 
@@ -142,7 +142,7 @@ git push --mirror
 <details>
 <summary>Autre : </summary>
 <details>
-<summary>Geminni-cli : </summary>
+<summary>Gemini-cli : </summary>
 1. ouvrir un terminal (WSL, ...)
 2. taper : `npm install -g @google/gemini-cli` / `sudo npm install -g @google/gemini-cli`
 3. Changer de dossier : `cd .../PFE-Roguelike`
@@ -153,10 +153,10 @@ git push --mirror
     
 </details> 
 <details>
-<summary>Geminni-cli + MCP Github : </summary>
+<summary>Gemini-cli + MCP Github : </summary>
 
 Le Model Context Protocol (MCP) est un protocole standard ouvert conçu pour connecter des modèles d'intelligence artificielle (IA) (LLM, ...)
-Ici, le MCP Github permettra à gemini d'accèder aux code source sans passer par une recherche web à chaque fois.
+Ici, le MCP Github permettra à gemini d'accéder aux code source sans passer par une recherche web à chaque fois.
 
 1. ouvrir un terminal (WSL, ...)
 2. taper : `cd ~/.gemini`
@@ -176,7 +176,7 @@ Ici, le MCP Github permettra à gemini d'accèder aux code source sans passer pa
 ```    
 
 > [!NOTE]  
-> Pour obtenir le "Bearer ghp_..." ou plus précicément le `ghp_...` il faut mettre un PAT ( Personal access tokens (classic) : [https://github.com/settings/tokens](https://github.com/settings/tokens) ) nommé de préférence "Gemini MCP" avec les droits voulues.
+> Pour obtenir le "Bearer ghp_..." ou plus précisément le `ghp_...` il faut mettre un PAT ( Personal access tokens (classic) : [https://github.com/settings/tokens](https://github.com/settings/tokens) ) nommé de préférence "Gemini MCP" avec les droits voulus.
 
 </details> 
 
