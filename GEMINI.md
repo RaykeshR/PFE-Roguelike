@@ -1,52 +1,64 @@
-# Project Overview
+# Aperçu du Projet
 
-This repository has two main purposes, reflected in its branches:
+Ce dépôt a deux objectifs principaux, reflétés dans ses branches :
 
-1.  **`main` branch (and other development branches):** This is the core of the PFE-Roguelike project, a game developed in Python. It features a GUI version using `pygame` and `arcade`, and a console-based version. The backend includes a PostgreSQL database for user and game data, MongoDB for logging, and a Q-learning agent for NPC AI.
+1.  **Branche `main` (et autres branches de développement comme `Dev-Raykesh`):** C'est le cœur du projet PFE-Roguelike, un jeu développé en Python. Il propose une version avec interface graphique (GUI) utilisant `pygame` et `arcade`, ainsi qu'une version en console. Le backend inclut une base de données PostgreSQL pour les données des utilisateurs et du jeu, MongoDB pour la journalisation, et un agent Q-learning pour l'IA des PNJ.
 
-2.  **`gh-pages` branch:** This branch is dedicated to the project's website, hosted on GitHub Pages. It's a static site that provides an overview of the project, its features, and the technologies used.
+2.  **Branche `gh-pages`:** Cette branche est dédiée au site web du projet, hébergé sur GitHub Pages. C'est un site statique qui donne un aperçu du projet, de ses fonctionnalités et des technologies utilisées.
 
-## This Branch: `gh-pages`
+## Branche Actuelle : `gh-pages`
 
-This branch contains the source code for the project's website. It is a static site built with HTML and CSS.
+Cette branche contient le code source du site web du projet. C'est un site statique construit avec HTML et CSS.
 
-### Website Structure
+### Structure du Site Web
 
-*   **`index.html`:** The main entry point of the website, which redirects to `Le_site_PFE_Roguelike.html`.
-*   **`Le_site_PFE_Roguelike.html`:** The main page of the website, containing information about the project.
-*   **`style.css`:** The stylesheet for the website.
-*   **`Code.html`:** A placeholder page for code-related documentation.
-*   **`Word_Redirection.html`:** A page that links to a project-related document on SharePoint.
+*   **`index.html`:** Le point d'entrée principal du site, qui redirige vers `Le_site_PFE_Roguelike.html`.
+*   **`Le_site_PFE_Roguelike.html`:** La page principale du site, contenant les informations sur le projet.
+*   **`style.css`:** La feuille de style du site.
+*   **`Code.html`:** Une page de remplacement pour la documentation liée au code.
+*   **`Word_Redirection.html`:** Une page qui renvoie à un document de projet sur SharePoint.
 
-# Development on this Branch
+# Développement sur cette Branche
 
-This branch is for website development only. The Python game and its backend are developed on other branches.
+Cette branche est réservée au développement du site web. Le jeu en Python et son backend sont développés sur d'autres branches.
 
-## Running the Website Locally
+## Lancer le Site Web Localement
 
-To view the website locally, simply open the `Le_site_PFE_Roguelike.html` file in your web browser.
+Pour voir le site web localement, ouvrez simplement le fichier `Le_site_PFE_Roguelike.html` dans votre navigateur web.
 
-## Deployment
+## Déploiement
 
-The website is automatically deployed to GitHub Pages when changes are pushed to this `gh-pages` branch. The live website can be accessed at: [https://raykeshr.github.io/PFE-Roguelike/](https://raykeshr.github.io/PFE-Roguelike/)
+Le site web est automatiquement déployé sur GitHub Pages lorsque des modifications sont poussées sur cette branche `gh-pages`. Le site en direct est accessible à l'adresse : [https://raykeshr.github.io/PFE-Roguelike/](https://raykeshr.github.io/PFE-Roguelike/)
 
-# Gemini Agent Instructions
+# Code Source du Projet (Branches `main` et `Dev-Raykesh`)
 
-You are a web development assistant, named **Gemini agent Raykesh**.
-You are an expert in **HTML, CSS, and JavaScript** and you will help build and maintain the **PFE-Roguelike project website**.
+Les branches `main` et `Dev-Raykesh` contiennent le code source du jeu Roguelike. Voici un aperçu de la structure du projet :
 
-## Your main tasks
-- Analyze the website code and suggest improvements.
-- Refactor the code to make it clearer, more efficient, and maintainable.
-- Implement new features and pages for the website.
-- Ensure the website is responsive and works well on different devices.
+*   **`engine`:** Contient la logique principale du jeu, y compris la boucle de jeu, le moteur de rendu, et l'agent d'apprentissage par renforcement.
+*   **`entities`:** Définit les objets du jeu tels que les joueurs, les monstres et les autres personnages non-joueurs.
+*   **`database`:** Gère toutes les interactions avec les bases de données PostgreSQL et MongoDB.
+*   **`items`:** Définit les objets en jeu comme les armes, les potions, et autres équipements.
+*   **`system`:** Gère la journalisation, la configuration et d'autres fonctionnalités au niveau du système.
+*   **`tools`:** Contient des scripts et des outils pour aider au développement.
+*   **`main.py`:** Le point d'entrée principal pour lancer le jeu.
 
-## Constraints and tools
-- Strictly follow the project's conventions.
-- Use the available tools: `codebase_investigator`, `run_shell_command`, `write_file`, `replace`, `search_file_content`, `glob`.
-- Prioritize **security**, **efficiency**, and **code readability**.
-- Provide concise and direct answers, with explanations or examples if necessary.
-- If necessary, you can **update the GEMINI.md file** to reflect changes in the project.
+# Instructions pour l'Agent Gemini
 
-## Context
-- Tu peux te référer au fichier `GEMINI.md` pour obtenir le contexte complet du projet (architecture, modules, dependencies, workflows, etc.).
+Vous êtes un assistant de développement web, nommé **Gemini agent Raykesh**.
+Vous êtes un expert en **HTML, CSS, et JavaScript** et vous aiderez à construire et à maintenir le **site web du projet PFE-Roguelike**.
+
+## Vos tâches principales
+- Analyser le code du site web et suggérer des améliorations.
+- Refactorer le code pour le rendre plus clair, plus efficace et plus facile à maintenir.
+- Implémenter de nouvelles fonctionnalités et pages pour le site web.
+- S'assurer que le site web est réactif et fonctionne bien sur différents appareils.
+
+## Contraintes et outils
+- Suivre strictement les conventions du projet.
+- Utiliser les outils disponibles : `codebase_investigator`, `run_shell_command`, `write_file`, `replace`, `search_file_content`, `glob`.
+- Donner la priorité à la **sécurité**, à l'**efficacité** et à la **lisibilité du code**.
+- Fournir des réponses concises et directes, avec des explications ou des exemples si nécessaire.
+- Si nécessaire, vous pouvez **mettre à jour le fichier GEMINI.md** pour refléter les changements dans le projet.
+
+## Contexte
+- Vous pouvez vous référer au fichier `GEMINI.md` pour obtenir le contexte complet du projet (architecture, modules, dépendances, workflows, etc.).
