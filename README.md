@@ -152,5 +152,28 @@ git push --mirror
 7. lancer la commande : `/init`
     
 </details> 
+<details>
+<summary>Geminni-cli + MCP Github : </summary>
+1. ouvrir un terminal (WSL, ...)
+2. taper : `cd ~/.gemini`
+3. modifier le fichier settings.json et ajouter au json : 
+```
+    , 
+    "mcpServers": {
+        "github": {
+            "httpUrl": "https://api.githubcopilot.com/mcp/",
+            "headers": {
+                    "Authorization": "Bearer ghp_..."
+                },
+                "timeout": 5000
+        }
+    }
+
+```    
+
+> [!NOTE]  
+> Pour obtenir le "Bearer ghp_..." ou plus précicément le `ghp_...` il faut mettre un PAT ( Personal access tokens (classic) : [https://github.com/settings/tokens](https://github.com/settings/tokens) ) nommé de préférence "Gemini MCP" avec les droits voulues.
+
+</details> 
 
 </details> 
