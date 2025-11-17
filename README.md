@@ -154,6 +154,10 @@ git push --mirror
 </details> 
 <details>
 <summary>Geminni-cli + MCP Github : </summary>
+
+Le Model Context Protocol (MCP) est un protocole standard ouvert conçu pour connecter des modèles d'intelligence artificielle (IA) (LLM, ...)
+Ici, le MCP Github permettra à gemini d'accèder aux code source sans passer par une recherche web à chaque fois.
+
 1. ouvrir un terminal (WSL, ...)
 2. taper : `cd ~/.gemini`
 3. modifier le fichier settings.json et ajouter au json : 
