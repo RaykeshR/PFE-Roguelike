@@ -31,7 +31,7 @@ TODO :octocat: :neckbeard: :bowtie: :shipit:
 <summary>Création d'environnements virtuels : </summary>
 
 ## Un package manquant : 
-
+<!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
 ```
 .venv\Scripts\activate && python -m pip install --upgrade pip && pip install -r requirements.txt
 ```
