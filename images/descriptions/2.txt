@@ -1,0 +1,33 @@
+--- MÉTADONNÉES ---
+Fichier : 2.png
+Largeur : 1920px
+Hauteur : 1032px
+
+--- DESCRIPTION ---
+L'image est une capture d'écran de Visual Studio Code affichant un projet Python nommé "PFE-Roguelike".
+
+Sur la gauche, l'explorateur de fichiers montre la structure du projet avec des dossiers comme `engine`, `entities`, `images`, `items`, `logs`, `src`, `system`, et `tools`.
+
+Au centre, le fichier `main.py` est ouvert, montrant quelques lignes de code Python avec des imports liés au moteur de jeu (`engine.game`, `engine.graphical_game`), à la journalisation (`system.logging_setup`) et à la gestion des variables d'environnement (`dotenv`).
+
+En dessous du code, une console affiche une représentation textuelle d'un niveau de jeu de type Roguelike, avec des caractères ASCII formant un labyrinthe et des éléments de jeu. Une légende explique la signification des symboles :
+- `@` : Joueur
+- `#` : Mur
+- `+` : Porte
+- `S` : Départ
+- `E` : Arrivée
+- `!` : Item
+- `*` : Projectile ennemi
+- `^` : Projectile joueur
+- `X` : Coup (Hit)
+
+Les statistiques du joueur sont également visibles :
+- PV (Points de Vie) : 80
+- Niv (Niveau) : 5
+- XP (Points d'Expérience) : 450
+- Arme : (aucune)
+- Inventaire : 3 (avec l'instruction "I pour ouvrir")
+- Aide : H
+- Attaque : A
+
+L'environnement de développement est en mode sombre, avec des icônes pour Git, les extensions, le débogage et d'autres fonctionnalités de VS Code.

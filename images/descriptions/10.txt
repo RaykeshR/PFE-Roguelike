@@ -1,0 +1,26 @@
+--- MÉTADONNÉES ---
+Fichier : 10.png
+Largeur : 1202px
+Hauteur : 652px
+
+--- DESCRIPTION ---
+Une capture d'écran d'un jeu vidéo de type roguelike en vue de dessus, affichant une interface d'inventaire en surimpression. Le jeu est titré "PFE-Roguelike - Jeu" dans la barre de titre.
+
+Au centre de l'écran, une fenêtre modale grise foncée intitulée "INVENTAIRE" présente les informations suivantes :
+*   "PV: 70 | Arme équipée: Epée émoussée: Epée émoussée (DMG 5, Dur 90)"
+*   Une liste numérotée d'objets, avec un élément en surbrillance en bleu :
+    *   "0: Petite gâterie (CategoryPotion.HEALTH, +PV 10)"
+    *   **"1: Epée émoussée (DMG 5, Dur 90, Portée 1.0)"** (surligné)
+    *   "2: Faucheur de coton (DMG 10, Dur 85, Portée 1.0, ΔDMG +5)"
+    *   "3: Bouclier en bois de boulot (DMG 0, Dur 100, Portée 0.0, ΔDMG -5)"
+*   Des instructions en bas :
+    *   "E + numéro : Équiper une arme"
+    *   "U + numéro : Utiliser une potion"
+    *   "B ou ESC : Fermer"
+
+En arrière-plan, on aperçoit une partie du niveau de jeu, avec des murs sombres et des sols plus clairs, suggérant une exploration de donjon. En bas à gauche, on peut lire des statistiques du joueur :
+*   "PV: 70"
+*   "Niv: 5"
+*   "XP: 450"
+*   "Arme: Epée émoussée"
+*   "DMG: 5 Dur: 90 Portée: 1.0"

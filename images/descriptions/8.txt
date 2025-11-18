@@ -1,0 +1,27 @@
+--- MÉTADONNÉES ---
+Fichier : 8.png
+Largeur : 1202px
+Hauteur : 652px
+
+--- DESCRIPTION ---
+L'image montre l'interface d'un jeu nommé "PFE-Roguelike - Jeu". L'écran est principalement noir, représentant un environnement de jeu de type "roguelike" avec des éléments graphiques simples.
+
+Au centre de l'écran, on voit deux salles de forme rectangulaire de couleur grise, connectées par un couloir étroit de la même couleur. Les jonctions entre les couloirs et les salles sont marquées par des blocs bruns, suggérant des portes ou des passages.
+
+Dans la salle de gauche, il y a deux entités :
+*   Un cercle vert vif, qui pourrait représenter le joueur.
+*   Un petit carré bleu clair, potentiellement un objet ou une sortie.
+
+Dans le couloir qui relie les deux salles, on observe un cercle rouge, qui est probablement un ennemi.
+
+Dans la salle de droite, il y a un petit cercle jaune, qui pourrait être un autre objet, un ennemi différent, ou un point d'intérêt.
+
+En bas à gauche de l'écran, une interface utilisateur affiche les statistiques du joueur :
+*   **PV: 80** (Points de Vie)
+*   **Nlv: 5** (Niveau)
+*   **XP: 450** (Points d'Expérience)
+*   **Arme: (aucune)**
+
+En bas à droite, un message en rouge indique : "Aucune arme équipée."
+
+L'ensemble de l'image présente un style minimaliste et fonctionnel, typique des jeux roguelike axés sur le gameplay plutôt que sur des graphismes détaillés.

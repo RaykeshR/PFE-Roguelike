@@ -1,0 +1,7 @@
+--- MÉTADONNÉES ---
+Fichier : 4.png
+Largeur : 1002px
+Hauteur : 632px
+
+--- DESCRIPTION ---
+L'image présente l'écran d'accueil ou de connexion d'un jeu nommé "PFE-ROGUEELIKE". Sur un fond sombre, trois boutons sont empilés verticalement au centre de l'écran. De haut en bas, ils indiquent "Se connecter" (bleu), "Créer un compte" (vert) et "Quitter" (rouge). Le titre du jeu est affiché en grand et en blanc au-dessus des boutons.

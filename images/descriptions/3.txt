@@ -1,0 +1,15 @@
+--- MÉTADONNÉES ---
+Fichier : 3.png
+Largeur : 1920px
+Hauteur : 1032px
+
+--- DESCRIPTION ---
+Cette image est une capture d'écran de l'éditeur de code Visual Studio Code, affichant un projet de jeu nommé `PFE-Roguelike`.
+
+Au centre, un terminal est ouvert et exécute le jeu en mode texte. On peut y voir :
+*   Une carte de niveau (donjon) représentée par des caractères ASCII.
+*   Une légende détaillant la signification des symboles (`@` pour le joueur, `#` pour les murs, etc.).
+*   Les statistiques du joueur (PV, Niveau, XP).
+*   L'inventaire du joueur, montrant une commande pour équiper (`e`) un objet.
+
+La fenêtre d'édition de code au-dessus du terminal montre le fichier `main.py`, qui est le point d'entrée du jeu en Python. Sur la gauche, l'explorateur de fichiers montre l'arborescence du projet.

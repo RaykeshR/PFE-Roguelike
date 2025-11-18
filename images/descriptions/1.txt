@@ -1,0 +1,12 @@
+--- MÉTADONNÉES ---
+Fichier : 1.png
+Largeur : 1920px
+Hauteur : 1032px
+
+--- DESCRIPTION ---
+Il s'agit d'une capture d'écran de l'environnement de développement Visual Studio Code affichant un projet de jeu en Python nommé "PFE-Roguelike". La fenêtre est divisée en plusieurs sections :
+*   **À gauche**, l'explorateur de fichiers montre la structure du projet, avec des dossiers comme `.venv`, `database`, `engine`, `entities`, `images`, `items`, `logs`, et des fichiers comme `main.py` et `requirements.txt`.
+*   **En haut au centre**, l'éditeur de code est ouvert sur le fichier `main.py`, montrant les instructions d'importation de modules du jeu.
+*   **En bas**, une console de terminal exécute le jeu en mode texte. On y voit le menu principal avec les options "Se connecter", "Créer un compte", et la sélection d'un personnage après une connexion réussie.
+
+L'interface est en mode sombre, typique des environnements de développement. Le jeu semble être un Roguelike en mode texte, avec des fonctionnalités de gestion de personnages et de niveaux.

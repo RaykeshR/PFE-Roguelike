@@ -1,0 +1,15 @@
+--- MÉTADONNÉES ---
+Fichier : 7.png
+Largeur : 1002px
+Hauteur : 632px
+
+--- DESCRIPTION ---
+L'image présente une interface utilisateur de l'application "PFE-Roguelike".
+
+Au centre, une fenêtre grise foncée affiche :
+*   Un message de bienvenue : "Bonjour, RAYKESH !"
+*   Une liste de personnages existants, où "RAYKESH (Niv. 3, 105 PV)" est sélectionné, et "raykesh (Niv. 5, 80 PV)" est également visible.
+*   Une section "Créer un nouveau personnage" avec un champ de texte intitulé "Nom du personnage".
+*   Trois boutons d'action en bas : "Créer" (vert), "Jouer" (bleu), et "Déconnexion" (rouge).
+
+L'arrière-plan de l'interface est sombre.

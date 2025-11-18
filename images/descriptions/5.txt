@@ -1,0 +1,11 @@
+--- MÉTADONNÉES ---
+Fichier : 5.png
+Largeur : 1002px
+Hauteur : 632px
+
+--- DESCRIPTION ---
+L'image représente une interface graphique de connexion pour une application nommée "PFE-Roguelike". Au centre, une boîte de dialogue gris foncé, bordée d'une légère ombre, contient le titre "CONNEXION" en majuscules blanches.
+
+En dessous du titre, il y a deux champs de saisie. Le premier champ, étiqueté "RAYKESH", est un champ de texte où un nom d'utilisateur semble être pré-rempli. Le deuxième champ est un champ de mot de passe, affichant des astérisques et un curseur clignotant, indiquant que l'utilisateur est en train de saisir son mot de passe.
+
+Sous les champs de saisie, on trouve deux boutons. Le bouton de gauche est bleu-gris avec l'inscription "Connexion" en blanc. Le bouton de droite est gris avec l'inscription "Retour" en blanc. Le fond de l'interface est d'un gris anthracite uni.

@@ -21,12 +21,28 @@ for img in sorted(os.listdir(frames_folder)):
             width, height = im.size
         
         # # Appel à Gemini CLI
+        command = [r"C:\Users\...\AppData\Roaming\npm\gemini.cmd", "prompt", f"Décris cette image @{img_path}"]
         result = subprocess.run(
-            ["gemini", "prompt", "Décris cette image", "--image", img_path],
+            command,
             capture_output=True,
-            text=True
+            text=True,
+            encoding='utf-8'
         )
+
+        # Vérifie s'il y a eu une erreur
+        if result.returncode != 0:
+            print(f"[ERREUR] Échec de la génération de la description pour {img}.")
+            print(f"Commande : {' '.join(command)}")
+            print(f"Code de retour : {result.returncode}")
+            print(f"Stderr : {result.stderr.strip()}")
+            continue # Passe à l'image suivante
+
         description = result.stdout.strip()
+
+        # Vérifie si la description est vide
+        if not description:
+            print(f"[AVERTISSEMENT] La description générée pour {img} est vide.")
+            print(f"Stderr : {result.stderr.strip()}")
         
         # Prépare le contenu final avec métadonnées
         content = f"--- MÉTADONNÉES ---\n"
