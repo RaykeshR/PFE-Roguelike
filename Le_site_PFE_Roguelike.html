@@ -7,6 +7,7 @@
     <meta name="author" content="Raykesh, Sabri, Maxence, Coumba, Chrisphen" />
     <meta name="keywords" content="HTML, CSS, JavaScript, python, PFE, IA, AI, RL, Q-learning" />
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
     <meta name="description" content="PFE-Roguelike est un projet de fin d'études combinant jeu vidéo roguelike et IA par Q-learning. Découvrez ses fonctionnalités, technologies et l'installation.">
     <!-- <link rel="icon" type="image/x-icon" href="/images/iconeF.ico"> -->
     <link rel="shortcut icon" type="image/x-icon" href="./images/iconeF.ico?">
@@ -188,7 +189,7 @@
 
             <h3>Installation (Windows)</h3>
             <pre class="code-block" title="Commandes d'installation pour Windows">
-<code># 1. Cloner le dépôt
+<code class="language-shell"># 1. Cloner le dépôt
 git clone https://github.com/RaykeshR/PFE-Roguelike.git
 cd PFE-Roguelike
 
@@ -207,7 +208,7 @@ python main.py</code></pre>
 
             <h3>Installation (Linux/Mac)</h3>
             <pre class="code-block" title="Commandes d'installation pour Linux/Mac">
-<code>python3 -m venv .venv
+<code class="language-shell">python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 pip install -r requirements.txt
@@ -284,7 +285,7 @@ python main.py</code></pre>
             <p>Le projet utilise pytest pour les tests unitaires.</p>
             
             <pre id="preformatted-code2">
-<code># Lancer tous les tests
+<code class="language-python"># Lancer tous les tests
 python run_tests.py
 
 # Lancer des tests spécifiques
@@ -311,5 +312,7 @@ PYTEST_K=map python run_tests.py</code></pre>
             </a>
         </p>
     </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
 </body>
 </html>
