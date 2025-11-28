@@ -347,14 +347,14 @@ class players:
         Attaque un monstre en réduisant ses points de vie.
         degat: montant des points de vie à retirer au monstre.
         """
-        arme=self.get_weapon()
+        arme=self.get_equiped_item()
         degats=arme.damage if arme else 5  #dégâts de base
         monstre.pv-=degats
         if monstre.pv<0:
             monstre.pv=0
-        print(f"{self.name} attaque {monstre.name} avec {arme.name if arme else 'ses poings'} et inflige {degats} dégâts.")
+        print(f"{self.name} attaque monstre avec {arme.name if arme else 'ses poings'} et inflige {degats} dégâts.")
         if not monstre.get_is_alive():
-            print(f"{monstre.name} est vaincu!")
+            print(f"Le monstre est vaincu!")
 
     # #type de bots qui vont prendre le role de joueur pour le pré-entrainement du model
     # def type_train_bot(self,type_bot):
@@ -388,7 +388,7 @@ class players:
                 elif bot_position[1]>monster_position[1] :
                     self.y-=1
             if self.distance_euclidienne(monster)<=0 :
-                self.joueur_attaque(monster,10)
+                self.joueur_attaque(monster)
 
         elif type_bot=="Fuyard" :
             '''S'éloigne de l'ennemi le plus proche pour éviter le combat'''
@@ -412,7 +412,7 @@ class players:
                     elif bot_position[1]>monster_position[1] :
                         self.y-=1
                 if self.distance_euclidienne(monster)<=0 :
-                    self.joueur_attaque(monster,10)
+                    self.joueur_attaque(monster)
             elif action=="fuyard" :
                 # action="Fuyard"
                 if randint(0,1)==0 :#choisit aléatoirement de se déplacer en x ou y

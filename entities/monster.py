@@ -80,15 +80,19 @@ class Monster():
 
     ###### RL methods ######
 
-    def _ensure_rl(self):
+    def _ensure_rl(self, ):
         if self.rl_agent is None:
-            self.rl_agent = QLearningAgent(epsilon=0.2)
+            try:
+                self.rl_agent = QLearningAgent.load("qtable_monstre_vs_bots.json")
+                self.rl_agent.epsilon = 0.1 
+            except FileNotFoundError:
+                self.rl_agent = QLearningAgent(epsilon=0.2)
 
-    def _state(self, player_pos, clip=6):
+    def _state(self, player_pos, clip=6) :
         px, py = player_pos
-        dx = max(-clip, min(clip, px - self.x))
-        dy = max(-clip, min(clip, py - self.y))
-        return (dx, dy)
+        self.dx = max(-clip, min(clip, px - self.x))
+        self.dy = max(-clip, min(clip, py - self.y))
+        return (self.dx, self.dy)
 
     @staticmethod
     def _offset_from_action(a):
@@ -131,7 +135,7 @@ class Monster():
         d_new = abs(px - nx) + abs(py - ny)
 
         # Reward dense : bonus si on se rapproche, malus si on s'éloigne
-        reward += 0.6 * (d_old - d_new)
+        reward += 0.5 * (d_old - d_new)
 
         if applied:
             self.x, self.y = nx, ny
@@ -151,8 +155,11 @@ class Monster():
         self._ensure_rl()
         s = self._state(player_pos)
         a = self.rl_agent.select(s)
-        s2, r, done, _ = self._try_action_on_map(game_map, a, player_pos)
-        self.rl_agent.update(s, a, r, s2, done)
+        s2, r, done,_= self._try_action_on_map(game_map,
+                                                a,
+                                                player_pos)
+        self.rl_agent.update(s,a,r,s2,done)
+        
         location_type = game_map.get_location_type(self.x, self.y)
         # log transition RL
         ep = get_episode_logger()
@@ -166,9 +173,8 @@ class Monster():
             tick=game_map.ticks,
             pos=[self.x, self.y],
             location=location_type, # AJOUT: Passer le contexte
-
         )
-        self.rl_steps += 1
+        self.rl_steps += 1  
         if self.rl_steps % 10 == 0:
             self.rl_agent.decay()
         return done
