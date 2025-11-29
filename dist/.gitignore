@@ -1,0 +1,22 @@
+# PFE-Roguelike
+PFE-Roguelike/_internal
+PFE-Roguelike/.env 
+PFE-Roguelike/*.env
+PFE-Roguelike/*/.env
+PFE-Roguelike/**/.env
+./PFE-Roguelike/_internal
+./PFE-Roguelike/.env 
+./PFE-Roguelike/*.env
+./PFE-Roguelike/*/.env
+./PFE-Roguelike/**/.env
+# PFERoguelike
+PFERoguelike/_internal
+PFERoguelike/.env 
+PFERoguelike/*.env
+PFERoguelike/*/.env
+PFERoguelike/**/.env
+./PFERoguelike/_internal
+./PFERoguelike/.env 
+./PFERoguelike/*.env
+./PFERoguelike/*/.env
+./PFERoguelike/**/.env
