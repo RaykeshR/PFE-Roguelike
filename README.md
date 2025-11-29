@@ -150,6 +150,44 @@ git push --mirror
 </details> 
 
 <details>
+<summary>Création de l'exécutable (pour le déploiement) :</summary>
+
+### Introduction
+
+Pour distribuer l'application en tant que programme autonome sur Windows, nous utilisons `PyInstaller`. Le processus est configuré via le fichier `build.spec` pour garantir que toutes les ressources nécessaires (images, données, etc.) sont incluses.
+
+### Prérequis
+
+1.  **PyInstaller** : Assurez-vous qu'il est installé. Il est inclus dans `requirements.txt`.
+    ```bash
+    python -m pip install pyinstaller
+    # OU 
+    python -m venv .venv && .venv\Scripts\activate && python -m pip install --upgrade pip && python -m pip install -r requirements.txt
+    ```
+
+2.  **Résolution d'un conflit potentiel** : `PyInstaller` peut entrer en conflit avec une ancienne version du paquet `typing`. Si vous rencontrez une erreur à ce sujet lors de la compilation, vous devrez supprimer manuellement les fichiers correspondants de votre environnement virtuel :
+    *   Supprimez le fichier : `.venv\Lib\site-packages\typing.py`
+    *   Supprimez le dossier : `.venv\Lib\site-packages\typing-X.X.X.dist-info` (la version peut varier)
+
+### Compilation
+
+Une fois les prérequis satisfaits, lancez la compilation avec la commande suivante à la racine du projet :
+
+```bash
+pyinstaller build.spec
+```
+
+### Résultat
+
+Le résultat de la compilation se trouvera dans le dossier `dist/`. Vous y trouverez un sous-dossier `PFE-Roguelike` contenant l'exécutable `PFE-Roguelike.exe` ainsi que toutes ses dépendances.
+
+Pour que l'application fonctionne, n'oubliez pas de placer le fichier de configuration `.env` à côté de l'exécutable (ou de configurer les variables d'environnement sur le système cible).
+
+</details>
+
+<br>
+
+<details>
 <summary>Autre : </summary>
 <details>
 <summary>Gemini-cli : </summary>
