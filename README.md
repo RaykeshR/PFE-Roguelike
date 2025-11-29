@@ -1,4 +1,4 @@
-# PFE-Roguelike
+# Roguia
 
 
 [![My Skills](https://skillicons.dev/icons?i=py)](https://www.python.org/)
@@ -23,6 +23,16 @@ TODO :octocat: :neckbeard: :bowtie: :shipit:
 
 [![Vidéo Youtube : Miniature](./src/rogue.gif)
 ](https://fr.wikipedia.org/wiki/Roguelike)
+
+### Le poster de Roguia :
+
+TODO :octocat:  :shipit:
+[
+<img
+  src="TODO"
+  alt="Le poster de Roguia"
+  title="Le poster de Roguia" />
+]()
 
 ### Mise en place (Windows):
 
