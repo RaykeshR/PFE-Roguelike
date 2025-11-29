@@ -20,3 +20,14 @@ PFERoguelike/**/.env
 ./PFERoguelike/*.env
 ./PFERoguelike/*/.env
 ./PFERoguelike/**/.env
+# Roguia
+Roguia/_internal
+Roguia/.env 
+Roguia/*.env
+Roguia/*/.env
+Roguia/**/.env
+./Roguia/_internal
+./Roguia/.env 
+./Roguia/*.env
+./Roguia/*/.env
+./Roguia/**/.env
