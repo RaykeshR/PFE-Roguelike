@@ -8,6 +8,14 @@ database/.env
 .env
 build/build
 dist/PFE-Roguelike/_internal
+dist/PFE-Roguelike/.env
+# Pas le bon dossier :
+dist/PFE-Roguelike/_internal/.env
+dist/.env
+build/build/.env
+build/.env
+dist
+build
 
 # Fichiers temporaires
 *.swp
