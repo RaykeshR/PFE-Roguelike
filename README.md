@@ -29,7 +29,7 @@ TODO :octocat: :neckbeard: :bowtie: :shipit:
 TODO :octocat:  :shipit:
 [
 <img
-  src="TODO" 
+  src="TODO"
   alt="Le poster de Roguia"
   title="Le poster de Roguia" />
 ]()
