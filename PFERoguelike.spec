@@ -69,6 +69,8 @@ exe = EXE(
     # Spécifier une icône pour le fichier .exe
     # L'icône doit être au format .ico
     icon='src/gameplay.ico'
+    # Mode One File : ⚠ Cela rend le chargement initial plus lent mais distribue un seul .exe.
+    onefile=True,
 )
 
 # --- Création du dossier de distribution (mode "one-folder") ---
