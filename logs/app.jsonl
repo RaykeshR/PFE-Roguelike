@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 {"timestamp": "2025-11-16T23:25:24.018219Z", "level": "INFO", "logger": "pfe_roguelike", "message": "Logging JSON initialisé", "pathname": "c:\\Users\\rayke\\Documents\\Ingenieur\\I3\\PFE\\PFE-Roguelike\\system\\logging_setup.py", "lineno": 68, "logs_dir": "c:\\Users\\rayke\\Documents\\Ingenieur\\I3\\PFE\\PFE-Roguelike\\logs"}
 {"timestamp": "2025-11-16T23:25:24.018219Z", "level": "INFO", "logger": "pfe_roguelike", "message": "Application démarrée", "pathname": "c:\\Users\\rayke\\Documents\\Ingenieur\\I3\\PFE\\PFE-Roguelike\\main.py", "lineno": 10}
 {"timestamp": "2025-11-17T02:23:36.758671Z", "level": "INFO", "logger": "pfe_roguelike", "message": "Logging JSON initialisé", "pathname": "r:\\PC\\Documents\\Ingenieur\\I3\\PFE\\PFE-Roguelike\\system\\logging_setup.py", "lineno": 68, "logs_dir": "r:\\PC\\Documents\\Ingenieur\\I3\\PFE\\PFE-Roguelike\\logs"}
@@ -4878,8 +4877,6 @@
 {"timestamp": "2025-11-18T18:43:54.366505Z", "level": "INFO", "logger": "pfe_roguelike.engine.player", "message": "Position joueur mise à jour", "pathname": "r:\\PC\\Documents\\Ingenieur\\I3\\PFE\\PFE-Roguelike\\entities\\players.py", "lineno": 352, "pos": [35, 5]}
 {"timestamp": "2025-11-18T18:43:54.366505Z", "level": "INFO", "logger": "pfe_roguelike.engine", "message": "Déplacement joueur", "pathname": "r:\\PC\\Documents\\Ingenieur\\I3\\PFE\\PFE-Roguelike\\engine\\graphical_game.py", "lineno": 624, "from": [35, 4], "to": [35, 5], "input": "s"}
 {"timestamp": "2025-11-18T18:44:22.971449Z", "level": "INFO", "logger": "pfe_roguelike.engine.player", "message": "Arme équipée", "pathname": "r:\\PC\\Documents\\Ingenieur\\I3\\PFE\\PFE-Roguelike\\entities\\players.py", "lineno": 237, "item": "Epée émoussée"}
-=======
-<<<<<<< HEAD
 {"timestamp": "2025-11-12T07:57:48.330832Z", "level": "INFO", "logger": "pfe_roguelike", "message": "Logging JSON initialisé", "pathname": "c:\\Users\\sabri\\OneDrive\\Documents\\PFE-Roguelike\\system\\logging_setup.py", "lineno": 68, "logs_dir": "c:\\Users\\sabri\\OneDrive\\Documents\\PFE-Roguelike\\logs"}
 {"timestamp": "2025-11-12T07:57:48.358811Z", "level": "INFO", "logger": "pfe_roguelike", "message": "Application démarrée", "pathname": "c:\\Users\\sabri\\OneDrive\\Documents\\PFE-Roguelike\\main.py", "lineno": 8}
 {"timestamp": "2025-11-12T07:58:19.588889Z", "level": "INFO", "logger": "pfe_roguelike.engine.map", "message": "Carte générée", "pathname": "c:\\Users\\sabri\\OneDrive\\Documents\\PFE-Roguelike\\engine\\map.py", "lineno": 188, "rooms": 5, "connections": 8, "start": [48, 9], "end": [17, 20], "enemies": 2}
@@ -4917,11 +4914,9 @@
 {"timestamp": "2025-11-12T07:58:25.303400Z", "level": "INFO", "logger": "pfe_roguelike.engine", "message": "Déplacement joueur", "pathname": "c:\\Users\\sabri\\OneDrive\\Documents\\PFE-Roguelike\\engine\\game.py", "lineno": 201, "from": [51, 16], "to": [52, 16], "input": "d"}
 {"timestamp": "2025-11-12T07:58:25.509279Z", "level": "INFO", "logger": "pfe_roguelike.engine.player", "message": "Position joueur mise à jour", "pathname": "c:\\Users\\sabri\\OneDrive\\Documents\\PFE-Roguelike\\entities\\players.py", "lineno": 334, "pos": [51, 16]}
 {"timestamp": "2025-11-12T07:58:25.509636Z", "level": "INFO", "logger": "pfe_roguelike.engine", "message": "Déplacement joueur", "pathname": "c:\\Users\\sabri\\OneDrive\\Documents\\PFE-Roguelike\\engine\\game.py", "lineno": 201, "from": [52, 16], "to": [51, 16], "input": "q"}
-=======
 {"timestamp": "2025-11-12T09:13:41.732140Z", "level": "INFO", "logger": "pfe_roguelike", "message": "Logging JSON initialisé", "pathname": "c:\\Users\\Chrisphen\\Downloads\\NV_PFE\\PFE-Roguelike\\system\\logging_setup.py", "lineno": 68, "logs_dir": "c:\\Users\\Chrisphen\\Downloads\\NV_PFE\\PFE-Roguelike\\logs"}
 {"timestamp": "2025-11-12T09:13:41.734200Z", "level": "INFO", "logger": "pfe_roguelike", "message": "Application démarrée", "pathname": "c:\\Users\\Chrisphen\\Downloads\\NV_PFE\\PFE-Roguelike\\main.py", "lineno": 8}
 {"timestamp": "2025-11-12T09:14:04.421108Z", "level": "INFO", "logger": "pfe_roguelike", "message": "Logging JSON initialisé", "pathname": "c:\\Users\\Chrisphen\\Downloads\\NV_PFE\\PFE-Roguelike\\system\\logging_setup.py", "lineno": 68, "logs_dir": "c:\\Users\\Chrisphen\\Downloads\\NV_PFE\\PFE-Roguelike\\logs"}
 {"timestamp": "2025-11-12T09:14:04.421934Z", "level": "INFO", "logger": "pfe_roguelike", "message": "Application démarrée", "pathname": "c:\\Users\\Chrisphen\\Downloads\\NV_PFE\\PFE-Roguelike\\main.py", "lineno": 8}
 {"timestamp": "2025-11-12T09:21:40.526456Z", "level": "INFO", "logger": "pfe_roguelike", "message": "Logging JSON initialisé", "pathname": "c:\\Users\\Chrisphen\\Downloads\\NV_PFE\\PFE-Roguelike\\system\\logging_setup.py", "lineno": 68, "logs_dir": "c:\\Users\\Chrisphen\\Downloads\\NV_PFE\\PFE-Roguelike\\logs"}
 {"timestamp": "2025-11-12T09:21:40.528029Z", "level": "INFO", "logger": "pfe_roguelike", "message": "Application démarrée", "pathname": "c:\\Users\\Chrisphen\\Downloads\\NV_PFE\\PFE-Roguelike\\main.py", "lineno": 8}
->>>>>>> Dev
