@@ -6,7 +6,7 @@ import sys
 sys.setrecursionlimit(5000)
 
 # Définir le nom de l'exécutable
-exe_name = 'PFERoguelike' #Roguia
+exe_name = 'Roguia'
 
 # --- Analyse du projet ---
 # PyInstaller analyse tous les imports et dépendances à partir du script principal.
@@ -59,7 +59,7 @@ exe = EXE(
     # True: ouvre une console au lancement (utile pour le débogage).
     # False: pas de console (pour une application purement graphique).
     # Gardons la console pour l'instant, car le jeu a un mode console.
-    console=True,
+    console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,

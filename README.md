@@ -169,16 +169,25 @@ python -m venv .venv && .venv\Scripts\activate && python -m pip install --upgrad
     *   Supprimez le fichier : `.venv\Lib\site-packages\typing.py`
     *   Supprimez le dossier : `.venv\Lib\site-packages\typing-X.X.X.dist-info` (la version peut varier)
 
+
+> [!NOTE]  
+> Juste faire un `python -m pip uninstall typing` (sera retier/résolue dans le future)
+
 ### Compilation
 
 Une fois les prérequis satisfaits, lancez la compilation avec la commande suivante à la racine du projet :
 
+La version OneFolder (avec CLI)
 ```bash
 pyinstaller build.spec
 ```
-La version OneFile
+La version OneFile (avec CLI)
 ```bash
 pyinstaller PFERoguelike.spec
+```
+La version OneFile (sans CLI)
+```bash
+pyinstaller Roguia.spec
 ```
 
 ### Résultat
