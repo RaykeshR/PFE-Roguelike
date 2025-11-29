@@ -6,7 +6,7 @@ import sys
 sys.setrecursionlimit(5000)
 
 # Définir le nom de l'exécutable
-exe_name = 'PFE-Roguelike'
+exe_name = 'PFE-Roguelike' #Roguia
 
 # --- Analyse du projet ---
 # PyInstaller analyse tous les imports et dépendances à partir du script principal.
