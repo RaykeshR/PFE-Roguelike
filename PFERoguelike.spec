@@ -6,7 +6,7 @@ import sys
 sys.setrecursionlimit(5000)
 
 # Définir le nom de l'exécutable
-exe_name = 'PFE-Roguelike' #Roguia
+exe_name = 'PFERoguelike' #Roguia
 
 # --- Analyse du projet ---
 # PyInstaller analyse tous les imports et dépendances à partir du script principal.
@@ -24,7 +24,7 @@ a = Analysis(
         
         # Inclure le dossier 'src' contenant les images (.gif, .ico, etc.)
         # Le dossier 'src' sera créé à la racine du bundle.
-        ('src', 'src')
+        ('src', 'src'),
     ],
     hiddenimports=[],
     hookspath=[],
@@ -35,7 +35,7 @@ a = Analysis(
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
     cipher=None,
-    noarchive=False
+    noarchive=False,
 )
 
 # --- Création de l'exécutable ---
@@ -68,7 +68,7 @@ exe = EXE(
     # --- Icône de l'exécutable ---
     # Spécifier une icône pour le fichier .exe
     # L'icône doit être au format .ico
-    icon='src/gameplay.ico'
+    icon='src/gameplay.ico',
     # Mode One File : ⚠ Cela rend le chargement initial plus lent mais distribue un seul .exe.
     onefile=True,
 )
@@ -84,5 +84,5 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name=exe_name
+    name=exe_name,
 )

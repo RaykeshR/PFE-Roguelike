@@ -176,6 +176,10 @@ Une fois les prérequis satisfaits, lancez la compilation avec la commande suiva
 ```bash
 pyinstaller build.spec
 ```
+La version OneFile
+```bash
+pyinstaller PFERoguelike.spec
+```
 
 ### Résultat
 
