@@ -12,7 +12,7 @@ exe_name = 'PFE-Roguelike'
 # PyInstaller analyse tous les imports et dépendances à partir du script principal.
 a = Analysis(
     ['main.py'],
-    pathex=[],
+    pathex=['.'],
     binaries=[],
     # --- Ajout des fichiers de données (assets) ---
     # C'est ici qu'on spécifie les fichiers et dossiers non-Python.

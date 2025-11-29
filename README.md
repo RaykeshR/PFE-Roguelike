@@ -159,11 +159,11 @@ Pour distribuer l'application en tant que programme autonome sur Windows, nous u
 ### Prérequis
 
 1.  **PyInstaller** : Assurez-vous qu'il est installé. Il est inclus dans `requirements.txt`.
-    ```bash
-    python -m pip install pyinstaller
-    # OU 
-    python -m venv .venv && .venv\Scripts\activate && python -m pip install --upgrade pip && python -m pip install -r requirements.txt
-    ```
+```bash
+python -m pip install pyinstaller
+# OU 
+python -m venv .venv && .venv\Scripts\activate && python -m pip install --upgrade pip && python -m pip install -r requirements.txt
+```
 
 2.  **Résolution d'un conflit potentiel** : `PyInstaller` peut entrer en conflit avec une ancienne version du paquet `typing`. Si vous rencontrez une erreur à ce sujet lors de la compilation, vous devrez supprimer manuellement les fichiers correspondants de votre environnement virtuel :
     *   Supprimez le fichier : `.venv\Lib\site-packages\typing.py`
@@ -182,6 +182,9 @@ pyinstaller build.spec
 Le résultat de la compilation se trouvera dans le dossier `dist/`. Vous y trouverez un sous-dossier `PFE-Roguelike` contenant l'exécutable `PFE-Roguelike.exe` ainsi que toutes ses dépendances.
 
 Pour que l'application fonctionne, n'oubliez pas de placer le fichier de configuration `.env` à côté de l'exécutable (ou de configurer les variables d'environnement sur le système cible).
+```bash
+.\dist\PFE-Roguelike\PFE-Roguelike.exe
+```
 
 </details>
 
