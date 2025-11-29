@@ -18,3 +18,4 @@ pytest
 fastapi
 seaborn
 bcrypt
+pyinstaller

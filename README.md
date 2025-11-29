@@ -43,7 +43,7 @@ TODO :octocat:  :shipit:
 ## Un package manquant : 
 <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
 ```
-.venv\Scripts\activate && python -m pip install --upgrade pip && pip install -r requirements.txt
+.venv\Scripts\activate && python -m pip install --upgrade pip && python -m pip install -r requirements.txt
 ```
 
 ### 1. Cloner le Repo
@@ -77,7 +77,7 @@ On peut aussi (Si c'est un problème de l'éditeur) `$ . .venv\Scripts\activate.
 
 (met à jour pip)
 
-### 5. `pip install -r requirements.txt`
+### 5. `python -m pip install -r requirements.txt`
 
 ```pip freeze > requirements.txt``` pour remplir automatiquement les requirements
 
@@ -85,20 +85,20 @@ Pour toutes les étapes précédentes (sur CMD ou powershell>=7) :
 
 
 ```
-python -m venv .venv && .venv\Scripts\activate && python -m pip install --upgrade pip && pip install -r requirements.txt
+python -m venv .venv && .venv\Scripts\activate && python -m pip install --upgrade pip && python -m pip install -r requirements.txt
 ```
 
 en cas d'erreur (supprimer le dossier .venv ou lancer): 
 
-```.venv\Scripts\activate && python -m pip install --upgrade pip && pip install -r requirements.txt```
+```.venv\Scripts\activate && python -m pip install --upgrade pip && python -m pip install -r requirements.txt```
 
 Avec  pip freeze  :
 
     Pour toutes les étapes précédentes (sur CMD ou powershell>=7) : 
-    ```python -m venv .venv && .venv\Scripts\activate && python -m pip install --upgrade pip && pip install -r requirements.txt && pip freeze > requirements.txt```
+    ```python -m venv .venv && .venv\Scripts\activate && python -m pip install --upgrade pip && python -m pip install -r requirements.txt && pip freeze > requirements.txt```
     
     en cas d'erreur (supprimer le dossier .venv ou lancer): 
-    ```.venv\Scripts\activate && python -m pip install --upgrade pip && pip install -r requirements.txt && pip freeze > requirements.txt```
+    ```.venv\Scripts\activate && python -m pip install --upgrade pip && python -m pip install -r requirements.txt && pip freeze > requirements.txt```
     
 ### 6. Modifier .git\info\exclude 
 
@@ -116,7 +116,7 @@ Commande : `python main.py `
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 python main.py
 """
 Modifier .git\info\exclude 
