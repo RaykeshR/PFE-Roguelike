@@ -6,6 +6,8 @@ __pycache__
 **/.env
 database/.env
 .env
+build/build
+dist/PFE-Roguelike/_internal
 
 # Fichiers temporaires
 *.swp
