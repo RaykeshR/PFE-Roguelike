@@ -14,8 +14,6 @@ dist/PFE-Roguelike/_internal/.env
 dist/.env
 build/build/.env
 build/.env
-dist
-build
 
 # Fichiers temporaires
 *.swp
