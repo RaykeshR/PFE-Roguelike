@@ -26,11 +26,11 @@ a = Analysis(
         # Le dossier 'src' sera créé à la racine du bundle.
         ('src', 'src')
     ],
-    hiddenimports=[],
+    hiddenimports=['pkg_resources', 'jaraco.collections', 'jaraco.functools', 'more_itertools', ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    excludes=['tkinter', 'pytest', 'matplotlib', ],
     # Ne pas inclure les assemblies privées de Windows
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
