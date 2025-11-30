@@ -173,6 +173,24 @@ python -m venv .venv && .venv\Scripts\activate && python -m pip install --upgrad
 > [!NOTE]  
 > Juste faire un `python -m pip uninstall typing` (sera retier/résolue dans le future)
 
+<table>
+  <tr>
+    <td style="color: #00529B; background-color: #BDE5F8; padding: 10px; border-left: 4px solid #00529B;">
+      <strong>ℹ️ Note</strong><br>
+      Ton message ici.
+    </td>
+  </tr>
+</table>
+
+⚠️ **Attention** :
+Voici un message important sans HTML.
+*Utilise des astérisques pour l'italique ou du **gras**.*
+
+```diff
+! Note importante :
+! Ce message ressemble à une alerte.
+```
+
 ### Compilation
 
 Une fois les prérequis satisfaits, lancez la compilation avec la commande suivante à la racine du projet :
