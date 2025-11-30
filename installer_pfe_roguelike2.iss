@@ -4,7 +4,7 @@
 
 ; DÉFINITION DES CONSTANTES (Pour modifier facilement)
 #define MyAppName "PFE-Roguelike"
-#define MyAppVersion "2.6.0.5"
+#define MyAppVersion "2.6.0.7"
 #define MyAppPublisher "Raykesh, Sabri, Maxence, Coumba, Chrisphen"
 #define MyAppURL "https://github.com/RaykeshR/PFE-Roguelike"
 #define MyAppExeName "PFE-Roguelike.exe"
@@ -36,6 +36,9 @@ Compression=lzma2
 SolidCompression=yes
 ArchitecturesInstallIn64BitMode=x64
 WizardStyle=modern
+UsePreviousLanguage=yes
+WizardResizable=yes
+WizardDarkMode=yes
 ; Permet de fermer l'appli si elle tourne déjà lors d'une mise à jour
 CloseApplications=yes
 
