@@ -177,15 +177,15 @@ python -m venv .venv && .venv\Scripts\activate && python -m pip install --upgrad
 
 Une fois les prérequis satisfaits, lancez la compilation avec la commande suivante à la racine du projet :
 
-$\color{rgba(255,100,100, 0.95)}{\textsf{La}}$  $\color{rgba(255,100,100, 0.95)}{\textsf{version}}$  $\color{rgba(255,100,100, 0.95)}{\textsf{OneFolder}}$ $\color{rgba(255,100,100, 0.95)}{\textsf{(avec}}$  $\color{rgba(255,100,100, 0.95)}{\textsf{CLI)}}$ 
+$\color{rgba(255,50,50, 0.95)}{\textsf{La}}$  $\color{rgba(255,100,100, 0.95)}{\textsf{version}}$  $\color{rgba(255,100,100, 0.95)}{\textsf{OneFolder}}$ $\color{rgba(255,100,100, 0.95)}{\textsf{(avec}}$  $\color{rgba(255,100,100, 0.95)}{\textsf{CLI)}}$ 
 ```bash
 pyinstaller build.spec
 ```
-$\color{rgba(255,255,100, 0.95)}{\textsf{La}}$  $\color{rgba(255,255,100, 0.95)}{\textsf{version}}$  $\color{rgba(255,255,100, 0.95)}{\textsf{OneFile}}$ $\color{rgba(255,255,100, 0.95)}{\textsf{(avec}}$  $\color{rgba(255,255,100, 0.95)}{\textsf{CLI)}}$ 
+$\color{rgba(255,255,50, 0.95)}{\textsf{La}}$  $\color{rgba(255,255,100, 0.95)}{\textsf{version}}$  $\color{rgba(255,255,100, 0.95)}{\textsf{OneFile}}$ $\color{rgba(255,255,100, 0.95)}{\textsf{(avec}}$  $\color{rgba(255,255,100, 0.95)}{\textsf{CLI)}}$ 
 ```bash
 pyinstaller PFERoguelike.spec
 ```
-$\color{rgba(100,255,100, 0.95)}{\textsf{La}}$  $\color{rgba(100,255,100, 0.95)}{\textsf{version}}$  $\color{rgba(100,255,100, 0.95)}{\textsf{OneFile}}$ $\color{rgba(100,255,100, 0.95)}{\textsf{(sans}}$  $\color{rgba(100,255,100, 0.95)}{\textsf{CLI)}}$ 
+$\color{rgba(50,255,50, 0.95)}{\textsf{La}}$  $\color{rgba(100,255,100, 0.95)}{\textsf{version}}$  $\color{rgba(100,255,100, 0.95)}{\textsf{OneFile}}$ $\color{rgba(100,255,100, 0.95)}{\textsf{(sans}}$  $\color{rgba(100,255,100, 0.95)}{\textsf{CLI)}}$ 
 ```bash
 pyinstaller Roguia.spec
 ```
