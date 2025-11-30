@@ -79,31 +79,30 @@ var
 // --- Procédure de copie du fichier .env ---
 procedure SelectEnvFile(Sender: TObject);
 var
-  OpenDialog: TOpenDialog;
   SourcePath, DestPath: String;
 begin
-  OpenDialog := TOpenDialog.Create(WizardForm);
-  try
-    OpenDialog.Title := 'Sélectionner le fichier .env';
-    OpenDialog.Filter := 'Fichiers de configuration (.env)|*.env|Tous les fichiers|*.*';
-
-    if OpenDialog.Execute then
+  // Utilisation de la fonction GetOpenFileName d'Inno Setup
+  if GetOpenFileName(
+       'Sélectionner le fichier .env', // Titre
+       SourcePath,                    // Variable qui recevra le chemin
+       '',                            // Dossier initial (vide = par défaut)
+       'Fichiers de configuration (*.env)|*.env|Tous les fichiers (*.*)|*.*', // Filtre
+       '.env'                         // Extension par défaut (facultatif)
+     ) then
+  begin
+    DestPath := ExpandConstant('{app}\.env');
+    
+    // On tente la copie
+    // N.B. : FileCopy nécessite des droits d'administrateur
+    // Vous avez déjà mis PrivilegesRequired=admin dans [Setup], ce qui est bien.
+    if FileCopy(SourcePath, DestPath, False) then
     begin
-      SourcePath := OpenDialog.FileName;
-      DestPath := ExpandConstant('{app}\.env');
-      
-      // On tente la copie
-      if FileCopy(SourcePath, DestPath, False) then
-      begin
-        StatusLabel.Caption := 'Succès : fichier .env installé !';
-        StatusLabel.Font.Color := clGreen;
-        WizardForm.NextButton.Enabled := True; // Débloque le bouton
-      end
-      else
-        MsgBox('Erreur lors de la copie du fichier .env.'#13#10'Vérifiez vos droits administrateur.', mbError, MB_OK);
-    end;
-  finally
-    OpenDialog.Free;
+      StatusLabel.Caption := 'Succès : fichier .env installé !';
+      StatusLabel.Font.Color := clGreen;
+      WizardForm.NextButton.Enabled := True; // Débloque le bouton
+    end
+    else
+      MsgBox('Erreur lors de la copie du fichier .env.'#13#10'Vérifiez vos droits administrateur.', mbError, MB_OK);
   end;
 end;
 
