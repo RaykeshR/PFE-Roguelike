@@ -10,7 +10,7 @@
 #define MyAppExeName "PFE-Roguelike.exe"
 
 [Setup]
-AppID={{4F8525EE-084E-4213-9FFB-71FC3A0F9279}}
+AppId={{4F8525EE-084E-4213-9FFB-71FC3A0F9279}}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
@@ -27,7 +27,7 @@ DisableProgramGroupPage=yes
 PrivilegesRequired=admin
 
 OutputBaseFilename=Setup_PFE-Roguelike_v{#MyAppVersion}
-SetupIconFile="src/gameplay.ico"
+SetupIconFile="src\gameplay.ico"
 UninstallDisplayIcon="images\Gemini_Generated_Image_9suv459suv459suv.bmp"
 
 WizardImageFile="images\Gemini_Generated_Image_9suv459suv459suv.bmp"
@@ -83,7 +83,8 @@ begin
   OpenDialog := TOpenDialog.Create(WizardForm);
   try
     OpenDialog.Title := 'Sélectionner le fichier .env';
-    OpenDialog.Filter := 'Fichiers de config (.env)|*.env|Tous les fichiers|*.*';
+    OpenDialog.Filter := 'Fichiers de configuration (.env)|*.env|Tous les fichiers|*.*';
+
     if OpenDialog.Execute then
     begin
       SourcePath := OpenDialog.FileName;
@@ -92,14 +93,12 @@ begin
       // On tente la copie
       if FileCopy(SourcePath, DestPath, False) then
       begin
-        StatusLabel.Caption := 'Succès : Fichier .env installé !';
+        StatusLabel.Caption := 'Succès : fichier .env installé !';
         StatusLabel.Font.Color := clGreen;
         WizardForm.NextButton.Enabled := True; // Débloque le bouton
       end
       else
-      begin
-        MsgBox('Erreur lors de la copie du fichier .env.' + #13#10 + 'Vérifiez que vous avez les droits d''administration.', mbError, MB_OK);
-      end;
+        MsgBox('Erreur lors de la copie du fichier .env.'#13#10'Vérifiez vos droits administrateur.', mbError, MB_OK);
     end;
   finally
     OpenDialog.Free;
@@ -110,11 +109,17 @@ end;
 procedure EmailAdmin(Sender: TObject);
 var
   ErrorCode: Integer;
-  AdminEmail: String;
 begin
-  // CHANGE TON EMAIL ICI
-  AdminEmail := 'ton.email@etudiant.fr'; 
-  ShellExec('open', 'mailto:' + AdminEmail + '?subject=Roguia PFE : Demande de fichier .env&body=Bonjour, merci de m''envoyer le fichier de configuration.', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
+  ShellExec(
+    'open',
+    'mailto:ton.email@etudiant.fr?subject=Demande du fichier .env - PFE Roguelike'
+      + '&body=Bonjour,%0D%0AMerci de m''envoyer le fichier .env pour pouvoir lancer le jeu.',
+    '',
+    '',
+    SW_SHOWNORMAL,
+    ewNoWait,
+    ErrorCode
+  );
 end;
 
 // --- Initialisation de l'interface ---
@@ -123,7 +128,7 @@ var
   PageDescription: TLabel;
 begin
   // Création de la page juste après l'installation des fichiers
-  EnvPage := CreateCustomPage(wpInstalling, 'Configuration', 'Configuration de la base de données');
+  EnvPage := CreateCustomPage(wpInstalling, 'Configuration', 'Configuration du fichier .env');
 
   // Description
   PageDescription := TLabel.Create(EnvPage);
@@ -133,12 +138,14 @@ begin
   PageDescription.Width := EnvPage.SurfaceWidth;
   PageDescription.Height := 50;
   PageDescription.WordWrap := True;
-  PageDescription.Caption := 'Le jeu nécessite un fichier ".env" pour fonctionner (connexion BDD). Veuillez l''importer ou le demander à l''administrateur.';
+  PageDescription.Caption :=
+    'Le jeu nécessite un fichier ".env" pour se connecter à la base de données.'#13#10+
+    'Veuillez l''importer ou le demander à l''administrateur.';
 
   // Bouton Import
   SelectButton := TButton.Create(EnvPage);
   SelectButton.Parent := EnvPage.Surface;
-  SelectButton.Left := 0; 
+  SelectButton.Left := 0;
   SelectButton.Top := PageDescription.Top + PageDescription.Height + 10;
   SelectButton.Width := 200;
   SelectButton.Caption := 'Importer mon fichier .env';
@@ -158,7 +165,7 @@ begin
   StatusLabel.Parent := EnvPage.Surface;
   StatusLabel.Left := 0;
   StatusLabel.Top := EmailButton.Top + EmailButton.Height + 20;
-  StatusLabel.Caption := 'Statut : En attente du fichier...';
+  StatusLabel.Caption := 'Statut : en attente du fichier .env...';
   StatusLabel.Font.Color := clRed;
   StatusLabel.Font.Style := [fsBold];
 end;
@@ -173,13 +180,13 @@ begin
     // Si installation silencieuse (/SILENT), on ne bloque pas
     if IsSilent then
     begin
-        WizardForm.NextButton.Enabled := True;
-        Exit;
+      WizardForm.NextButton.Enabled := True;
+      Exit;
     end;
 
     // Vérification de la présence du fichier
     EnvPath := ExpandConstant('{app}\.env');
-    
+
     if FileExists(EnvPath) then
     begin
       StatusLabel.Caption := 'Fichier .env détecté.';
