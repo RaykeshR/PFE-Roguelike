@@ -154,14 +154,14 @@ git push --mirror
 
 ### Introduction
 
-Pour distribuer l'application en tant que programme autonome sur Windows, nous utilisons `PyInstaller`. Le processus est configuré via le fichier `build.spec` pour garantir que toutes les ressources nécessaires (images, données, etc.) sont incluses.
+Pour distribuer l'application en tant que programme autonome sur Windows, nous utilisons `PyInstaller`. (Pour avoir une version compilé) Le processus est configuré via les fichiers `build.spec`, `PFERoguelike.spec` et `Roguia.spec` pour garantir que toutes les ressources nécessaires (images, données, etc.) sont incluses.
 
 ### Prérequis
 
-1.  **PyInstaller** : Assurez-vous qu'il est installé. Il est inclus dans `requirements.txt`.
+1.  **PyInstaller** : Assurez-vous qu'il est installé. Il est inclus dans le `requirements.txt`.
 ```bash
 python -m pip install pyinstaller
-# OU 
+# OU       (pour mettre à jour l'environement virtuelle)
 python -m venv .venv && .venv\Scripts\activate && python -m pip install --upgrade pip && python -m pip install -r requirements.txt
 ```
 
@@ -198,9 +198,11 @@ Pour que l'application fonctionne, n'oubliez pas de placer le fichier de configu
 ```bash
 cd ./dist/PFE-Roguelike && ./PFE-Roguelike.exe ; cd ../..
 ```
-> [!NOTE]  
-> faire un `.\dist\PFE-Roguelike\PFE-Roguelike.exe` Ne fonctione Pas ! ! ! (Le .env est mal chargée et le pool ne ce crée pas) 
-> Double Clicker sur le .exe marche néanmoins.
+<div style="background-color: #e7f3fe00; border-left: 4px solid #2196F3; padding: 10px; margin: 10px 0;">
+<strong>Note</strong> :
+faire un `.\dist\PFE-Roguelike\PFE-Roguelike.exe` Ne fonctione Pas ! ! ! (Le .env est mal chargée et le pool ne ce crée pas) 
+Double Clicker sur le .exe marche néanmoins.
+</div>
 
 
 </details>
