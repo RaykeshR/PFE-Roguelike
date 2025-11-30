@@ -181,21 +181,25 @@ $\color{rgba(255,50,50, 0.95)}{\textsf{La}}$  $\color{rgba(255,100,100, 0.95)}{\
 ```zsh
 pyinstaller build.spec
 ```
+[Télécharger le exe (Windows x64)](./dist/PFE-Roguelike/PFE-Roguelike.exe)
 $\color{rgba(255,255,50, 0.95)}{\textsf{La}}$  $\color{rgba(255,255,100, 0.95)}{\textsf{version}}$  $\color{rgba(255,255,100, 0.95)}{\textsf{OneFile}}$ $\color{rgba(255,255,100, 0.95)}{\textsf{(avec}}$  $\color{rgba(255,255,100, 0.95)}{\textsf{CLI)}}$ 
 ```bash
 pyinstaller PFERoguelike.spec
 ```
+[Télécharger le exe (Windows x64)](./dist/PFERoguelike/PFERoguelike.exe)
 $\color{rgba(50,255,50, 0.95)}{\textsf{La}}$  $\color{rgba(100,255,100, 0.95)}{\textsf{version}}$  $\color{rgba(100,255,100, 0.95)}{\textsf{OneFile}}$ $\color{rgba(100,255,100, 0.95)}{\textsf{(sans}}$  $\color{rgba(100,255,100, 0.95)}{\textsf{CLI)}}$ 
 ```py
 pyinstaller Roguia.spec
 ```
+[Télécharger le  (Windows x64)](./dist/Roguia/Roguia.exe)
 
 ### Résultat
 
-Le résultat de la compilation se trouvera dans le dossier `dist/`. Vous y trouverez un sous-dossier `PFE-Roguelike` contenant l'exécutable `PFE-Roguelike.exe` ainsi que toutes ses dépendances.
+Le résultat de la compilation se trouvera dans le dossier `dist/`. Vous y trouverez des sous-dossiers `PFE-Roguelike`, `PFERoguelike` et `Roguia` contenants les exécutables `PFE-Roguelike.exe`, `PFERoguelike.exe` et `Roguia.exe` ainsi que toutes ses dépendances.
 
 Pour que l'application fonctionne, n'oubliez pas de placer le fichier de configuration `.env` à côté de l'exécutable (ou de configurer les variables d'environnement sur le système cible).
 ```bash
+cp ./database/.env ./dist/PFE-Roguelike/.env # Copy-Item -Path "./database/.env" -Destination "./dist/PFE-Roguelike/.env" -Force    ;   OU   ;      robocopy .\database .\dist\PFE-Roguelike .env /COPY:DAT /R:1 /W:1
 cd ./dist/PFE-Roguelike && ./PFE-Roguelike.exe ; cd ../..
 ```
 
