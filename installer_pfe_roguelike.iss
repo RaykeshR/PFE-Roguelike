@@ -4,7 +4,7 @@
 
 ; DÉFINITION DES CONSTANTES (Pour modifier facilement)
 #define MyAppName "PFE-Roguelike"
-#define MyAppVersion "2.6.0.7"
+#define MyAppVersion "2.6.0.80"
 #define MyAppPublisher "Raykesh, Sabri, Maxence, Coumba, Chrisphen"
 #define MyAppURL "https://github.com/RaykeshR/PFE-Roguelike"
 #define MyAppExeName "PFE-Roguelike.exe"
@@ -13,6 +13,12 @@
 AppId={{4F8525EE-084E-4213-9FFB-71FC3A0F9279}}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
+VersionInfoVersion={#MyAppVersion}
+VersionInfoProductVersion={#MyAppVersion}
+VersionInfoProductName={#MyAppName}
+VersionInfoCompany={#MyAppPublisher}
+VersionInfoDescription="Setup de {#MyAppName} - Un jeu roguelike développé dans le cadre d'un PFE."
+VersionInfoCopyright="Copyright © 2024 {#MyAppPublisher}®. Tous droits réservés."
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
@@ -27,7 +33,7 @@ DisableProgramGroupPage=yes
 PrivilegesRequired=admin
 
 OutputBaseFilename=Setup_PFE-Roguelike_v{#MyAppVersion}
-SetupIconFile="src\gameplay.ico"
+SetupIconFile="images\Gemini_Generated_Image_9suv459suv459suv2.ico"
 UninstallDisplayIcon="images\Gemini_Generated_Image_9suv459suv459suv.bmp"
 
 WizardImageFile="images\Gemini_Generated_Image_9suv459suv459suv.bmp"
