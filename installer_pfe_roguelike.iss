@@ -4,7 +4,7 @@
 
 ; DÉFINITION DES CONSTANTES (Pour modifier facilement)
 #define MyAppName "PFE-Roguelike"
-#define MyAppVersion "2.6.0.82"
+#define MyAppVersion "2.6.0.85"
 #define MyAppPublisher "Raykesh, Sabri, Maxence, Coumba, Chrisphen"
 #define MyAppURL "https://github.com/RaykeshR/PFE-Roguelike"
 #define MyAppExeName "PFE-Roguelike.exe"
@@ -46,7 +46,8 @@ UsePreviousLanguage=yes
 WizardResizable=yes
 ; Permet de fermer l'appli si elle tourne déjà lors d'une mise à jour
 CloseApplications=yes
-Password=PFE2025
+; Pas de MDP avant 2.6.0.81 puis (2.6.0.82)MDP=PFE2025 (2.6.0.82)MDP=MotDePasseHyperSécuriséSansEspaceAvecDesMajusculesAuxDébutDeChaqueMotEtDesAccents
+Password=MotDePasseHyperSécuriséSansEspaceAvecDesMajusculesAuxDébutDeChaqueMotEtDesAccents
 Encryption=yes
 
 [Languages]
