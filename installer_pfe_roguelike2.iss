@@ -35,10 +35,9 @@ WizardSmallImageFile="images\Gemini_Generated_Image_9suv459suv459suv.bmp"
 Compression=lzma2
 SolidCompression=yes
 ArchitecturesInstallIn64BitMode=x64
-WizardStyle=modern
+WizardStyle=modern dark polar
 UsePreviousLanguage=yes
 WizardResizable=yes
-WizardDarkMode=yes
 ; Permet de fermer l'appli si elle tourne déjà lors d'une mise à jour
 CloseApplications=yes
 
