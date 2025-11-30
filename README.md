@@ -159,7 +159,7 @@ Pour distribuer l'application en tant que programme autonome sur Windows, nous u
 ### Prérequis
 
 1.  **PyInstaller** : Assurez-vous qu'il est installé. Il est inclus dans le `requirements.txt`.
-```zsh
+```bash
 python -m pip install pyinstaller
 # OU       (pour mettre à jour l'environement virtuelle)
 python -m venv .venv && .venv\Scripts\activate && python -m pip install --upgrade pip && python -m pip install -r requirements.txt
@@ -182,11 +182,11 @@ $\color{rgba(255,50,50, 0.95)}{\textsf{La}}$  $\color{rgba(255,100,100, 0.95)}{\
 pyinstaller build.spec
 ```
 $\color{rgba(255,255,50, 0.95)}{\textsf{La}}$  $\color{rgba(255,255,100, 0.95)}{\textsf{version}}$  $\color{rgba(255,255,100, 0.95)}{\textsf{OneFile}}$ $\color{rgba(255,255,100, 0.95)}{\textsf{(avec}}$  $\color{rgba(255,255,100, 0.95)}{\textsf{CLI)}}$ 
-```py
+```bash
 pyinstaller PFERoguelike.spec
 ```
 $\color{rgba(50,255,50, 0.95)}{\textsf{La}}$  $\color{rgba(100,255,100, 0.95)}{\textsf{version}}$  $\color{rgba(100,255,100, 0.95)}{\textsf{OneFile}}$ $\color{rgba(100,255,100, 0.95)}{\textsf{(sans}}$  $\color{rgba(100,255,100, 0.95)}{\textsf{CLI)}}$ 
-```bash
+```py
 pyinstaller Roguia.spec
 ```
 
