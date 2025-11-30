@@ -5,6 +5,8 @@ __pycache__
 */.env
 **/.env
 database/.env
+build
+dist
 
 # Fichiers temporaires
 *.swp
