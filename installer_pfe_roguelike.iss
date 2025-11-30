@@ -4,7 +4,7 @@
 
 ; DÉFINITION DES CONSTANTES (Pour modifier facilement)
 #define MyAppName "PFE-Roguelike"
-#define MyAppVersion "2.6.0.80"
+#define MyAppVersion "2.6.0.82"
 #define MyAppPublisher "Raykesh, Sabri, Maxence, Coumba, Chrisphen"
 #define MyAppURL "https://github.com/RaykeshR/PFE-Roguelike"
 #define MyAppExeName "PFE-Roguelike.exe"
@@ -46,8 +46,11 @@ UsePreviousLanguage=yes
 WizardResizable=yes
 ; Permet de fermer l'appli si elle tourne déjà lors d'une mise à jour
 CloseApplications=yes
+Password=PFE2025
+Encryption=yes
 
 [Languages]
+Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "french"; MessagesFile: "compiler:Languages\French.isl"
 
 [Files]
@@ -66,7 +69,7 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 
 [Tasks]
 ; Option pouvant être décochée par l’utilisateur
-Name: "desktopicon"; Description: "Créer un raccourci sur le bureau"; Flags: unchecked
+Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Run]
 ; Lancer le jeu à la fin de l'installation
