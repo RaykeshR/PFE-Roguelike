@@ -177,15 +177,15 @@ python -m venv .venv && .venv\Scripts\activate && python -m pip install --upgrad
 
 Une fois les prérequis satisfaits, lancez la compilation avec la commande suivante à la racine du projet :
 
-La version OneFolder (avec CLI)
+$\color{rgba(255,100,100, 0.75)}{\textsf{(La version OneFolder)}}$  (avec CLI)
 ```bash
 pyinstaller build.spec
 ```
-La version OneFile (avec CLI)
+$\color{rgba(255,255,100, 0.75)}{\textsf{(La version OneFile)}}$  (avec CLI)
 ```bash
 pyinstaller PFERoguelike.spec
 ```
-La version OneFile (sans CLI)
+$\color{rgba(100,255,100, 0.75)}{\textsf{(La version OneFile)}}$  (sans CLI)
 ```bash
 pyinstaller Roguia.spec
 ```
