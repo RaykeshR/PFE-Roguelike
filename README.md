@@ -196,8 +196,12 @@ Le résultat de la compilation se trouvera dans le dossier `dist/`. Vous y trouv
 
 Pour que l'application fonctionne, n'oubliez pas de placer le fichier de configuration `.env` à côté de l'exécutable (ou de configurer les variables d'environnement sur le système cible).
 ```bash
-.\dist\PFE-Roguelike\PFE-Roguelike.exe
+cd ./dist/PFE-Roguelike && ./PFE-Roguelike.exe ; cd ../..
 ```
+> [!NOTE]  
+> faire un `.\dist\PFE-Roguelike\PFE-Roguelike.exe` Ne fonctione Pas ! ! ! (Le .env est mal chargée et le pool ne ce crée pas) 
+> Double Clicker sur le .exe marche néanmoins.
+
 
 </details>
 
