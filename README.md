@@ -193,7 +193,7 @@ $\color{rgba(50,255,50, 0.95)}{\textsf{La}}$  $\color{rgba(100,255,100, 0.95)}{\
 ```py
 pyinstaller Roguia.spec
 ```
-[Télécharger le  (Windows x64)](./dist/Roguia/Roguia.exe)
+[Télécharger le exe (Windows x64)](./dist/Roguia/Roguia.exe)
 
 
 ### Résultat
