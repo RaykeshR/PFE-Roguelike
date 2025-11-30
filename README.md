@@ -199,9 +199,9 @@ Pour que l'application fonctionne, n'oubliez pas de placer le fichier de configu
 cd ./dist/PFE-Roguelike && ./PFE-Roguelike.exe ; cd ../..
 ```
 <div style="background-color: #e7f3fe00; border-left: 4px solid #2196F3; padding: 10px; margin: 10px 0;">
-<strong>Note</strong> :
-faire un `.\dist\PFE-Roguelike\PFE-Roguelike.exe` Ne fonctione Pas ! ! ! (Le .env est mal chargée et le pool ne ce crée pas) 
-Double Clicker sur le .exe marche néanmoins.
+<strong>> [!NOTE]  </strong>
+> faire un `.\dist\PFE-Roguelike\PFE-Roguelike.exe` Ne fonctione Pas ! ! ! (Le .env est mal chargée et le pool ne ce crée pas) 
+> Double Clicker sur le .exe marche néanmoins.
 </div>
 
 
