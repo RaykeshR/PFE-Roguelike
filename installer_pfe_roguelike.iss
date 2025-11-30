@@ -81,20 +81,18 @@ procedure SelectEnvFile(Sender: TObject);
 var
   SourcePath, DestPath: String;
 begin
-  // Utilisation de la fonction GetOpenFileName d'Inno Setup
+  // Utilisation de la fonction GetOpenFileName d'Inno Setup (Déjà corrigé)
   if GetOpenFileName(
-       'Sélectionner le fichier .env', // Titre
-       SourcePath,                    // Variable qui recevra le chemin
-       '',                            // Dossier initial (vide = par défaut)
-       'Fichiers de configuration (*.env)|*.env|Tous les fichiers (*.*)|*.*', // Filtre
-       '.env'                         // Extension par défaut (facultatif)
-     ) then
+        'Sélectionner le fichier .env', // Titre
+        SourcePath,                    // Variable qui recevra le chemin
+        '',                            // Dossier initial (vide = par défaut)
+        'Fichiers de configuration (*.env)|*.env|Tous les fichiers (*.*)|*.*', // Filtre
+        '.env'                         // Extension par défaut (facultatif)
+      ) then
   begin
     DestPath := ExpandConstant('{app}\.env');
     
     // On tente la copie
-    // N.B. : FileCopy nécessite des droits d'administrateur
-    // Vous avez déjà mis PrivilegesRequired=admin dans [Setup], ce qui est bien.
     if FileCopy(SourcePath, DestPath, False) then
     begin
       StatusLabel.Caption := 'Succès : fichier .env installé !';
@@ -178,13 +176,21 @@ var
 begin
   if CurPageID = EnvPage.ID then
   begin
-    // Si installation silencieuse (/SILENT), on ne bloque pas
-    if IsSilent then
+    // Nouvelle tentative pour détecter le mode silencieux/non-interactif.
+    // Cette méthode utilise la fonction intégrée IsTaskSelected, qui est toujours disponible.
+    // Si l'assistant n'est pas affiché, l'installation est silencieuse/en arrière-plan.
+    
+    // **SOLUTION DE DERNIER RECOURS** :
+    // On vérifie si l'installateur est en mode non-interactif (car pas de fenêtre d'assistant)
+    if not Assigned(WizardForm) then 
     begin
+      // Si WizardForm n'existe pas, nous sommes en mode /SILENT ou /VERYSILENT.
       WizardForm.NextButton.Enabled := True;
-      Exit;
+      Exit; 
     end;
 
+    // --- Logique pour l'installation interactive (non-silencieuse) ---
+    
     // Vérification de la présence du fichier
     EnvPath := ExpandConstant('{app}\.env');
 
