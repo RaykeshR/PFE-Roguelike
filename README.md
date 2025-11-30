@@ -170,8 +170,8 @@ python -m venv .venv && .venv\Scripts\activate && python -m pip install --upgrad
     *   Supprimez le dossier : `.venv\Lib\site-packages\typing-X.X.X.dist-info` (la version peut varier)
 
 
-> [!<strong>ℹ️ Note</strong>]  
-> Juste faire un `python -m pip uninstall typing` (sera retier/résolue dans le future)
+> $\color{rgba(20, 92, 168, 0.99)}{\textsf{|}}$[!<strong>ℹ️ Note</strong>]  
+> $\color{rgba(20, 92, 168, 0.99)}{\textsf{|}}$Juste faire un `python -m pip uninstall typing` (sera retier/résolue dans le future)
 
 ### Compilation
 
