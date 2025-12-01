@@ -34,12 +34,19 @@
             <div id="stable-installers">
                 <div class="installer-version" data-status="stable">
                     <span>Installeur v2.6.0.86 (Stable)</span>
-                    <a href="https://github.com/RaykeshR/PFE-Roguelike/raw/refs/heads/Dev-Raykesh/Output/Setup_PFE-Roguelike_v2.6.0.86.exe" download class="btn btn-primary">Télécharger</a>
+                    <a href="https://github.com/RaykeshR/PFE-Roguelike/raw/refs/heads/Dev-Raykesh/Output/Setup_PFE-Roguelike_v2.6.0.86.exe" download class="btn btn-primary" title="Télécharger l'installeur Windows recommandé">Télécharger</a>
                 </div>
                 <div class="installer-version" data-status="archived">
                     <span>Installeur v2.6.0.80 (Archivé)</span>
                     <a href="https://raw.githubusercontent.com/RaykeshR/PFE-Roguelike/Dev-Raykesh/Output/Setup_PFE-Roguelike_v2.6.0.80.exe" download class="btn btn-secondary disabled">Archivé</a>
                 </div>
+                <p style="margin-top: 1rem;">
+                    <strong>Important :</strong> Pour que le jeu fonctionne correctement après l'installation, un fichier de configuration <code>.env</code> est nécessaire. L'installeur vous guidera pour son placement.
+                    Si vous n'avez pas ce fichier ou si vous rencontrez des problèmes, veuillez contacter l'équipe de développement.
+                </p>
+                <p>
+                    <a href="mailto:contact@pferoguelike.com?subject=Demande%20de%20fichier%20.env%20PFE-Roguelike" class="btn btn-secondary" title="Envoyer un email pour obtenir le fichier .env">Demander le fichier .env par email</a>
+                </p>
             </div>
 
             <h3 style="margin-top: 2rem;">Versions de Développement (Branche Dev-Raykesh)</h3>
@@ -53,20 +60,20 @@
             
             <div class="installer-version">
                 <span><span class="label-onefolder">Version "OneFolder" (avec console)</span></span>
-                <a href="https://github.com/RaykeshR/PFE-Roguelike/raw/Dev-Raykesh/dist/PFE-Roguelike/PFE-Roguelike.exe" download class="btn btn-secondary">Télécharger</a>
+                <a href="https://github.com/RaykeshR/PFE-Roguelike/raw/Dev-Raykesh/dist/PFE-Roguelike/PFE-Roguelike.exe" download class="btn btn-secondary" title="Télécharger la version OneFolder (avec console)">Télécharger</a>
             </div>
             <div class="installer-version">
                 <span><span class="label-onefile-cli">Version "OneFile" (avec console)</span></span>
-                <a href="https://github.com/RaykeshR/PFE-Roguelike/raw/Dev-Raykesh/dist/PFERoguelike/PFERoguelike.exe" download class="btn btn-secondary">Télécharger</a>
+                <a href="https://github.com/RaykeshR/PFE-Roguelike/raw/Dev-Raykesh/dist/PFERoguelike/PFERoguelike.exe" download class="btn btn-secondary" title="Télécharger la version OneFile (avec console)">Télécharger</a>
             </div>
             <div class="installer-version">
                 <span><span class="label-onefile-nocli">Version "OneFile" (sans console)</span></span>
-                <a href="https://github.com/RaykeshR/PFE-Roguelike/raw/Dev-Raykesh/dist/Roguia/Roguia.exe" download class="btn btn-secondary">Télécharger</a>
+                <a href="https://github.com/RaykeshR/PFE-Roguelike/raw/Dev-Raykesh/dist/Roguia/Roguia.exe" download class="btn btn-secondary" title="Télécharger la version OneFile (sans console)">Télécharger</a>
             </div>
 
             <div class="details-section">
                 <details>
-                    <summary>Détails de la compilation et configuration manuelle</summary>
+                    <summary title="Afficher/Masquer les détails techniques de compilation et de configuration">Détails de la compilation et configuration manuelle</summary>
                     <p style="margin-top: 1rem;">Pour distribuer l'application en tant que programme autonome sur Windows, nous utilisons <strong>PyInstaller</strong>. Le processus est configuré via les fichiers <code>.spec</code> pour garantir que toutes les ressources nécessaires sont incluses.</p>
                     
                     <h4>Prérequis</h4>

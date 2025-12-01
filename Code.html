@@ -31,10 +31,10 @@
             <p>
                 Le code source du jeu PFE-Roguelike est structuré en plusieurs modules distincts pour garantir la maintenabilité et la clarté.
                 Chaque module a une responsabilité unique au sein de l'application. Vous pouvez explorer le code complet sur notre 
-                <a href="https://github.com/RaykeshR/PFE-Roguelike" target="_blank" rel="noopener">dépôt GitHub</a>.
+                <a href="https://github.com/RaykeshR/PFE-Roguelike" target="_blank" rel="noopener" title="Explorer le dépôt GitHub du projet pour le code source complet">dépôt GitHub</a>.
             </p>
 
-            <h3>Module <code>engine</code></h3>
+            <h3 title="Détails du module engine">Module <code>engine</code></h3>
             <p>Le cœur du jeu. Il gère la boucle principale, l'état du jeu, la génération de la carte et le moteur d'apprentissage par renforcement.</p>
             <pre><code class="language-python"># Exemple simplifié de la boucle de jeu dans engine/game.py
 class Game:
@@ -50,7 +50,7 @@ class Game:
             self.render()
 </code></pre>
 
-            <h3>Module <code>entities</code></h3>
+            <h3 title="Détails du module entities">Module <code>entities</code></h3>
             <p>Définit les objets du jeu, comme le joueur, les monstres et autres PNJ. Contient leur logique de comportement et leurs attributs.</p>
             <pre><code class="language-python"># Exemple de la classe Player dans entities/players.py
 class Player:
@@ -66,7 +66,7 @@ class Player:
         self.y += dy
 </code></pre>
 
-            <h3>Module <code>database</code></h3>
+            <h3 title="Détails du module database">Module <code>database</code></h3>
             <p>Gère toutes les interactions avec les bases de données. Sépare la logique de connexion pour PostgreSQL (données du jeu) et MongoDB (logs).</p>
             <pre><code class="language-python"># Exemple de connexion dans database/db_sql.py
 import psycopg2
@@ -81,7 +81,7 @@ def get_player_data(player_id):
     return player_data
 </code></pre>
 
-            <h3>Module <code>items</code></h3>
+            <h3 title="Détails du module items">Module <code>items</code></h3>
             <p>Contient la définition de tous les objets que le joueur peut trouver et utiliser, comme les armes, les potions, et les équipements.</p>
             <pre><code class="language-python"># Exemple de la classe Weapon dans items/weapon.py
 from .item import Item
@@ -95,7 +95,7 @@ class Weapon(Item):
         target.take_damage(self.damage)
 </code></pre>
 
-             <h3>Module <code>system</code></h3>
+             <h3 title="Détails du module system">Module <code>system</code></h3>
             <p>Gère la journalisation (logging), la configuration et d'autres fonctionnalités transversales qui soutiennent l'ensemble du système.</p>
             <pre><code class="language-python"># Exemple de configuration du logger dans system/logging_setup.py
 import logging
