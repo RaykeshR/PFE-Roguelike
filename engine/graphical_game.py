@@ -725,7 +725,6 @@ def _show_help_menu(screen, screen_width, screen_height, font):
                 waiting = False
                 break
 
-
 def _open_inventory_menu_pygame(screen, player: PlayerController, screen_width, screen_height, font, hud_font):
     """Affiche le menu d'inventaire dans une fenêtre Pygame avec défilement."""
     overlay = pygame.Surface((screen_width, screen_height))
@@ -736,6 +735,9 @@ def _open_inventory_menu_pygame(screen, player: PlayerController, screen_width, 
     panel_height = 500
     panel_x = (screen_width - panel_width) // 2
     panel_y = (screen_height - panel_height) // 2
+    
+    # [FIX] Define y_start here so it is available in the loop below
+    y_start = panel_y + 110
     
     inv = player.list_inventory()
     scroll_offset = 0
@@ -765,7 +767,7 @@ def _open_inventory_menu_pygame(screen, player: PlayerController, screen_width, 
         state_text = font.render(f"PV: {player.get_hp()} | Arme équipée: {eq_desc}", True, (200, 200, 200))
         screen.blit(state_text, (panel_x + 20, panel_y + 70))
         
-        y_start = panel_y + 110
+        # y_start is now accessed from the parent scope
         
         if not inv:
             empty_text = font.render("(Inventaire vide)", True, (150, 150, 150))
@@ -818,6 +820,7 @@ def _open_inventory_menu_pygame(screen, player: PlayerController, screen_width, 
         if input_mode:
             prompt = f"{'Équiper' if input_type == 'equip' else 'Utiliser'} (numéro): {input_text}_"
             prompt_surf = font.render(prompt, True, (255, 255, 0))
+            # [FIX] y_start is now defined in this scope, so this won't crash
             prompt_rect_bg = pygame.Rect(panel_x + 20, y_start + max_items_visible * item_height + 10, panel_width - 40, 40)
             pygame.draw.rect(screen, (40, 40, 50), prompt_rect_bg, border_radius=5)
             screen.blit(prompt_surf, (prompt_rect_bg.x + 10, prompt_rect_bg.y + 10))
@@ -837,9 +840,9 @@ def _open_inventory_menu_pygame(screen, player: PlayerController, screen_width, 
                 if input_mode:
                     if event.key == pygame.K_RETURN:
                         try:
-                            # [FIX] Handle empty string or invalid input gracefully
+                            # [FIX] Handle empty string
                             if not input_text.strip():
-                                raise ValueError("Empty input")
+                                raise ValueError("Empty")
                             idx = int(input_text)
                             if 0 <= idx < len(inv):
                                 if input_type == 'equip':
