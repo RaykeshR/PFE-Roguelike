@@ -27,37 +27,47 @@
     <main class="sections">
         <section id="telechargements" class="section-card">
             <h2>Options d'Installation du Jeu</h2>
-            <p>Le jeu PFE-Roguelike est disponible via plusieurs méthodes d'installation pour s'adapter à vos préférences.</p>
+            
+            <h3>Versions Stables</h3>
+            <p>Ce sont les versions recommandées pour la plupart des utilisateurs. Elles ont été validées par l'équipe de développement.</p>
+            <div id="stable-installers">
+                <!-- 
+                    Pour les développeurs : Pour ajouter une version stable,
+                    copiez un bloc <div class="installer-version">,
+                    mettez à jour le lien et le numéro de version,
+                    et changez le data-status en "stable".
+                -->
+                <div class="installer-version" data-status="stable">
+                    <span>Installeur v2.6.0.86 (Stable)</span>
+                    <a href="./Output/Setup_PFE-Roguelike_v2.6.0.86.exe" download class="btn btn-primary">Télécharger</a>
+                </div>
+                <div class="installer-version" data-status="archived">
+                    <span>Installeur v2.5.0.0 (Archivé)</span>
+                    <a href="#" download class="btn btn-secondary disabled">Archivé</a>
+                </div>
+            </div>
 
-            <h3>1. Installeur Windows (Recommandé)</h3>
-            <p>La méthode la plus simple pour installer le jeu sur Windows. Cet installeur vous guidera à travers les étapes nécessaires.</p>
-            <ul>
-                <li><strong>Version :</strong> v2.6.0.86 (dernière version stable)</li>
-                <li><a href="./Output/Setup_PFE-Roguelike_v2.6.0.86.exe" download class="btn btn-primary">Télécharger l'installeur (.exe)</a></li>
+            <h3 style="margin-top: 2rem;">Versions de Développement (Branche Dev-Raykesh)</h3>
+            <p>Ces versions sont générées automatiquement à chaque nouvelle modification sur la branche de développement. Elles peuvent contenir des fonctionnalités expérimentales ou des bugs.</p>
+            <ul id="dev-installers-list">
+                <li>Chargement des versions en cours...</li>
             </ul>
-            <p><em>Note : L'installeur a été créé avec Inno Setup.</em></p>
 
-            <h3>2. Versions Exécutables (Pour utilisateurs avancés)</h3>
-            <p>Ces versions sont générées par PyInstaller. Elles sont portables mais peuvent nécessiter une configuration manuelle. Ces versions sont principalement destinées aux développeurs ou aux utilisateurs souhaitant une portabilité maximale sans installation complète.</p>
-
-            <h4>Version "OneFolder" (avec console)</h4>
-            <p>Cette version est un dossier contenant l'exécutable et toutes ses dépendances. Une console est visible lors de l'exécution.</p>
-            <ul>
-                <li><a href="./dist/PFE-Roguelike/PFE-Roguelike.exe" download class="btn btn-secondary">Télécharger PFE-Roguelike (Dossier)</a></li>
-            </ul>
-
-            <h4>Version "OneFile" (avec console)</h4>
-            <p>Cette version est un seul fichier exécutable. Une console est visible lors de l'exécution.</p>
-            <ul>
-                <li><a href="./dist/PFERoguelike/PFERoguelike.exe" download class="btn btn-secondary">Télécharger PFERoguelike (Fichier unique)</a></li>
-            </ul>
-
-            <h4>Version "OneFile" (sans console)</h4>
-            <p>Similaire à la version "OneFile", mais l'exécutable se lance sans afficher de fenêtre de console.</p>
-            <ul>
-                <li><a href="./dist/Roguia/Roguia.exe" download class="btn btn-secondary">Télécharger Roguia (Fichier unique sans console)</a></li>
-            </ul>
-            <p><em><strong>Important :</strong> Pour ces versions, assurez-vous que le fichier de configuration <code>.env</code> est placé à côté de l'exécutable pour un fonctionnement optimal.</em></p>
+            <h3 style="margin-top: 2rem;">Autres Exécutables (Pour utilisateurs avancés)</h3>
+            <p>Ces versions sont portables mais peuvent nécessiter une configuration manuelle (voir la section <a href="Le_site_PFE_Roguelike.html#installation">Installation</a>).</p>
+            
+            <div class="installer-version">
+                <span>Version "OneFolder" (avec console)</span>
+                <a href="./dist/PFE-Roguelike/PFE-Roguelike.exe" download class="btn btn-secondary">Télécharger</a>
+            </div>
+            <div class="installer-version">
+                <span>Version "OneFile" (avec console)</span>
+                <a href="./dist/PFERoguelike/PFERoguelike.exe" download class="btn btn-secondary">Télécharger</a>
+            </div>
+            <div class="installer-version">
+                <span>Version "OneFile" (sans console)</span>
+                <a href="./dist/Roguia/Roguia.exe" download class="btn btn-secondary">Télécharger</a>
+            </div>
         </section>
     </main>
 
@@ -76,5 +86,6 @@
             </a>
         </p>
     </footer>
+    <script src="fetch_installers.js" defer></script>
 </body>
 </html>
