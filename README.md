@@ -133,7 +133,7 @@ Pour une installation simplifiée sous Windows, un installeur est fourni. Il se 
 Il pourra demander un fichier .env lors de l'installation.
 
 1.  **Téléchargez la dernière version de l'installeur :**
-    *   [Téléchargez l'installeur Roguia v2.6.0.86 ici](./Output/Setup_PFE-Roguelike_v2.6.0.86.exe)
+    *   [Téléchargez l'installeur Roguia v2.6.0.86](https://github.com/RaykeshR/PFE-Roguelike/raw/refs/heads/Dev-Raykesh/Output/Setup_PFE-Roguelike_v2.6.0.86.exe) [ici](./Output/Setup_PFE-Roguelike_v2.6.0.86.exe)
     *   Assurez-vous de télécharger la version la plus récente disponible dans le dossier `Output`.
 
 2.  **Exécutez l'installeur :**
