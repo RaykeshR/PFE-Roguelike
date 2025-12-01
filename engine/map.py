@@ -588,9 +588,18 @@ class Map:
         dont_use_csv = os.environ.get("DONT_USE_CSV_ITEMS", "true").strip().lower() not in ["false", "0","f","no","n","non","off","disable","disabled","none","null","nil","0.0","faux","negatif","fals"]
         
         # Si CSV est activé, on charge les items du fichier
+        def resource_path(relative_path):
+            """ Get absolute path to resource, works for dev and for PyInstaller """
+            try:
+                # PyInstaller creates a temp folder and stores path in _MEIPASS
+                base_path = sys._MEIPASS
+            except Exception:
+                base_path = os.path.abspath(".")
+
+            return os.path.join(base_path, relative_path)
         csv_items = []
         if not dont_use_csv:
-            csv_path = os.path.join("items", "items.csv")
+            csv_path = resource_path(os.path.join("items", "items.csv"))
             try:
                 with open(csv_path, newline='', encoding='utf-8') as f:
                     reader = csv.DictReader(f)
