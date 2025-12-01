@@ -3,59 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Téléchargements PFE-Roguelike</title>
+    <title>Téléchargements - PFE-Roguelike</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" type="image/x-icon" href="./images/iconeF.ico?">
 </head>
 <body>
     <header>
-        <h1>Téléchargements PFE-Roguelike</h1>
         <nav>
-            <a href="Le_site_PFE_Roguelike.html">Retour à la page principale</a>
+            <div class="logo" title="PFE-Roguelike, un jeu et une IA">🎮 PFE-Roguelike</div>
+            <ul class="nav-links">
+                <li><a href="Le_site_PFE_Roguelike.html#presentation" title="Aller à la section Présentation">Présentation</a></li>
+                <li><a href="Le_site_PFE_Roguelike.html#fonctionnalites" title="Aller à la section Fonctionnalités">Fonctionnalités</a></li>
+                <li><a href="Le_site_PFE_Roguelike.html#technologies" title="Aller à la section Technologies">Technologies</a></li>
+                <li><a href="Le_site_PFE_Roguelike.html#ia" title="Aller à la section Intelligence Artificielle">Intelligence Artificielle</a></li>
+                <li><a href="Le_site_PFE_Roguelike.html#installation" title="Aller à la section Installation">Installation</a></li>
+                <li><a href="telechargements.html" title="Télécharger le jeu">Téléchargements</a></li>
+                <li><a href="Le_site_PFE_Roguelike.html#progression" title="Aller à la section Progression">Progression</a></li>
+                <li><a href="Code.html" title="Voir le détail du code">Code</a></li>
+            </ul>
         </nav>
     </header>
 
-    <main>
-        <section class="download-section">
+    <main class="sections">
+        <section id="telechargements" class="section-card">
             <h2>Options d'Installation du Jeu</h2>
             <p>Le jeu PFE-Roguelike est disponible via plusieurs méthodes d'installation pour s'adapter à vos préférences.</p>
 
             <h3>1. Installeur Windows (Recommandé)</h3>
             <p>La méthode la plus simple pour installer le jeu sur Windows. Cet installeur vous guidera à travers les étapes nécessaires.</p>
             <ul>
-                <li><strong>Version:</strong> v2.6.0.86 (dernière version stable)</li>
-                <li><a href="./Output/Setup_PFE-Roguelike_v2.6.0.86.exe" download>Télécharger l'installeur (.exe)</a></li>
+                <li><strong>Version :</strong> v2.6.0.86 (dernière version stable)</li>
+                <li><a href="./Output/Setup_PFE-Roguelike_v2.6.0.86.exe" download class="btn btn-primary">Télécharger l'installeur (.exe)</a></li>
             </ul>
-            <p class="note"><em>Note:</em> L'installeur a été créé avec Inno Setup.</p>
+            <p><em>Note : L'installeur a été créé avec Inno Setup.</em></p>
 
-            <h3>2. Versions Exécutables Python (Avancé)</h3>
-            <p>Ces versions sont générées par PyInstaller. Elles sont portables mais peuvent nécessiter une configuration manuelle du fichier <code>.env</code> si vous souhaitez vous connecter à une base de données. Ces versions sont principalement destinées aux développeurs ou aux utilisateurs souhaitant une portabilité maximale sans installation complète.</p>
+            <h3>2. Versions Exécutables (Pour utilisateurs avancés)</h3>
+            <p>Ces versions sont générées par PyInstaller. Elles sont portables mais peuvent nécessiter une configuration manuelle. Ces versions sont principalement destinées aux développeurs ou aux utilisateurs souhaitant une portabilité maximale sans installation complète.</p>
 
-            <h4>Version OneFolder (avec console)</h4>
-            <p>Cette version génère un dossier contenant l'exécutable et toutes ses dépendances. Une console est visible lors de l'exécution.</p>
+            <h4>Version "OneFolder" (avec console)</h4>
+            <p>Cette version est un dossier contenant l'exécutable et toutes ses dépendances. Une console est visible lors de l'exécution.</p>
             <ul>
-                <li><strong>Fichier:</strong> <code>PFE-Roguelike.exe</code></li>
-                <li><a href="./dist/PFE-Roguelike/PFE-Roguelike.exe" download>Télécharger PFE-Roguelike (Dossier Complet)</a></li>
+                <li><a href="./dist/PFE-Roguelike/PFE-Roguelike.exe" download class="btn btn-secondary">Télécharger PFE-Roguelike (Dossier)</a></li>
             </ul>
 
-            <h4>Version OneFile (avec console)</h4>
-            <p>Cette version génère un seul fichier exécutable. Une console est visible lors de l'exécution.</p>
+            <h4>Version "OneFile" (avec console)</h4>
+            <p>Cette version est un seul fichier exécutable. Une console est visible lors de l'exécution.</p>
             <ul>
-                <li><strong>Fichier:</strong> <code>PFERoguelike.exe</code></li>
-                <li><a href="./dist/PFERoguelike/PFERoguelike.exe" download>Télécharger PFERoguelike (Fichier Unique)</a></li>
+                <li><a href="./dist/PFERoguelike/PFERoguelike.exe" download class="btn btn-secondary">Télécharger PFERoguelike (Fichier unique)</a></li>
             </ul>
 
-            <h4>Version OneFile (sans console)</h4>
-            <p>Similaire à la version OneFile, mais l'exécutable se lance sans afficher de fenêtre de console, idéal pour une expérience utilisateur plus fluide.</p>
+            <h4>Version "OneFile" (sans console)</h4>
+            <p>Similaire à la version "OneFile", mais l'exécutable se lance sans afficher de fenêtre de console.</p>
             <ul>
-                <li><strong>Fichier:</strong> <code>Roguia.exe</code></li>
-                <li><a href="./dist/Roguia/Roguia.exe" download>Télécharger Roguia (Fichier Unique sans Console)</a></li>
+                <li><a href="./dist/Roguia/Roguia.exe" download class="btn btn-secondary">Télécharger Roguia (Fichier unique sans console)</a></li>
             </ul>
-            <p class="note"><em>Important:</em> Pour ces versions PyInstaller, assurez-vous que le fichier de configuration <code>.env</code> (contenant les informations de connexion à la base de données) est placé à côté de l'exécutable pour un fonctionnement optimal.</p>
+            <p><em><strong>Important :</strong> Pour ces versions, assurez-vous que le fichier de configuration <code>.env</code> est placé à côté de l'exécutable pour un fonctionnement optimal.</em></p>
         </section>
     </main>
 
     <footer>
-        <p>&copy; 2025 PFE-Roguelike</p>
+        <p>&copy; 2025 PFE-Roguelike - Projet de fin d'études</p>
+        <div class="team">
+            <span class="team-member" title="Raykesh">👨‍💻 Raykesh</span>
+            <span class="team-member" title="Sabri">👨‍💻 Sabri</span>
+            <span class="team-member" title="Maxence">👨‍💻 Maxence</span>
+            <span class="team-member" title="Coumba">👨‍💻 Coumba</span>
+            <span class="team-member" title="Chrisphen">👨‍💻 Chrisphen</span>
+        </div>
+        <p class="footer-link-container">
+            <a href="https://github.com/RaykeshR/PFE-Roguelike" class="footer-link" target="_blank" rel="noopener" title="Ouvrir le dépôt GitHub du projet dans un nouvel onglet">
+                Voir le projet sur GitHub
+            </a>
+        </p>
     </footer>
 </body>
 </html>
