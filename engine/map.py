@@ -588,16 +588,22 @@ class Map:
         dont_use_csv = os.environ.get("DONT_USE_CSV_ITEMS", "true").strip().lower() not in ["false", "0","f","no","n","non","off","disable","disabled","none","null","nil","0.0","faux","negatif","fals"]
         
         # Si CSV est activé, on charge les items du fichier
+        csv_items = []
         def resource_path(relative_path):
-            """ Get absolute path to resource, works for dev and for PyInstaller """
-            try:
-                # PyInstaller creates a temp folder and stores path in _MEIPASS
-                base_path = sys._MEIPASS
-            except Exception:
-                base_path = os.path.abspath(".")
+            """Obtient le chemin absolu de la ressource, fonctionne pour dev et PyInstaller"""
+            if getattr(sys, 'frozen', False):
+                # Si on est dans un exécutable (frozen)
+                if hasattr(sys, '_MEIPASS'):
+                    # Mode One-File : dossier temporaire
+                    base_path = sys._MEIPASS
+                else:
+                    # Mode One-Folder : dossier de l'exécutable (.exe)
+                    base_path = os.path.dirname(sys.executable)
+            else:
+                # Mode Développement (python main.py)
+                base_path = os.path.dirname(os.path.abspath(__file__))
 
             return os.path.join(base_path, relative_path)
-        csv_items = []
         if not dont_use_csv:
             csv_path = resource_path(os.path.join("items", "items.csv"))
             try:
