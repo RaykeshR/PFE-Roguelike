@@ -3,9 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Code</title>
+    <title>Détail du Code - PFE-Roguelike</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="./images/iconeF.ico?">
 </head>
 <body>
-    
+    <header>
+        <nav>
+            <div class="logo" title="PFE-Roguelike, un jeu et une IA">🎮 PFE-Roguelike</div>
+            <ul class="nav-links">
+                <li><a href="Le_site_PFE_Roguelike.html#presentation" title="Aller à la section Présentation">Présentation</a></li>
+                <li><a href="Le_site_PFE_Roguelike.html#fonctionnalites" title="Aller à la section Fonctionnalités">Fonctionnalités</a></li>
+                <li><a href="Le_site_PFE_Roguelike.html#technologies" title="Aller à la section Technologies">Technologies</a></li>
+                <li><a href="Le_site_PFE_Roguelike.html#ia" title="Aller à la section Intelligence Artificielle">Intelligence Artificielle</a></li>
+                <li><a href="Le_site_PFE_Roguelike.html#installation" title="Aller à la section Installation">Installation</a></li>
+                <li><a href="telechargements.html" title="Télécharger le jeu">Téléchargements</a></li>
+                <li><a href="Le_site_PFE_Roguelike.html#progression" title="Aller à la section Progression">Progression</a></li>
+                <li><a href="Code.html" title="Voir le détail du code">Code</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="sections">
+        <section id="code-details" class="section-card">
+            <h2>Architecture du Code Source (Python)</h2>
+            <p>
+                Le code source du jeu PFE-Roguelike est structuré en plusieurs modules distincts pour garantir la maintenabilité et la clarté.
+                Chaque module a une responsabilité unique au sein de l'application. Vous pouvez explorer le code complet sur notre 
+                <a href="https://github.com/RaykeshR/PFE-Roguelike" target="_blank" rel="noopener">dépôt GitHub</a>.
+            </p>
+
+            <h3>Module <code>engine</code></h3>
+            <p>Le cœur du jeu. Il gère la boucle principale, l'état du jeu, la génération de la carte et le moteur d'apprentissage par renforcement.</p>
+            <pre><code class="language-python"># Exemple simplifié de la boucle de jeu dans engine/game.py
+class Game:
+    def __init__(self):
+        self.player = Player(...)
+        self.map = Map()
+        self.is_running = True
+
+    def run(self):
+        while self.is_running:
+            self.handle_input()
+            self.update_game_state()
+            self.render()
+</code></pre>
+
+            <h3>Module <code>entities</code></h3>
+            <p>Définit les objets du jeu, comme le joueur, les monstres et autres PNJ. Contient leur logique de comportement et leurs attributs.</p>
+            <pre><code class="language-python"># Exemple de la classe Player dans entities/players.py
+class Player:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.health = 100
+        self.inventory = []
+
+    def move(self, dx, dy):
+        # Logique de mouvement et de collision
+        self.x += dx
+        self.y += dy
+</code></pre>
+
+            <h3>Module <code>database</code></h3>
+            <p>Gère toutes les interactions avec les bases de données. Sépare la logique de connexion pour PostgreSQL (données du jeu) et MongoDB (logs).</p>
+            <pre><code class="language-python"># Exemple de connexion dans database/db_sql.py
+import psycopg2
+
+def get_player_data(player_id):
+    conn = psycopg2.connect(...)
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM players WHERE id = %s", (player_id,))
+    player_data = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    return player_data
+</code></pre>
+
+            <h3>Module <code>items</code></h3>
+            <p>Contient la définition de tous les objets que le joueur peut trouver et utiliser, comme les armes, les potions, et les équipements.</p>
+            <pre><code class="language-python"># Exemple de la classe Weapon dans items/weapon.py
+from .item import Item
+
+class Weapon(Item):
+    def __init__(self, name, damage):
+        super().__init__(name)
+        self.damage = damage
+
+    def use(self, target):
+        target.take_damage(self.damage)
+</code></pre>
+
+             <h3>Module <code>system</code></h3>
+            <p>Gère la journalisation (logging), la configuration et d'autres fonctionnalités transversales qui soutiennent l'ensemble du système.</p>
+            <pre><code class="language-python"># Exemple de configuration du logger dans system/logging_setup.py
+import logging
+
+def setup_logger():
+    logger = logging.getLogger('roguelike_logger')
+    logger.setLevel(logging.INFO)
+    handler = logging.FileHandler('game.log')
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    return logger
+</code></pre>
+
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 PFE-Roguelike - Projet de fin d'études</p>
+        <div class="team">
+            <span class="team-member" title="Raykesh">👨‍💻 Raykesh</span>
+            <span class="team-member" title="Sabri">👨‍💻 Sabri</span>
+            <span class="team-member" title="Maxence">👨‍💻 Maxence</span>
+            <span class="team-member" title="Coumba">👨‍💻 Coumba</span>
+            <span class="team-member" title="Chrisphen">👨‍💻 Chrisphen</span>
+        </div>
+        <p class="footer-link-container">
+            <a href="https://github.com/RaykeshR/PFE-Roguelike" class="footer-link" target="_blank" rel="noopener" title="Ouvrir le dépôt GitHub du projet dans un nouvel onglet">
+                Voir le projet sur GitHub
+            </a>
+        </p>
+    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
 </body>
 </html>

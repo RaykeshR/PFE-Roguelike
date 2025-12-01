@@ -334,3 +334,28 @@ footer {
     background: #555;
     opacity: 0.5;
 }
+
+/* Color labels for executable types */
+.label-onefolder { color: #ff6b6b; font-weight: bold; }
+.label-onefile-cli { color: #feca57; font-weight: bold; }
+.label-onefile-nocli { color: #1dd1a1; font-weight: bold; }
+
+.details-section {
+    margin-top: 2rem;
+    background: rgba(0,0,0,0.2);
+    border-radius: 5px;
+    padding: 1.5rem;
+}
+.details-section summary {
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: #00d4ff;
+}
+.details-section pre {
+    background: rgba(0,0,0, 0.3); 
+    padding: 1rem; 
+    border-radius: 5px; 
+    overflow-x: auto;
+    margin-top: 1rem;
+}

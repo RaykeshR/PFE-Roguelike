@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Téléchargements - PFE-Roguelike</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
     <link rel="shortcut icon" type="image/x-icon" href="./images/iconeF.ico?">
 </head>
 <body>
@@ -31,12 +32,6 @@
             <h3>Versions Stables</h3>
             <p>Ce sont les versions recommandées pour la plupart des utilisateurs. Elles ont été validées par l'équipe de développement.</p>
             <div id="stable-installers">
-                <!-- 
-                    Pour les développeurs : Pour ajouter une version stable,
-                    copiez un bloc <div class="installer-version">,
-                    mettez à jour le lien et le numéro de version,
-                    et changez le data-status en "stable".
-                -->
                 <div class="installer-version" data-status="stable">
                     <span>Installeur v2.6.0.86 (Stable)</span>
                     <a href="https://github.com/RaykeshR/PFE-Roguelike/raw/refs/heads/Dev-Raykesh/Output/Setup_PFE-Roguelike_v2.6.0.86.exe" download class="btn btn-primary">Télécharger</a>
@@ -54,19 +49,48 @@
             </ul>
 
             <h3 style="margin-top: 2rem;">Autres Exécutables (Pour utilisateurs avancés)</h3>
-            <p>Ces versions sont portables mais peuvent nécessiter une configuration manuelle (voir la section <a href="Le_site_PFE_Roguelike.html#installation">Installation</a>).</p>
+            <p>Ces versions portables sont générées avec PyInstaller. Elles ne nécessitent pas d'installation mais requièrent une configuration manuelle (voir les détails de compilation ci-dessous).</p>
             
             <div class="installer-version">
-                <span>Version "OneFolder" (avec console)</span>
-                <a href="https://github.com/RaykeshR/PFE-Roguelike/blob/Dev-Raykesh/dist/PFE-Roguelike/PFE-Roguelike.exe" download class="btn btn-secondary">Télécharger</a>
+                <span><span class="label-onefolder">Version "OneFolder" (avec console)</span></span>
+                <a href="https://github.com/RaykeshR/PFE-Roguelike/raw/Dev-Raykesh/dist/PFE-Roguelike/PFE-Roguelike.exe" download class="btn btn-secondary">Télécharger</a>
             </div>
             <div class="installer-version">
-                <span>Version "OneFile" (avec console)</span>
-                <a href="https://github.com/RaykeshR/PFE-Roguelike/blob/Dev-Raykesh/dist/PFERoguelike/PFERoguelike.exe" download class="btn btn-secondary">Télécharger</a>
+                <span><span class="label-onefile-cli">Version "OneFile" (avec console)</span></span>
+                <a href="https://github.com/RaykeshR/PFE-Roguelike/raw/Dev-Raykesh/dist/PFERoguelike/PFERoguelike.exe" download class="btn btn-secondary">Télécharger</a>
             </div>
             <div class="installer-version">
-                <span>Version "OneFile" (sans console)</span>
-                <a href="https://github.com/RaykeshR/PFE-Roguelike/blob/Dev-Raykesh/dist/Roguia/Roguia.exe" download class="btn btn-secondary">Télécharger</a>
+                <span><span class="label-onefile-nocli">Version "OneFile" (sans console)</span></span>
+                <a href="https://github.com/RaykeshR/PFE-Roguelike/raw/Dev-Raykesh/dist/Roguia/Roguia.exe" download class="btn btn-secondary">Télécharger</a>
+            </div>
+
+            <div class="details-section">
+                <details>
+                    <summary>Détails de la compilation et configuration manuelle</summary>
+                    <p style="margin-top: 1rem;">Pour distribuer l'application en tant que programme autonome sur Windows, nous utilisons <strong>PyInstaller</strong>. Le processus est configuré via les fichiers <code>.spec</code> pour garantir que toutes les ressources nécessaires sont incluses.</p>
+                    
+                    <h4>Prérequis</h4>
+                    <ul>
+                        <li><strong>PyInstaller :</strong> Doit être installé (<code>pip install pyinstaller</code>).</li>
+                        <li><strong>Conflit `typing` :</strong> Si vous rencontrez une erreur liée au paquet `typing` lors de la compilation, désinstallez-le de votre environnement virtuel : <code>pip uninstall typing</code>.</li>
+                    </ul>
+
+                    <h4>Commandes de compilation</h4>
+                    <pre><code class="language-shell"># Version OneFolder (avec CLI)
+pyinstaller build.spec
+
+# Version OneFile (avec CLI)
+pyinstaller PFERoguelike.spec
+
+# Version OneFile (sans CLI)
+pyinstaller Roguia.spec</code></pre>
+
+                    <h4>Configuration du fichier .env</h4>
+                    <p>Pour que les versions PyInstaller fonctionnent correctement (notamment pour la connexion à la base de données), vous devez placer le fichier de configuration <code>.env</code> à côté de l'exécutable.</p>
+                    <pre><code class="language-shell"># Exemple : Copier le .env pour la version OneFolder
+cp ./database/.env ./dist/PFE-Roguelike/.env</code></pre>
+                    <p><strong>Important :</strong> Lancer l'exécutable depuis son dossier est crucial. Un double-clic sur le fichier <code>.exe</code> fonctionne, mais le lancer depuis une autre localisation via la ligne de commande peut causer des erreurs de chargement du <code>.env</code>.</p>
+                </details>
             </div>
         </section>
     </main>
@@ -87,5 +111,7 @@
         </p>
     </footer>
     <script src="fetch_installers.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
 </body>
 </html>
