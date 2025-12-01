@@ -16,6 +16,7 @@ if __name__ != "__main__":
     from pygame.locals import *
     from engine.GUI.gui import GameGUI, Button, Panel, InputBox, ScrollableList, Label
 else:
+    # Redirect to main.py if run directly
     import subprocess
     subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "main.py")])
     exit(0)
@@ -74,7 +75,6 @@ def graphical_menu_principal():
             # verifier_utilisateur retourne un dict {'id': ..., 'username': ...}
             gui.user_data['utilisateur_connecte'] = utilisateur
             update_login_message(f"Bienvenue, {username}!", (100, 255, 100))
-            # Ne pas utiliser time.sleep dans la boucle Pygame, utiliser un timer
             charger_liste_personnages()
             gui.change_state("selection_personnage")
         else:
@@ -106,7 +106,6 @@ def graphical_menu_principal():
                 'username': utilisateur[1]
             }
             update_register_message(f"Compte créé! Bienvenue, {username}!", (100, 255, 100))
-            # Ne pas utiliser time.sleep dans la boucle Pygame
             charger_liste_personnages()
             gui.change_state("selection_personnage")
         else:
@@ -355,6 +354,12 @@ def run_game(joueur_id_connecte):
 
     # 3. Initialiser la Map
     game_map = Map(shared_q_data=shared_player_q_data) 
+    # [FIX] Initialize cache variables to prevent AttributeError in draw_map_pygame
+    game_map._visible_cache_room = None
+    game_map._visible_cache_set = None
+    # [FIX] Ensure hit_flash dict exists
+    if not hasattr(game_map, 'hit_flash'):
+        game_map.hit_flash = {}
     
     # 4. Initialiser le PlayerController avec les données de la DB
     player = PlayerController(
@@ -370,6 +375,8 @@ def run_game(joueur_id_connecte):
     ) 
     player.q_table_path = q_table_path 
     player.db_id = joueur_data['id']
+    # [FIX] Initialize direction for projectiles
+    player._last_dir = (1, 0)
 
     # Episode logger
     ep = get_episode_logger()
@@ -500,7 +507,7 @@ def run_game(joueur_id_connecte):
         
         # Effet de hit
         if getattr(game_map, 'hit_flash', None):
-            for (hx, hy), expire in game_map.hit_flash.items():
+            for (hx, hy), expire in list(game_map.hit_flash.items()):
                 if 0 <= hy < game_map.height and 0 <= hx < game_map.width:
                     if (hx, hy) in visible or (hx, hy) in game_map.discovered:
                         pygame.draw.line(screen, COLOR_HIT,
@@ -532,7 +539,6 @@ def run_game(joueur_id_connecte):
             game_messages.pop(0)
     
     # Stocker la fonction add_message dans le joueur pour qu'il puisse l'utiliser
-    # (après la définition de add_message)
     player._add_message_callback = add_message
     
     def draw_hud():
@@ -576,87 +582,92 @@ def run_game(joueur_id_connecte):
             msg_y += 22
     
     # Boucle principale du jeu
-    while playing:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                playing = False
-                ep.end_episode("quit", {"tick": game_map.ticks})
-            elif event.type == pygame.KEYDOWN:
-                key = event.unicode.lower() if event.unicode else ""
-                # Gérer les touches spéciales
-                if event.key == pygame.K_x:
+    try:
+        while playing:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
                     playing = False
                     ep.end_episode("quit", {"tick": game_map.ticks})
-                elif event.key == pygame.K_h:
-                    _show_help_menu(screen, SCREEN_WIDTH, SCREEN_HEIGHT, hud_font)
-                elif event.key == pygame.K_i:
-                    _open_inventory_menu_pygame(screen, player, SCREEN_WIDTH, SCREEN_HEIGHT, font, hud_font)
-                elif event.key == pygame.K_a:
-                    messages = _player_attack(player, game_map, add_message_callback=add_message)
-                    if messages:
-                        for i, msg in enumerate(messages):
-                            color = (100, 255, 100) if "vaincu" in msg or "XP" in msg else (255, 200, 100)
-                            add_message(msg, color)
-                elif event.key == pygame.K_UP or event.key == pygame.K_w or key == "z":
-                    old = (player.x, player.y)
-                    player.move("z")
-                    if (player.x, player.y) != old:
-                        log.info("Déplacement joueur", extra={"extra": {"from": old, "to": (player.x, player.y), "input": "z"}})
-                        ep.log_step({
-                            "tick": game_map.ticks,
-                            "player": {"from": list(old), "to": [player.x, player.y]},
-                            "action_player": "z",
-                        })
-                elif event.key == pygame.K_LEFT or key == "q":
-                    old = (player.x, player.y)
-                    player.move("q")
-                    if (player.x, player.y) != old:
-                        log.info("Déplacement joueur", extra={"extra": {"from": old, "to": (player.x, player.y), "input": "q"}})
-                        ep.log_step({
-                            "tick": game_map.ticks,
-                            "player": {"from": list(old), "to": [player.x, player.y]},
-                            "action_player": "q",
-                        })
-                elif event.key == pygame.K_DOWN or event.key == pygame.K_s or key == "s":
-                    old = (player.x, player.y)
-                    player.move("s")
-                    if (player.x, player.y) != old:
-                        log.info("Déplacement joueur", extra={"extra": {"from": old, "to": (player.x, player.y), "input": "s"}})
-                        ep.log_step({
-                            "tick": game_map.ticks,
-                            "player": {"from": list(old), "to": [player.x, player.y]},
-                            "action_player": "s",
-                        })
-                elif event.key == pygame.K_RIGHT or event.key == pygame.K_d or key == "d":
-                    old = (player.x, player.y)
-                    player.move("d")
-                    if (player.x, player.y) != old:
-                        log.info("Déplacement joueur", extra={"extra": {"from": old, "to": (player.x, player.y), "input": "d"}})
-                        ep.log_step({
-                            "tick": game_map.ticks,
-                            "player": {"from": list(old), "to": [player.x, player.y]},
-                            "action_player": "d",
-                        })
-        
-        # Rendu
-        screen.fill((0, 0, 0))
-        draw_map_pygame()
-        draw_hud()
-        pygame.display.flip()
-        
-        # Tick logique
-        game_map.tick((player.x, player.y))
-        
-        clock.tick(30)  # 30 FPS
-    
-    # Sauvegarde
-    print(f"\nPartie terminée. Sauvegarde de la progression de {player.name}...")
-    save_q_table(shared_player_q_data, player.q_table_path)
-    update_joueur_stats(player.db_id, player.get_hp(), player.xp, player.niveau) 
-    sauvegarder_inventaire(player.db_id, player.get_inventory())
-    print("Sauvegarde terminée. Au revoir.")
-    
-    pygame.quit()
+                elif event.type == pygame.KEYDOWN:
+                    key = event.unicode.lower() if event.unicode else ""
+                    # Gérer les touches spéciales
+                    if event.key == pygame.K_x:
+                        playing = False
+                        ep.end_episode("quit", {"tick": game_map.ticks})
+                    elif event.key == pygame.K_h:
+                        _show_help_menu(screen, SCREEN_WIDTH, SCREEN_HEIGHT, hud_font)
+                    elif event.key == pygame.K_i:
+                        _open_inventory_menu_pygame(screen, player, SCREEN_WIDTH, SCREEN_HEIGHT, font, hud_font)
+                    elif event.key == pygame.K_a:
+                        messages = _player_attack(player, game_map, add_message_callback=add_message)
+                        if messages:
+                            for i, msg in enumerate(messages):
+                                color = (100, 255, 100) if "vaincu" in msg or "XP" in msg else (255, 200, 100)
+                                add_message(msg, color)
+                    elif event.key == pygame.K_UP or event.key == pygame.K_w or key == "z":
+                        player._last_dir = (0, -1)  # [FIX] Update direction for projectile
+                        old = (player.x, player.y)
+                        player.move("z")
+                        if (player.x, player.y) != old:
+                            log.info("Déplacement joueur", extra={"extra": {"from": old, "to": (player.x, player.y), "input": "z"}})
+                            ep.log_step({
+                                "tick": game_map.ticks,
+                                "player": {"from": list(old), "to": [player.x, player.y]},
+                                "action_player": "z",
+                            })
+                    elif event.key == pygame.K_LEFT or key == "q":
+                        player._last_dir = (-1, 0) # [FIX] Update direction
+                        old = (player.x, player.y)
+                        player.move("q")
+                        if (player.x, player.y) != old:
+                            log.info("Déplacement joueur", extra={"extra": {"from": old, "to": (player.x, player.y), "input": "q"}})
+                            ep.log_step({
+                                "tick": game_map.ticks,
+                                "player": {"from": list(old), "to": [player.x, player.y]},
+                                "action_player": "q",
+                            })
+                    elif event.key == pygame.K_DOWN or event.key == pygame.K_s or key == "s":
+                        player._last_dir = (0, 1) # [FIX] Update direction
+                        old = (player.x, player.y)
+                        player.move("s")
+                        if (player.x, player.y) != old:
+                            log.info("Déplacement joueur", extra={"extra": {"from": old, "to": (player.x, player.y), "input": "s"}})
+                            ep.log_step({
+                                "tick": game_map.ticks,
+                                "player": {"from": list(old), "to": [player.x, player.y]},
+                                "action_player": "s",
+                            })
+                    elif event.key == pygame.K_RIGHT or event.key == pygame.K_d or key == "d":
+                        player._last_dir = (1, 0) # [FIX] Update direction
+                        old = (player.x, player.y)
+                        player.move("d")
+                        if (player.x, player.y) != old:
+                            log.info("Déplacement joueur", extra={"extra": {"from": old, "to": (player.x, player.y), "input": "d"}})
+                            ep.log_step({
+                                "tick": game_map.ticks,
+                                "player": {"from": list(old), "to": [player.x, player.y]},
+                                "action_player": "d",
+                            })
+            
+            # Rendu
+            screen.fill((0, 0, 0))
+            draw_map_pygame()
+            draw_hud()
+            pygame.display.flip()
+            
+            # Tick logique
+            game_map.tick((player.x, player.y))
+            
+            clock.tick(30)  # 30 FPS
+            
+    finally:
+        # [FIX] Always save progress, even if an error occurs
+        print(f"\nSauvegarde de la progression de {player.name}...")
+        save_q_table(shared_player_q_data, player.q_table_path)
+        update_joueur_stats(player.db_id, player.get_hp(), player.xp, player.niveau) 
+        sauvegarder_inventaire(player.db_id, player.get_inventory())
+        print("Sauvegarde terminée. Au revoir.")
+        pygame.quit()
 
 
 def _show_help_menu(screen, screen_width, screen_height, font):
@@ -826,6 +837,9 @@ def _open_inventory_menu_pygame(screen, player: PlayerController, screen_width, 
                 if input_mode:
                     if event.key == pygame.K_RETURN:
                         try:
+                            # [FIX] Handle empty string or invalid input gracefully
+                            if not input_text.strip():
+                                raise ValueError("Empty input")
                             idx = int(input_text)
                             if 0 <= idx < len(inv):
                                 if input_type == 'equip':
@@ -981,6 +995,7 @@ def _player_attack(player: PlayerController, game_map: Map, add_message_callback
     if nearest is None:
         is_ranged = _is_weapon_ranged(w)
         if is_ranged:
+            # [FIX] Ensure direction is not zero
             dx, dy = getattr(player, '_last_dir', (1, 0))
             if dx == 0 and dy == 0:
                 dx, dy = (1, 0)
