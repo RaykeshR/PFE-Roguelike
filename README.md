@@ -124,7 +124,7 @@ Modifier .git\info\exclude
 </details> 
 
 <details>
-<summary>Installeur :</summary>
+<summary>Installeur :  :+1:	👍 :thumbsup: :sunglasses: :smirk: :smiley::grin::wink::stuck_out_tongue_winking_eye:</summary>
 
 ### Installation via l'installeur
 
