@@ -4,7 +4,7 @@
 
 ; DÉFINITION DES CONSTANTES (Pour modifier facilement)
 #define MyAppName "PFE-Roguelike"
-#define MyAppVersion "2.6.0.85"
+#define MyAppVersion "2.6.0.86"
 #define MyAppPublisher "Raykesh, Sabri, Maxence, Coumba, Chrisphen"
 #define MyAppURL "https://github.com/RaykeshR/PFE-Roguelike"
 #define MyAppExeName "PFE-Roguelike.exe"
@@ -46,7 +46,7 @@ UsePreviousLanguage=yes
 WizardResizable=yes
 ; Permet de fermer l'appli si elle tourne déjà lors d'une mise à jour
 CloseApplications=yes
-; Pas de MDP avant 2.6.0.81 puis (2.6.0.82)MDP=PFE2025 (2.6.0.85)MDP=MotDePasseHyperSécuriséSansEspaceAvecDesMajusculesAuxDébutDeChaqueMotEtDesAccents
+; Pas de MDP avant 2.6.0.81 puis (2.6.0.82)MDP=PFE2025 (2.6.0.85-2.6.0.86)MDP=MotDePasseHyperSécuriséSansEspaceAvecDesMajusculesAuxDébutDeChaqueMotEtDesAccents
 Password=MotDePasseHyperSécuriséSansEspaceAvecDesMajusculesAuxDébutDeChaqueMotEtDesAccents
 Encryption=yes
 
@@ -121,7 +121,7 @@ var
 begin
   ShellExec(
     'open',
-    'mailto:ton.email@etudiant.fr?subject=Demande du fichier .env - PFE Roguelike'
+    'mailto:pfe-roguelike@reseau.eseo.fr?subject=Demande du fichier .env - PFE Roguelike'
       + '&body=Bonjour,%0D%0AMerci de m''envoyer le fichier .env pour pouvoir lancer le jeu.',
     '',
     '',
