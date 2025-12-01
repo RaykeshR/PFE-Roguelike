@@ -124,6 +124,29 @@ Modifier .git\info\exclude
 </details> 
 
 <details>
+<summary>Installeur :</summary>
+
+### Installation via l'installeur
+
+Pour une installation simplifiée sous Windows, un installeur est fourni. Il se charge de mettre en place tous les fichiers nécessaires.
+
+Il pourra demander un fichier .env lors de l'installation.
+
+1.  **Téléchargez la dernière version de l'installeur :**
+    *   [Téléchargez l'installeur Roguia v2.6.0.86 ici](./Output/Setup_PFE-Roguelike_v2.6.0.86.exe)
+    *   Assurez-vous de télécharger la version la plus récente disponible dans le dossier `Output`.
+
+2.  **Exécutez l'installeur :**
+    *   Lancez le fichier `.exe` téléchargé.
+    *   Suivez les instructions à l'écran. L'installeur vous proposera un chemin d'installation et créera les raccourcis nécessaires.
+    *   Il pourra demander un fichier .env lors de l'installation. (Contacter : pfe-roguelike@reseau.eseo.fr pour obtenir un .env)
+
+3.  **Lancez le jeu :**
+    *   Une fois l'installation terminée, vous pouvez lancer le jeu depuis le raccourci sur votre bureau ou via le menu Démarrer.
+
+</details>
+
+<details>
 <summary>Nettoyer un dépôt git : </summary>
 Télécharger BFG Repo-Cleaner sur le site (.jar): 
 https://rtyley.github.io/bfg-repo-cleaner/
