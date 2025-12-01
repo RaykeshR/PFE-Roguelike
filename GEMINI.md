@@ -2,7 +2,7 @@
 
 Ce dépôt a deux objectifs principaux, reflétés dans ses branches :
 
-1.  **Branche `main` (et autres branches de développement comme `Dev-Raykesh`):** C'est le cœur du projet PFE-Roguelike, un jeu développé en Python. Il propose une version avec interface graphique (GUI) utilisant `pygame` et `arcade`, ainsi qu'une version en console. Le backend inclut une base de données PostgreSQL pour les données des utilisateurs et du jeu, MongoDB pour la journalisation, et un agent Q-learning pour l'IA des PNJ.
+1.  **Branche `main` (et autres branches de développement comme `Dev-Raykesh`):** C'est le cœur du projet PFE-Roguelike, un jeu développé en Python. Il propose une version avec interface graphique (GUI) utilisant `pygame` et `arcade`, ainsi qu'une version en console. Le backend inclus une base de données PostgreSQL pour les données des utilisateurs et du jeu, MongoDB pour la journalisation, et un agent Q-learning pour l'IA des PNJ.
 
 2.  **Branche `gh-pages`:** Cette branche est dédiée au site web du projet, hébergé sur GitHub Pages. C'est un site statique qui donne un aperçu du projet, de ses fonctionnalités et des technologies utilisées.
 
@@ -63,3 +63,12 @@ Vous êtes un expert en **HTML, CSS, et JavaScript** et vous aiderez à construi
 
 ## Contexte
 - Vous pouvez vous référer au fichier `GEMINI.md` pour obtenir le contexte complet du projet (architecture, modules, dépendances, workflows, etc.).
+
+## Utilisation du MCP (Model Context Protocol) de GitHub
+
+Le MCP de GitHub est configuré pour ce projet. Vous devez l'utiliser lorsque c'est pertinent pour accéder directement au code source et à sa structure. Cela est préférable à l'exploration manuelle des fichiers ou à des recherches web.
+
+**Quand l'utiliser :**
+- Pour analyser l'architecture du code.
+- Pour comprendre les dépendances entre les fichiers.
+- Pour rechercher des éléments spécifiques sur l'ensemble du projet.
