@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Téléchargements PFE-Roguelike</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Téléchargements PFE-Roguelike</h1>
+        <nav>
+            <a href="Le_site_PFE_Roguelike.html">Retour à la page principale</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="download-section">
+            <h2>Options d'Installation du Jeu</h2>
+            <p>Le jeu PFE-Roguelike est disponible via plusieurs méthodes d'installation pour s'adapter à vos préférences.</p>
+
+            <h3>1. Installeur Windows (Recommandé)</h3>
+            <p>La méthode la plus simple pour installer le jeu sur Windows. Cet installeur vous guidera à travers les étapes nécessaires.</p>
+            <ul>
+                <li><strong>Version:</strong> v2.6.0.86 (dernière version stable)</li>
+                <li><a href="./Output/Setup_PFE-Roguelike_v2.6.0.86.exe" download>Télécharger l'installeur (.exe)</a></li>
+            </ul>
+            <p class="note"><em>Note:</em> L'installeur a été créé avec Inno Setup.</p>
+
+            <h3>2. Versions Exécutables Python (Avancé)</h3>
+            <p>Ces versions sont générées par PyInstaller. Elles sont portables mais peuvent nécessiter une configuration manuelle du fichier <code>.env</code> si vous souhaitez vous connecter à une base de données. Ces versions sont principalement destinées aux développeurs ou aux utilisateurs souhaitant une portabilité maximale sans installation complète.</p>
+
+            <h4>Version OneFolder (avec console)</h4>
+            <p>Cette version génère un dossier contenant l'exécutable et toutes ses dépendances. Une console est visible lors de l'exécution.</p>
+            <ul>
+                <li><strong>Fichier:</strong> <code>PFE-Roguelike.exe</code></li>
+                <li><a href="./dist/PFE-Roguelike/PFE-Roguelike.exe" download>Télécharger PFE-Roguelike (Dossier Complet)</a></li>
+            </ul>
+
+            <h4>Version OneFile (avec console)</h4>
+            <p>Cette version génère un seul fichier exécutable. Une console est visible lors de l'exécution.</p>
+            <ul>
+                <li><strong>Fichier:</strong> <code>PFERoguelike.exe</code></li>
+                <li><a href="./dist/PFERoguelike/PFERoguelike.exe" download>Télécharger PFERoguelike (Fichier Unique)</a></li>
+            </ul>
+
+            <h4>Version OneFile (sans console)</h4>
+            <p>Similaire à la version OneFile, mais l'exécutable se lance sans afficher de fenêtre de console, idéal pour une expérience utilisateur plus fluide.</p>
+            <ul>
+                <li><strong>Fichier:</strong> <code>Roguia.exe</code></li>
+                <li><a href="./dist/Roguia/Roguia.exe" download>Télécharger Roguia (Fichier Unique sans Console)</a></li>
+            </ul>
+            <p class="note"><em>Important:</em> Pour ces versions PyInstaller, assurez-vous que le fichier de configuration <code>.env</code> (contenant les informations de connexion à la base de données) est placé à côté de l'exécutable pour un fonctionnement optimal.</p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 PFE-Roguelike</p>
+    </footer>
+</body>
+</html>
