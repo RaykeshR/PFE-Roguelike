@@ -17,6 +17,21 @@ else:
     
     subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "main.py")])
 
+def resource_path(relative_path):
+    """Obtient le chemin absolu de la ressource, fonctionne pour dev et PyInstaller"""
+    if getattr(sys, 'frozen', False):
+        # Si on est dans un exécutable (frozen)
+        if hasattr(sys, '_MEIPASS'):
+            # Mode One-File : dossier temporaire
+            base_path = sys._MEIPASS
+        else:
+            # Mode One-Folder : dossier de l'exécutable (.exe)
+            base_path = os.path.dirname(sys.executable)
+    else:
+        # Mode Développement (python main.py)
+        base_path = os.path.dirname(os.path.abspath(__file__))
+
+    return os.path.join(base_path, relative_path)
 
 class Map:
     def __init__(self, width=60, height=26, room_count=5,shared_q_data=None):
@@ -589,21 +604,6 @@ class Map:
         
         # Si CSV est activé, on charge les items du fichier
         csv_items = []
-        def resource_path(relative_path):
-            """Obtient le chemin absolu de la ressource, fonctionne pour dev et PyInstaller"""
-            if getattr(sys, 'frozen', False):
-                # Si on est dans un exécutable (frozen)
-                if hasattr(sys, '_MEIPASS'):
-                    # Mode One-File : dossier temporaire
-                    base_path = sys._MEIPASS
-                else:
-                    # Mode One-Folder : dossier de l'exécutable (.exe)
-                    base_path = os.path.dirname(sys.executable)
-            else:
-                # Mode Développement (python main.py)
-                base_path = os.path.dirname(os.path.abspath(__file__))
-
-            return os.path.join(base_path, relative_path)
         if not dont_use_csv:
             csv_path = resource_path(os.path.join("items", "items.csv"))
             try:
