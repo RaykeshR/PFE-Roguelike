@@ -31,3 +31,4 @@ Roguia/**/.env
 ./Roguia/*.env
 ./Roguia/*/.env
 ./Roguia/**/.env
+*.exe
