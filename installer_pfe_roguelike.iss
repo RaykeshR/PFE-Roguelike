@@ -4,7 +4,7 @@
 
 ; DÉFINITION DES CONSTANTES (Pour modifier facilement)
 #define MyAppName "PFE-Roguelike"
-#define MyAppVersion "2.6.0.87"
+#define MyAppVersion "2.6.0.88"
 #define MyAppPublisher "Raykesh, Sabri, Maxence, Coumba, Chrisphen"
 #define MyAppURL "https://github.com/RaykeshR/PFE-Roguelike"
 #define MyAppExeName "PFE-Roguelike.exe"
@@ -46,7 +46,7 @@ UsePreviousLanguage=yes
 WizardResizable=yes
 ; Permet de fermer l'appli si elle tourne déjà lors d'une mise à jour
 CloseApplications=yes
-; Pas de MDP avant 2.6.0.81 puis (2.6.0.82)MDP=PFE2025 (2.6.0.85-2.6.0.87)MDP=MotDePasseHyperSécuriséSansEspaceAvecDesMajusculesAuxDébutDeChaqueMotEtDesAccents
+; Pas de MDP avant 2.6.0.81 puis (2.6.0.82)MDP=PFE2025 (2.6.0.85-2.6.0.88)MDP=MotDePasseHyperSécuriséSansEspaceAvecDesMajusculesAuxDébutDeChaqueMotEtDesAccents
 Password=MotDePasseHyperSécuriséSansEspaceAvecDesMajusculesAuxDébutDeChaqueMotEtDesAccents
 Encryption=yes
 
@@ -82,6 +82,9 @@ Filename: "{app}\{#MyAppExeName}"; Description: "Lancer {#MyAppName}"; Flags: no
 [UninstallDelete]
 Type: files; Name: "{app}\.env"
 
+[Dirs]
+; [IMPORTANT] Donne les droits d'écriture au dossier pour que l'IA puisse sauvegarder (Q-Learning)
+Name: "{app}"; Permissions: users-modify
 
 [Code]
 var
@@ -105,7 +108,10 @@ begin
   begin
     DestPath := ExpandConstant('{app}\.env');
     
-    // On tente la copie
+    // [FIX CRITIQUE] : Créer le dossier {app} s'il n'existe pas encore
+    // Sinon la copie échoue car "Program Files/PFE..." n'existe pas au moment du clic.
+    ForceDirectories(ExpandConstant('{app}'));
+
     if FileCopy(SourcePath, DestPath, False) then
     begin
       StatusLabel.Caption := 'Succès : fichier .env installé !';
