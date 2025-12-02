@@ -25,7 +25,7 @@ a = Analysis(
         
         # Inclure le dossier 'src' contenant les images (.gif, .ico, etc.)
         # Le dossier 'src' sera créé à la racine du bundle.
-        ('src', 'src')
+        ('src', 'src'),
     ],
     hiddenimports=['pkg_resources', 'jaraco.collections', 'jaraco.functools', 'more_itertools', ],
     hookspath=[],
@@ -36,7 +36,7 @@ a = Analysis(
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
     cipher=block_cipher,
-    noarchive=False
+    noarchive=False,
 )
 
 # --- Création de l'exécutable ---
@@ -69,7 +69,7 @@ exe = EXE(
     # --- Icône de l'exécutable ---
     # Spécifier une icône pour le fichier .exe
     # L'icône doit être au format .ico
-    icon='src/gameplay.ico'
+    icon='src/gameplay.ico',
 )
 
 # --- Création du dossier de distribution (mode "one-folder") ---
@@ -83,5 +83,5 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name=exe_name
+    name=exe_name,
 )

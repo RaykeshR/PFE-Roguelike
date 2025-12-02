@@ -7,6 +7,7 @@ sys.setrecursionlimit(5000)
 
 # Définir le nom de l'exécutable
 exe_name = 'Roguia'
+block_cipher = None
 
 # --- Analyse du projet ---
 # PyInstaller analyse tous les imports et dépendances à partir du script principal.
@@ -26,20 +27,20 @@ a = Analysis(
         # Le dossier 'src' sera créé à la racine du bundle.
         ('src', 'src'),
     ],
-    hiddenimports=[],
+    hiddenimports=['pkg_resources', 'jaraco.collections', 'jaraco.functools', 'more_itertools', ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    excludes=['tkinter', 'pytest', 'matplotlib', 'seaborn', 'PILLOW', 'pandas', 'fastapi', 'pyinstaller'],
     # Ne pas inclure les assemblies privées de Windows
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
-    cipher=None,
+    cipher=block_cipher,
     noarchive=False,
 )
 
 # --- Création de l'exécutable ---
-pyz = PYZ(a.pure)
+pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
 exe = EXE(
     pyz,
