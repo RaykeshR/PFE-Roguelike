@@ -9,6 +9,13 @@
 *.jpeg binary
 *.png binary
 *.gif binary
+*.ico binary
+
+# Exécutables et librairies 
+*.exe binary
+*.dll binary
+*.so binary
+*.pyd binary
 
 # Autres types de fichiers courants
 *.md text
