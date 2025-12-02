@@ -31,7 +31,7 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=['tkinter', 'pytest', 'matplotlib', ],
+    excludes=['tkinter', 'pytest', 'matplotlib', 'seaborn', 'PILLOW', 'pandas', 'fastapi', 'pyinstaller'],
     # Ne pas inclure les assemblies privées de Windows
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
