@@ -1,6 +1,6 @@
 ; ---------------------------------------------------------
 ; Installeur PFE-Roguelike – Inno Setup 6.6.1
-; --------------------------------------------------------- 
+; ---------------------------------------------------------
 
 ; DÉFINITION DES CONSTANTES (Pour modifier facilement)
 #define MyAppName "PFE-Roguelike"
