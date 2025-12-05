@@ -6,6 +6,10 @@ __pycache__
 **/.env
 database/.env
 .env
+build
+dist
+Output
+.exe
 build/build
 dist/PFE-Roguelike/_internal
 dist/PFE-Roguelike/.env
