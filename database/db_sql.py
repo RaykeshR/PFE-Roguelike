@@ -344,3 +344,40 @@ def charger_inventaire(joueur_id):
 
     print(f"Inventaire du joueur {joueur_id} chargé : {len(inventaire_objets)} objet(s).")
     return inventaire_objets
+
+
+def recuperer_modeles_items():
+    """
+    Récupère la liste de tous les items définis dans la base de données SQL.
+    Retourne une liste de dictionnaires utilisables par le jeu.
+    """
+    query = "SELECT * FROM items;"
+    items_bruts = execute_query(query, fetch="all")
+    
+    if not items_bruts:
+        print("Aucun item trouvé dans la base de données.")
+        return []
+
+    items_propres = []
+    for row in items_bruts:
+        # Mapping des colonnes (basé sur init_db_sql.py)
+        # 0:id, 1:nom, 2:description, 3:rarity, 4:item_type, 
+        # 5:damage, 6:defense, 7:range, 8:category, 
+        # 9:durability, 10:potency, 11:duration
+        item_data = {
+            'id': row[0],
+            'name': row[1],
+            'description': row[2],
+            'rarity': row[3],
+            'type': row[4],
+            'damage': row[5],
+            'defense': row[6],
+            'range': row[7],
+            'category': row[8],
+            'durability': row[9],
+            'potency': row[10],
+            'duration': row[11]
+        }
+        items_propres.append(item_data)
+        
+    return items_propres
