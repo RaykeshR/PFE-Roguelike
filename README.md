@@ -43,7 +43,7 @@ TODO :octocat:  :shipit:
 ## Un package manquant : 
 <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
 ```
-.venv\Scripts\activate && python -m pip install --upgrade pip && pip install -r requirements.txt
+.venv\Scripts\activate && python -m pip install --upgrade pip && python -m pip install -r requirements.txt
 ```
 
 ### 1. Cloner le Repo
@@ -77,7 +77,7 @@ On peut aussi (Si c'est un problème de l'éditeur) `$ . .venv\Scripts\activate.
 
 (met à jour pip)
 
-### 5. `pip install -r requirements.txt`
+### 5. `python -m pip install -r requirements.txt`
 
 ```pip freeze > requirements.txt``` pour remplir automatiquement les requirements
 
@@ -85,20 +85,20 @@ Pour toutes les étapes précédentes (sur CMD ou powershell>=7) :
 
 
 ```
-python -m venv .venv && .venv\Scripts\activate && python -m pip install --upgrade pip && pip install -r requirements.txt
+python -m venv .venv && .venv\Scripts\activate && python -m pip install --upgrade pip && python -m pip install -r requirements.txt
 ```
 
 en cas d'erreur (supprimer le dossier .venv ou lancer): 
 
-```.venv\Scripts\activate && python -m pip install --upgrade pip && pip install -r requirements.txt```
+```.venv\Scripts\activate && python -m pip install --upgrade pip && python -m pip install -r requirements.txt```
 
 Avec  pip freeze  :
 
     Pour toutes les étapes précédentes (sur CMD ou powershell>=7) : 
-    ```python -m venv .venv && .venv\Scripts\activate && python -m pip install --upgrade pip && pip install -r requirements.txt && pip freeze > requirements.txt```
+    ```python -m venv .venv && .venv\Scripts\activate && python -m pip install --upgrade pip && python -m pip install -r requirements.txt && pip freeze > requirements.txt```
     
     en cas d'erreur (supprimer le dossier .venv ou lancer): 
-    ```.venv\Scripts\activate && python -m pip install --upgrade pip && pip install -r requirements.txt && pip freeze > requirements.txt```
+    ```.venv\Scripts\activate && python -m pip install --upgrade pip && python -m pip install -r requirements.txt && pip freeze > requirements.txt```
     
 ### 6. Modifier .git\info\exclude 
 
@@ -116,12 +116,35 @@ Commande : `python main.py `
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 python main.py
 """
 Modifier .git\info\exclude 
 
 </details> 
+
+<details>
+<summary>Installeur :  :+1: :sunglasses: :smirk: :smiley::grin::wink::stuck_out_tongue_winking_eye:</summary>
+
+### Installation via l'installeur
+
+Pour une installation simplifiée sous Windows, un installeur est fourni. Il se charge de mettre en place tous les fichiers nécessaires.
+
+Il pourra demander un fichier .env lors de l'installation.
+
+1.  **Téléchargez la dernière version de l'installeur :**
+    *   [Téléchargez l'installeur Roguia v2.6.0.86](https://github.com/RaykeshR/PFE-Roguelike/raw/refs/heads/Dev-Raykesh/Output/Setup_PFE-Roguelike_v2.6.0.86.exe) [ici](./Output/Setup_PFE-Roguelike_v2.6.0.86.exe)
+    *   Assurez-vous de télécharger la version la plus récente disponible dans le dossier `Output`.
+
+2.  **Exécutez l'installeur :**
+    *   Lancez le fichier `.exe` téléchargé.
+    *   Suivez les instructions à l'écran. L'installeur vous proposera un chemin d'installation et créera les raccourcis nécessaires.
+    *   Il pourra demander un fichier .env lors de l'installation. (Contacter : pfe-roguelike@reseau.eseo.fr pour obtenir un .env)
+
+3.  **Lancez le jeu :**
+    *   Une fois l'installation terminée, vous pouvez lancer le jeu depuis le raccourci sur votre bureau ou via le menu Démarrer.
+
+</details>
 
 <details>
 <summary>Nettoyer un dépôt git : </summary>
@@ -148,6 +171,73 @@ git push --force origin --tags -->
 git push --mirror
 
 </details> 
+
+<details>
+<summary>Création de l'exécutable (pour le déploiement) :</summary>
+
+### Introduction
+
+Pour distribuer l'application en tant que programme autonome sur Windows, nous utilisons `PyInstaller`. (Pour avoir une version compilé) Le processus est configuré via les fichiers `build.spec`, `PFERoguelike.spec` et `Roguia.spec` pour garantir que toutes les ressources nécessaires (images, données, etc.) sont incluses.
+
+### Prérequis
+
+1.  **PyInstaller** : Assurez-vous qu'il est installé. Il est inclus dans le `requirements.txt`.
+```bash
+python -m pip install pyinstaller
+# OU       (pour mettre à jour l'environement virtuelle)
+python -m venv .venv && .venv\Scripts\activate && python -m pip install --upgrade pip && python -m pip install -r requirements.txt
+```
+
+2.  **Résolution d'un conflit potentiel** : `PyInstaller` peut entrer en conflit avec une ancienne version du paquet `typing`. Si vous rencontrez une erreur à ce sujet lors de la compilation, vous devrez supprimer manuellement les fichiers correspondants de votre environnement virtuel :
+    *   Supprimez le fichier : `.venv\Lib\site-packages\typing.py`
+    *   Supprimez le dossier : `.venv\Lib\site-packages\typing-X.X.X.dist-info` (la version peut varier)
+
+
+> [!<strong>ℹ️ Note</strong>]  
+> Juste faire un `python -m pip uninstall typing` (sera retier/résolue dans le future)
+
+### Compilation
+
+Une fois les prérequis satisfaits, lancez la compilation avec la commande suivante à la racine du projet :
+
+$\color{rgba(255,50,50, 0.95)}{\textsf{La}}$  $\color{rgba(255,100,100, 0.95)}{\textsf{version}}$  $\color{rgba(255,100,100, 0.95)}{\textsf{OneFolder}}$ $\color{rgba(255,100,100, 0.95)}{\textsf{(avec}}$  $\color{rgba(255,100,100, 0.95)}{\textsf{CLI)}}$ 
+```zsh
+pyinstaller build.spec
+```
+[Télécharger le exe (Windows x64)](./dist/PFE-Roguelike/PFE-Roguelike.exe)
+
+$\color{rgba(255,255,50, 0.95)}{\textsf{La}}$  $\color{rgba(255,255,100, 0.95)}{\textsf{version}}$  $\color{rgba(255,255,100, 0.95)}{\textsf{OneFile}}$ $\color{rgba(255,255,100, 0.95)}{\textsf{(avec}}$  $\color{rgba(255,255,100, 0.95)}{\textsf{CLI)}}$ 
+```bash
+pyinstaller PFERoguelike.spec
+```
+[Télécharger le exe (Windows x64)](./dist/PFERoguelike/PFERoguelike.exe)
+
+$\color{rgba(50,255,50, 0.95)}{\textsf{La}}$  $\color{rgba(100,255,100, 0.95)}{\textsf{version}}$  $\color{rgba(100,255,100, 0.95)}{\textsf{OneFile}}$ $\color{rgba(100,255,100, 0.95)}{\textsf{(sans}}$  $\color{rgba(100,255,100, 0.95)}{\textsf{CLI)}}$ 
+```py
+pyinstaller Roguia.spec
+```
+[Télécharger le exe (Windows x64)](./dist/Roguia/Roguia.exe)
+
+
+### Résultat
+
+Le résultat de la compilation se trouvera dans le dossier `dist/`. Vous y trouverez des sous-dossiers `PFE-Roguelike`, `PFERoguelike` et `Roguia` contenants les exécutables `PFE-Roguelike.exe`, `PFERoguelike.exe` et `Roguia.exe` ainsi que toutes ses dépendances.
+
+Pour que l'application fonctionne, n'oubliez pas de placer le fichier de configuration `.env` à côté de l'exécutable (ou de configurer les variables d'environnement sur le système cible).
+```bash
+cp ./database/.env ./dist/PFE-Roguelike/.env # Copy-Item -Path "./database/.env" -Destination "./dist/PFE-Roguelike/.env" -Force    ;   OU   ;      robocopy .\database .\dist\PFE-Roguelike .env /COPY:DAT /R:1 /W:1
+cd ./dist/PFE-Roguelike && ./PFE-Roguelike.exe ; cd ../..
+```
+
+> [!NOTE] 
+> faire un `.\dist\PFE-Roguelike\PFE-Roguelike.exe` Ne fonctione Pas ! ! ! (Le .env est mal chargée et le pool ne ce crée pas) 
+> Double Clicker sur le .exe marche néanmoins.
+
+
+
+</details>
+
+<br>
 
 <details>
 <summary>Autre : </summary>
