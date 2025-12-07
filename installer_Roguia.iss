@@ -1,11 +1,13 @@
 ; ---------------------------------------------------------
 ; Installeur ULTIME - Roguia & PFE-Roguelike – Inno Setup 6.6.1
 ; Gestion automatique des deux dossiers sources
+; pyinstaller build.spec --clean --noconfirm
+; pyinstaller Roguia.spec --clean --noconfirm
 ; ---------------------------------------------------------
 
 ; DÉFINITION DES CONSTANTES (Pour modifier facilement)
 #define MyAppName "Roguia"
-#define MyAppVersion "2.6.1.05"
+#define MyAppVersion "2.6.1.16"
 #define MyAppPublisher "Raykesh, Sabri, Maxence, Coumba, Chrisphen"
 #define MyAppURL "https://github.com/RaykeshR/PFE-Roguelike"
 ; IMPORTANT : On décide que le jeu installé s'appellera toujours "Roguia.exe"
@@ -48,7 +50,7 @@ UsePreviousLanguage=yes
 WizardResizable=yes
 ; Permet de fermer l'appli si elle tourne déjà lors d'une mise à jour
 CloseApplications=yes
-; Pas de MDP avant 2.6.0.81 puis (2.6.0.82)MDP=PFE2025 (2.6.0.85-2.6.0.94)MDP=MotDePasseHyperSécuriséSansEspaceAvecDesMajusculesAuxDébutDeChaqueMotEtDesAccents
+; Pas de MDP avant 2.6.0.81 puis (2.6.0.82)MDP=PFE2025 (2.6.0.85-...)MDP=MotDePasseHyperSécuriséSansEspaceAvecDesMajusculesAuxDébutDeChaqueMotEtDesAccents
 Password=MotDePasseHyperSécuriséSansEspaceAvecDesMajusculesAuxDébutDeChaqueMotEtDesAccents
 Encryption=yes
 
