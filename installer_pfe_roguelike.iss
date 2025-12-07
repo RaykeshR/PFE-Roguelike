@@ -4,7 +4,7 @@
 
 ; DÉFINITION DES CONSTANTES (Pour modifier facilement)
 #define MyAppName "PFE-Roguelike"
-#define MyAppVersion "2.6.0.92"
+#define MyAppVersion "2.6.0.93"
 #define MyAppPublisher "Raykesh, Sabri, Maxence, Coumba, Chrisphen"
 #define MyAppURL "https://github.com/RaykeshR/PFE-Roguelike"
 #define MyAppExeName "PFE-Roguelike.exe"
@@ -34,7 +34,7 @@ PrivilegesRequired=admin
 
 OutputBaseFilename=Setup_PFE-Roguelike_v{#MyAppVersion}
 SetupIconFile="images\Gemini_Generated_Image_9suv459suv459suv2.ico"
-UninstallDisplayIcon="images\Gemini_Generated_Image_9suv459suv459suv.bmp"
+UninstallDisplayIcon="images\Gemini_Generated_Image_9suv459suv459suv2.ico"
 
 WizardImageFile="images\Gemini_Generated_Image_9suv459suv459suv.bmp"
 WizardSmallImageFile="images\Gemini_Generated_Image_9suv459suv459suv.bmp"
@@ -46,7 +46,7 @@ UsePreviousLanguage=yes
 WizardResizable=yes
 ; Permet de fermer l'appli si elle tourne déjà lors d'une mise à jour
 CloseApplications=yes
-; Pas de MDP avant 2.6.0.81 puis (2.6.0.82)MDP=PFE2025 (2.6.0.85-2.6.0.92)MDP=MotDePasseHyperSécuriséSansEspaceAvecDesMajusculesAuxDébutDeChaqueMotEtDesAccents
+; Pas de MDP avant 2.6.0.81 puis (2.6.0.82)MDP=PFE2025 (2.6.0.85-2.6.0.93)MDP=MotDePasseHyperSécuriséSansEspaceAvecDesMajusculesAuxDébutDeChaqueMotEtDesAccents
 Password=MotDePasseHyperSécuriséSansEspaceAvecDesMajusculesAuxDébutDeChaqueMotEtDesAccents
 Encryption=yes
 
@@ -66,11 +66,11 @@ Source: "models\*"; DestDir: "{app}\models"; Flags: ignoreversion recursesubdirs
 
 [Icons]
 ; Raccourci dans le menu démarrer
-Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\images\Gemini_Generated_Image_9suv459suv459suv2.ico"
-Name: "{group}\Désinstaller {#MyAppName}"; Filename: "{uninstallexe}"; IconFilename: "{app}\images\Gemini_Generated_Image_9suv459suv459suv2.ico"
+Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\images\Gemini_Generated_Image_9suv459suv459suv2.ico"; Comment: "Lancer {#MyAppName} (Version {#MyAppVersion})"
+Name: "{group}\Désinstaller {#MyAppName}"; Filename: "{uninstallexe}"; Parameters: "/LOG"; IconFilename: "{app}\images\Gemini_Generated_Image_9suv459suv459suv2.ico"
 
 ; Raccourci sur le bureau
-Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon; IconFilename: "{app}\images\Gemini_Generated_Image_9suv459suv459suv2.ico"
+Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon; IconFilename: "{app}\images\Gemini_Generated_Image_9suv459suv459suv2.ico"; Comment: "Version {#MyAppVersion}"
 
 [Tasks]
 ; Option pouvant être décochée par l’utilisateur
