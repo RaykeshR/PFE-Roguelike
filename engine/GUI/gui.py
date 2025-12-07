@@ -1,5 +1,17 @@
 import pygame
 import json
+import sys
+import os
+
+def resource_path(relative_path):
+    """ Get the absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 class Button:
     """Classe simple pour gérer un bouton graphique."""
@@ -386,6 +398,14 @@ class GameGUI:
         self.height = height
         self.screen = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption(title)
+
+        # Set window icon
+        icon_path = resource_path("src/gameplay.ico")
+        try:
+            program_Icon = pygame.image.load(icon_path)
+            pygame.display.set_icon(program_Icon)
+        except Exception as e:
+            print(f"Error loading icon: {e}")
         self.bg_color = bg_color
         self.clock = pygame.time.Clock()
         self.fps = fps

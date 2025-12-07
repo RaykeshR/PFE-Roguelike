@@ -59,17 +59,18 @@ Name: "french"; MessagesFile: "compiler:Languages\French.isl"
 Source: "dist\PFE-Roguelike\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; 2. L'icône (CRITIQUE : On l'ajoute explicitement pour qu'elle existe chez le client)
 Source: "src\gameplay.ico"; DestDir: "{app}\src"; Flags: ignoreversion
+Source: "images\Gemini_Generated_Image_9suv459suv459suv2.ico"; DestDir: "{app}\images"; Flags: ignoreversion
 ; Cela dit à Inno Setup : "Va chercher le dossier models à la racine du projet
 ; et mets-le dans un dossier 'models' chez l'utilisateur."
 Source: "models\*"; DestDir: "{app}\models"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 ; Raccourci dans le menu démarrer
-Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "images\Gemini_Generated_Image_9suv459suv459suv2.ico"
-Name: "{group}\Désinstaller {#MyAppName}"; Filename: "{uninstallexe}"; IconFilename: "images\Gemini_Generated_Image_9suv459suv459suv2.ico"
+Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\images\Gemini_Generated_Image_9suv459suv459suv2.ico"
+Name: "{group}\Désinstaller {#MyAppName}"; Filename: "{uninstallexe}"; IconFilename: "{app}\images\Gemini_Generated_Image_9suv459suv459suv2.ico"
 
 ; Raccourci sur le bureau
-Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon; IconFilename: "images\Gemini_Generated_Image_9suv459suv459suv2.ico"
+Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon; IconFilename: "{app}\images\Gemini_Generated_Image_9suv459suv459suv2.ico"
 
 [Tasks]
 ; Option pouvant être décochée par l’utilisateur
