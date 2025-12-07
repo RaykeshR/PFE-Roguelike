@@ -10,7 +10,7 @@ VSVersionInfo(
         prodvers=(2, 6, 0, 92),
         mask=0x3f,
         flags=0x0,
-        os=0x40004,
+        OS=0x40004,
         fileType=0x1,
         subtype=0x0,
         date=(0, 0)
@@ -26,7 +26,7 @@ VSVersionInfo(
                         # C'est ce qui s'affiche dans l'onglet "Détails"
                         StringStruct(u'FileVersion', u'2.6.0.92'),
                         StringStruct(u'InternalName', u'PFERoguelike'),
-                        StringStruct(u'LegalCopyright', u'Copyright © 2025 Raykesh, Sabri, Maxence, Coumba, Chrisphen'),
+                        StringStruct(u'LegalCopyright', u'Copyright (c) 2025 Raykesh, Sabri, Maxence, Coumba, Chrisphen'),
                         StringStruct(u'OriginalFilename', u'PFE-Roguelike.exe'),
                         StringStruct(u'ProductName', u'PFE Roguelike'),
                         StringStruct(u'ProductVersion', u'2.6.0.92')
