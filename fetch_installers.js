@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
             installersList.innerHTML = ''; // Clear loading message for dev installers
 
             const installerFiles = data.filter(file =>
-                file.name.startsWith('Setup_PFE-Roguelike_v') && file.name.endsWith('.exe')
+                (file.name.startsWith('Setup_PFE-Roguelike_v') || file.name.startsWith('Setup_Roguia_v')) && file.name.endsWith('.exe')
             );
 
             if (installerFiles.length === 0) {
