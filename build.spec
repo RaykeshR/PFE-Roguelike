@@ -70,6 +70,7 @@ exe = EXE(
     # Spécifier une icône pour le fichier .exe
     # L'icône doit être au format .ico
     icon='src/gameplay.ico',
+    version='version_info.txt',
 )
 
 # --- Création du dossier de distribution (mode "one-folder") ---
