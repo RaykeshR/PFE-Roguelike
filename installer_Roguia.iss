@@ -1,14 +1,15 @@
 ; ---------------------------------------------------------
-; Installeur PFE-Roguelike – Inno Setup 6.6.1
-; Version "OneFolder" (avec console)
+; Installeur ULTIME - Roguia & PFE-Roguelike – Inno Setup 6.6.1
+; Gestion automatique des deux dossiers sources
 ; ---------------------------------------------------------
 
 ; DÉFINITION DES CONSTANTES (Pour modifier facilement)
-#define MyAppName "PFE-Roguelike"
-#define MyAppVersion "2.6.0.94"
+#define MyAppName "Roguia"
+#define MyAppVersion "2.6.1.05"
 #define MyAppPublisher "Raykesh, Sabri, Maxence, Coumba, Chrisphen"
 #define MyAppURL "https://github.com/RaykeshR/PFE-Roguelike"
-#define MyAppExeName "PFE-Roguelike.exe"
+; IMPORTANT : On décide que le jeu installé s'appellera toujours "Roguia.exe"
+#define MyAppExeName "Roguia.exe" 
 
 [Setup]
 AppId={{4F8525EE-084E-4213-9FFB-71FC3A0F9279}}
@@ -33,7 +34,7 @@ DisableProgramGroupPage=yes
 ; Nécessaire pour écrire le .env dans Program Files
 PrivilegesRequired=admin
 
-OutputBaseFilename=Setup_PFE-Roguelike_v{#MyAppVersion}
+OutputBaseFilename=Setup_Roguia_v{#MyAppVersion}
 SetupIconFile="images\Gemini_Generated_Image_9suv459suv459suv2.ico"
 UninstallDisplayIcon="images\Gemini_Generated_Image_9suv459suv459suv2.ico"
 
@@ -55,9 +56,34 @@ Encryption=yes
 Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "french"; MessagesFile: "compiler:Languages\French.isl"
 
+; --- LE CHOIX POUR L'UTILISATEUR ---
+[Components]
+Name: "main"; Description: "Choix de la version du jeu"; Types: full compact custom; Flags: fixed
+Name: "main\noconsole"; Description: "Version Joueur (Roguia - Sans console)"; Flags: exclusive
+Name: "main\console"; Description: "Version Debug (PFE-Roguelike - Avec console)"; Flags: exclusive
+
 [Files]
-; 1. Le jeu principal
-Source: "dist\PFE-Roguelike\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+; ==============================================================================
+; CAS 1 : VERSION SANS CONSOLE (Dossier "dist\Roguia")
+; ==============================================================================
+; On copie tout le contenu du dossier Roguia
+Source: "dist\Roguia\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: main\noconsole
+
+
+; ==============================================================================
+; CAS 2 : VERSION AVEC CONSOLE (Dossier "dist\PFE-Roguelike")
+; ==============================================================================
+; ASTUCE : On copie l'exécutable PFE-Roguelike.exe mais on le renomme en Roguia.exe
+; Cela permet aux raccourcis de fonctionner quel que soit le choix !
+Source: "dist\PFE-Roguelike\PFE-Roguelike.exe"; DestDir: "{app}"; DestName: "Roguia.exe"; Flags: ignoreversion; Components: main\console
+
+; Ensuite, on copie tout le reste du dossier SAUF l'exécutable (qu'on a déjà traité)
+Source: "dist\PFE-Roguelike\*"; DestDir: "{app}"; Excludes: "PFE-Roguelike.exe"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: main\console
+
+
+; ==============================================================================
+; FICHIERS COMMUNS (Icônes externes au build)
+; ==============================================================================
 ; 2. L'icône (CRITIQUE : On l'ajoute explicitement pour qu'elle existe chez le client)
 Source: "src\gameplay.ico"; DestDir: "{app}\src"; Flags: ignoreversion
 Source: "images\Gemini_Generated_Image_9suv459suv459suv2.ico"; DestDir: "{app}\images"; Flags: ignoreversion
