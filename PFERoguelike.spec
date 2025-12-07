@@ -70,6 +70,7 @@ exe = EXE(
     # Spécifier une icône pour le fichier .exe
     # L'icône doit être au format .ico
     icon='src/gameplay.ico',
+    version='version_info.txt',
     # Mode One File : ⚠ Cela rend le chargement initial plus lent mais distribue un seul .exe.
     onefile=True,
 )
