@@ -9,7 +9,7 @@ import sys
 sys.setrecursionlimit(5000)
 
 # Définir le nom de l'exécutable
-exe_name = 'PFE-Roguelike' #Roguia
+exe_name = 'Roguia'
 block_cipher = None
 
 # --- Analyse du projet ---
