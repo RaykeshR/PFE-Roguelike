@@ -7,6 +7,22 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
     <link rel="shortcut icon" type="image/x-icon" href="./images/iconeF.ico?">
+    <style>
+        .password-entry {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+        .btn-copy {
+            padding: 0.2rem 0.6rem;
+            font-size: 0.8rem;
+        }
+        .password-entry code {
+            word-break: break-all;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -57,12 +73,18 @@
                 <p>
                     <a href="mailto:contact@pferoguelike.com?subject=Demande%20de%20fichier%20.env%20PFE-Roguelike" class="btn btn-secondary" title="Envoyer un email pour obtenir le fichier .env">Demander le fichier .env par email</a>
                 </p>
-                <p>
-                    <strong>Mots de passe des installeurs :</strong><br>
-                    - Pas de mot de passe avant la version 2.6.0.81.<br>
-                    - Pour la version 2.6.0.82 : <code>PFE2025</code><br>
-                    - Pour les versions 2.6.0.85 à 2.6.0.92 : <code>MotDePasseHyperSécuriséSansEspaceAvecDesMajusculesAuxDébutDeChaqueMotEtDesAccents</code>
-                </p>
+                <div class="password-section">
+                    <strong>Mots de passe des installeurs :</strong>
+                    <p style="margin-top: 0.5rem;">- Pas de mot de passe avant la version 2.6.0.81.</p>
+                    <div class="password-entry">
+                        <span>- Pour la version 2.6.0.82 : <code id="mdp-pfe2025">PFE2025</code></span>
+                        <button class="btn btn-secondary btn-copy" data-clipboard-target="#mdp-pfe2025">Copier</button>
+                    </div>
+                    <div class="password-entry">
+                        <span>- Pour les versions 2.6.0.85 à 2.6.0.92... : <code id="mdp-long">MotDePasseHyperSécuriséSansEspaceAvecDesMajusculesAuxDébutDeChaqueMotEtDesAccents</code></span>
+                        <button class="btn btn-secondary btn-copy" data-clipboard-target="#mdp-long">Copier</button>
+                    </div>
+                </div>
             </div>
 
             <h3 style="margin-top: 2rem;">Versions de Développement (Branche Dev-Raykesh)</h3>
@@ -136,5 +158,33 @@ cp ./database/.env ./dist/PFE-Roguelike/.env</code></pre>
     <script src="fetch_installers.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const copyButtons = document.querySelectorAll('.btn-copy');
+
+            copyButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetSelector = button.getAttribute('data-clipboard-target');
+                    const targetElement = document.querySelector(targetSelector);
+                    
+                    if (targetElement) {
+                        const textToCopy = targetElement.innerText;
+                        navigator.clipboard.writeText(textToCopy).then(() => {
+                            const originalText = button.innerText;
+                            button.innerText = 'Copié !';
+                            button.disabled = true;
+                            setTimeout(() => {
+                                button.innerText = originalText;
+                                button.disabled = false;
+                            }, 2000);
+                        }).catch(err => {
+                            console.error('Erreur lors de la copie : ', err);
+                            alert('Erreur lors de la copie.');
+                        });
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
