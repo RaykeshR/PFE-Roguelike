@@ -1,4 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
+// pyinstaller build.spec
 
 import sys
 
@@ -26,6 +27,7 @@ a = Analysis(
         # Inclure le dossier 'src' contenant les images (.gif, .ico, etc.)
         # Le dossier 'src' sera créé à la racine du bundle.
         ('src', 'src'),
+        ('models', 'models'),
     ],
     hiddenimports=['pkg_resources', 'jaraco.collections', 'jaraco.functools', 'more_itertools', ],
     hookspath=[],
@@ -45,10 +47,8 @@ pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 exe = EXE(
     pyz,
     a.scripts,
-    a.binaries,
-    a.zipfiles,
-    a.datas,
     [],
+    exclude_binaries=True,
     name=exe_name,
     debug=False,
     bootloader_ignore_signals=False,
