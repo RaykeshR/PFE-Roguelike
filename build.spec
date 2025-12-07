@@ -1,4 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
+# Version "OneFolder" (avec console) ,pour complier utiliser:
 # pyinstaller build.spec
 # pyinstaller build.spec --clean --noconfirm
 

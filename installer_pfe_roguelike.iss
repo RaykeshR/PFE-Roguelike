@@ -1,5 +1,6 @@
 ; ---------------------------------------------------------
 ; Installeur PFE-Roguelike – Inno Setup 6.6.1
+; Version "OneFolder" (avec console)
 ; ---------------------------------------------------------
 
 ; DÉFINITION DES CONSTANTES (Pour modifier facilement)
