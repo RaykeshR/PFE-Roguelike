@@ -1,4 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
+# Version "OneFolder" (sans console) ,pour complier utiliser:
+# pyinstaller Roguia.spec
+# pyinstaller Roguia.spec --clean --noconfirm
 
 import sys
 
@@ -6,7 +9,7 @@ import sys
 sys.setrecursionlimit(5000)
 
 # Définir le nom de l'exécutable
-exe_name = 'Roguia'
+exe_name = 'PFE-Roguelike' #Roguia
 block_cipher = None
 
 # --- Analyse du projet ---
@@ -26,6 +29,7 @@ a = Analysis(
         # Inclure le dossier 'src' contenant les images (.gif, .ico, etc.)
         # Le dossier 'src' sera créé à la racine du bundle.
         ('src', 'src'),
+        ('models', 'models'),
     ],
     hiddenimports=['pkg_resources', 'jaraco.collections', 'jaraco.functools', 'more_itertools', ],
     hookspath=[],
@@ -45,10 +49,8 @@ pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 exe = EXE(
     pyz,
     a.scripts,
-    a.binaries,
-    a.zipfiles,
-    a.datas,
     [],
+    exclude_binaries=True,
     name=exe_name,
     debug=False,
     bootloader_ignore_signals=False,
@@ -70,8 +72,7 @@ exe = EXE(
     # Spécifier une icône pour le fichier .exe
     # L'icône doit être au format .ico
     icon='src/gameplay.ico',
-    # Mode One File : ⚠ Cela rend le chargement initial plus lent mais distribue un seul .exe.
-    onefile=True,
+    version='version_info.txt',
 )
 
 # --- Création du dossier de distribution (mode "one-folder") ---
