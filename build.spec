@@ -1,5 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
-// pyinstaller build.spec
+# pyinstaller build.spec
 
 import sys
 
