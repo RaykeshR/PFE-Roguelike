@@ -338,7 +338,7 @@ footer {
 /* Color labels for executable types */
 .installer-version .label-onefolder { color: #ff6b6b; }
 .installer-version .label-onefile-cli { color: #feca57; }
-.installer-version .label-onefile-nocli { color: #1dd1a1; }
+.installer-version .label-onefolder-nocli { color: #1dd1a1; }
 
 .details-section {
     margin-top: 2rem;
