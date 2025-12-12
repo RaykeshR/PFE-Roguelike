@@ -10,6 +10,9 @@ build
 dist
 Output
 .exe
+# Ignorer les exécutables compilés
+Output/*.exe
+Output/*.zip
 build/build
 dist/PFE-Roguelike/_internal
 dist/PFE-Roguelike/.env
