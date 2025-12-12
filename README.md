@@ -288,4 +288,15 @@ Ici, le MCP Github permettra à gemini d'accéder aux code source sans passer pa
 
 </details> 
 
+<details>
+<summary>filtrer les .exe dans le repo : </summary>
+1. ouvrir un terminal (WSL, ...)
+2. taper : `pip install git-filter-repo`
+3. puis : ```python
+# Assurez-vous d'être à la racine du projet
+git filter-repo --path-glob "Output/*.exe" --invert-paths --force
+```
+</details> 
+
+
 </details> 
