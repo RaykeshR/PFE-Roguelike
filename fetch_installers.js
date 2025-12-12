@@ -2,18 +2,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const owner = 'RaykeshR';
     const repo = 'PFE-Roguelike';
     
-    // Config
+    // Config URLs
     const releasesApiUrl = `https://api.github.com/repos/${owner}/${repo}/releases`;
     const devBranchApiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/Output?ref=Dev-Raykesh`;
 
     const nightlySection = document.getElementById('nightly-installer-section');
     const devList = document.getElementById('dev-installers-list');
 
-    // Messages d'attente
+    // Messages de chargement
     if (nightlySection) nightlySection.innerHTML = '<p>Recherche de la dernière version...</p>';
     if (devList) devList.innerHTML = '<li>Chargement de l\'historique complet...</li>';
 
-    // Fonction utilitaire pour la taille
+    // Fonction utilitaire : Formatage Taille
     function formatBytes(bytes, decimals = 2) {
         if (!bytes || bytes === 0) return '0 B';
         const k = 1024;
@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let allInstallers = [];
         const seenNames = new Set();
 
-        // 1. Ajouter TOUS les assets des RELEASES
+        // 1. TRAITEMENT DES RELEASES (GitHub)
         releases.forEach(r => {
             if (!r.draft) {
                 // CORRECTION : On prend TOUS les exe, pas juste le premier (.find -> .filter)
@@ -49,13 +49,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         // On préfère la date de mise à jour du fichier, sinon la date de publi de la release
                         date: new Date(asset.updated_at || r.published_at), 
                         uploader: asset.uploader ? asset.uploader.login : 'Inconnu',
-                        isRelease: true
+                        isRelease: true,
+                        isPre: r.prerelease // IMPORTANT : On stocke si c'est une pré-release
                     });
                 });
             }
         });
 
-        // 2. FICHIERS DEV (Output)
+        // 2. TRAITEMENT DES FICHIERS DEV (Dossier Output)
         if (Array.isArray(devFiles)) {
             devFiles.forEach(f => {
                 if (f.name.endsWith('.exe') && !seenNames.has(f.name)) {
@@ -66,10 +67,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         tag: 'Dev',
                         title: 'Build de développement',
                         size: f.size,
-                        downloads: null, // Pas de stats sur les fichiers bruts
-                        date: new Date(), // Date approximative (aujourd'hui) car l'API content ne donne pas la date
+                        downloads: null,
+                        date: new Date(), 
                         uploader: 'RaykeshR', // Par défaut pour la branche dev
-                        isRelease: false
+                        isRelease: false,
+                        isPre: true // Les fichiers dev sont considérés comme instables
+
                     });
                 }
             });
@@ -78,26 +81,33 @@ document.addEventListener('DOMContentLoaded', () => {
         // 3. TRI (Plus récent en haut)
         allInstallers.sort((a, b) => b.name.localeCompare(a.name));
 
-        // Fonction pour générer le HTML d'une ligne
+        // Fonction de création HTML
         const createInstallerHTML = (inst, isNightly = false) => {
             const sizeStr = formatBytes(inst.size);
-            // Emoji flèche bas pour les downloads
             const dlStr = inst.downloads !== null ? ` • ⬇️ ${inst.downloads}` : '';
             const dateStr = inst.date.toLocaleDateString('fr-FR');
             
-            // Tooltip du CONTENEUR (Survol général)
+            // Tooltips
             const mainTooltip = `Titre : ${inst.title}\nDate MAJ : ${dateStr}\nUploader : ${inst.uploader}`;
-            
-            // Tooltip du BOUTON (Survol bouton)
             const btnTooltip = `Date : ${dateStr}\nTaille : ${sizeStr}`;
+
+            // --- LOGIQUE DE COULEUR (DATA-STATUS) ---
+            let statusAttr = 'unstable'; // Par défaut Cyan
+
+            if (isNightly) {
+                statusAttr = 'nightly'; // Violet
+            } else if (inst.isRelease && !inst.isPre) {
+                statusAttr = 'stable';  // Vert (Uniquement pour les releases officielles non-pre)
+            } else if (inst.isRelease && inst.isPre) {
+                statusAttr = 'prerelease'; // Cyan (Pré-release GitHub)
+            } 
+            // Sinon reste 'unstable' (Cyan) pour les fichiers dev
 
             const div = document.createElement('div');
             div.className = 'installer-version';
-            const statusAttr = isNightly ? 'nightly' : (inst.isRelease ? (inst.source === 'Pré-release' ? 'prerelease' : 'stable') : 'unstable');
-            div.setAttribute('data-status', isNightly ? 'nightly' : (inst.isRelease ? 'stable' : 'unstable'));
-            div.title = mainTooltip; // Infobulle principale
+            div.setAttribute('data-status', statusAttr);
+            div.title = mainTooltip;
 
-            // Structure HTML
             div.innerHTML = `
                 <div style="display:flex; flex-direction:column;">
                     <span style="font-weight:${isNightly ? 'bold' : 'normal'};">
@@ -138,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
     }).catch(err => {
-        console.error(err);
-        if (devList) devList.innerHTML = '<li>Erreur chargement.</li>';
+        console.error("Erreur Fetch:", err);
+        if (devList) devList.innerHTML = '<li>Erreur lors du chargement des données.</li>';
     });
 });
