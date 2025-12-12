@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 2. TRAITEMENT DES FICHIERS DEV (Dossier Output)
         if (Array.isArray(devFiles)) {
             devFiles.forEach(f => {
-                if (f.name.endsWith('.exe') && !seenNames.has(f.name)) {
+                if (f.name.endsWith('.exe') && (f.name.startsWith('Setup_PFE-Roguelike_v') || f.name.startsWith('Setup_Roguia_v')) && !seenNames.has(f.name)) {
                     allInstallers.push({
                         name: f.name,
                         url: f.download_url,
