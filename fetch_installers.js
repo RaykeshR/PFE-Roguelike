@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
         releases.forEach(r => {
             if (!r.draft) {
                 // CORRECTION : On prend TOUS les exe, pas juste le premier (.find -> .filter)
-                const exeAssets = r.assets.filter(a => a.name.endsWith('.exe'));
+                const exeAssets = r.assets.filter(a => a.name.endsWith('.exe') && (a.name.startsWith('Setup_PFE-Roguelike_v') || a.name.startsWith('Setup_Roguia_v')));
                 
                 exeAssets.forEach(asset => {
                     seenNames.add(asset.name);
