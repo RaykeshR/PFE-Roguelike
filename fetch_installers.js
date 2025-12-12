@@ -81,8 +81,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // 3. TRI (Plus récent en haut)
         allInstallers.sort((a, b) => b.name.localeCompare(a.name));
 
-        // Fonction de création HTML
-        const createInstallerHTML = (inst, isNightly = false) => {
+        // --- FONCTION DE CRÉATION HTML (MODIFIÉE) ---
+        // isTopBox = Vrai seulement pour la grosse case du haut
+        // isLatest = Vrai si c'est le tout premier élément de la liste (le plus récent)
+        const createInstallerHTML = (inst, isTopBox = false, isLatest = false) => {
             const sizeStr = formatBytes(inst.size);
             const dlStr = inst.downloads !== null ? ` • ⬇️ ${inst.downloads}` : '';
             const dateStr = inst.date.toLocaleDateString('fr-FR');
@@ -91,10 +93,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const mainTooltip = `Titre : ${inst.title}\nDate MAJ : ${dateStr}\nUploader : ${inst.uploader}`;
             const btnTooltip = `Date : ${dateStr}\nTaille : ${sizeStr}`;
 
-            // --- LOGIQUE DE COULEUR (DATA-STATUS) ---
-            let statusAttr = 'unstable'; // Par défaut Cyan
+            // LOGIQUE DE COULEUR :
+            // Si c'est la TopBox OU si c'est le dernier fichier (isLatest) -> Violet (Nightly)
+            let statusAttr = 'unstable'; 
 
-            if (isNightly) {
+            if (isTopBox || isLatest) {
                 statusAttr = 'nightly'; // Violet
             } else if (inst.isRelease && !inst.isPre) {
                 statusAttr = 'stable';  // Vert (Uniquement pour les releases officielles non-pre)
@@ -110,24 +113,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
             div.innerHTML = `
                 <div style="display:flex; flex-direction:column;">
-                    <span style="font-weight:${isNightly ? 'bold' : 'normal'};">
-                        ${isNightly ? `Dernière Version (${inst.name.replace('.exe', '')})` : inst.name} 
-                        ${!isNightly ? `<small>(${inst.source})</small>` : ''}
+                    <span style="font-weight:${isTopBox ? 'bold' : 'normal'};">
+                        ${isTopBox ? `Dernière Version (${inst.name.replace('.exe', '')})` : inst.name} 
+                        ${!isTopBox ? `<small>(${inst.source})</small>` : ''}
                     </span>
                     <span style="font-size:0.85em; opacity:0.8; margin-top:2px;">
                         ${sizeStr}${dlStr}
                     </span>
                 </div>
-                <a href="${inst.url}" class="btn ${isNightly ? 'btn-primary' : 'btn-secondary'}" download title="${btnTooltip}">Télécharger</a>
+                <a href="${inst.url}" class="btn ${isTopBox ? 'btn-primary' : 'btn-secondary'}" download title="${btnTooltip}">Télécharger</a>
             `;
             return div;
         };
 
-        // 4. AFFICHER NIGHTLY
+        // 4. AFFICHER NIGHTLY (Top Box)
         if (nightlySection) {
             nightlySection.innerHTML = '';
             if (allInstallers.length > 0) {
-                nightlySection.appendChild(createInstallerHTML(allInstallers[0], true));
+                // On passe true pour isTopBox
+                nightlySection.appendChild(createInstallerHTML(allInstallers[0], true, true));
             } else {
                 nightlySection.innerHTML = '<p>Aucune version disponible.</p>';
             }
@@ -137,9 +141,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (devList) {
             devList.innerHTML = '';
             if (allInstallers.length > 0) {
-                allInstallers.forEach(inst => {
+                allInstallers.forEach((inst, index) => {
                     const li = document.createElement('li');
-                    li.appendChild(createInstallerHTML(inst, false));
+                    // Si index == 0, c'est le dernier fichier (donc isLatest = true) -> Violet
+                    const isLatest = (index === 0);
+                    li.appendChild(createInstallerHTML(inst, false, isLatest));
                     devList.appendChild(li);
                 });
             } else {
