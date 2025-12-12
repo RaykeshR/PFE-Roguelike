@@ -299,19 +299,37 @@ footer {
     padding: 1rem;
     border-radius: 5px;
     margin-top: 1rem;
-    border-left: 4px solid #555; /* Default border color */
+    border-left: 4px solid #555;
+    transition: all 0.3s ease;
 }
 
+/* --- COULEURS DES STATUTS --- */
+
+/* STABLE = VERT */
 .installer-version[data-status="stable"] {
-    border-left-color: #2ecc71; /* Green for stable */
+    border-left-color: #2ecc71; 
 }
 
+/* NIGHTLY (Dernière version Dev) = VIOLET (Thème Raykesh) */
+.installer-version[data-status="nightly"] {
+    border-left-color: #7b2ff7;
+    background: linear-gradient(90deg, rgba(123, 47, 247, 0.1) 0%, rgba(255, 255, 255, 0.03) 100%);
+    box-shadow: 0 0 15px rgba(123, 47, 247, 0.15); /* Petit effet néon */
+}
+
+/* UNSTABLE / DEV (Historique) = CYAN (Thème Raykesh) */
 .installer-version[data-status="unstable"] {
-    border-left-color: #f39c12; /* Orange for unstable */
+    border-left-color: #00d4ff;
+}
+
+/* PRERELEASE (GitHub Pré-release) = CYAN aussi */
+.installer-version[data-status="prerelease"] {
+    border-left-color: #00d4ff;
+    border-left-style: dashed; /* Petit style différent pour dire "GitHub" */
 }
 
 .installer-version[data-status="archived"] {
-    border-left-color: #95a5a6; /* Gray for archived */
+    border-left-color: #95a5a6;
     opacity: 0.7;
 }
 
