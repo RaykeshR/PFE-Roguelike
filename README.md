@@ -296,6 +296,17 @@ Ici, le MCP Github permettra à gemini d'accéder aux code source sans passer pa
 # Assurez-vous d'être à la racine du projet
 git filter-repo --path-glob "Output/*.exe" --invert-paths --force
 ```
+Pour push les modification: 
+```bash
+git checkout Dev-Raykesh
+git push -u origin Dev-Raykesh --force
+#git push --all -u origin --force
+#git push --tags origin --force
+```
+Il peut être nécessaire pour les autres collaborateur de faire : ```bash
+git fetch
+git reset --hard origin/Dev-Raykesh
+```
 </details> 
 
 
