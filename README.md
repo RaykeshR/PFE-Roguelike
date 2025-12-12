@@ -257,6 +257,8 @@ cd ./dist/PFE-Roguelike && ./PFE-Roguelike.exe ; cd ../..
 6. tester avec une question
 7. lancer la commande : `/init`
     
+> [!NOTE]  
+> Il faut Node est plus précisément npm (Node Package Manager) : [lien](https://nodejs.org/fr/download) (install et MAJ)   | Mettre à jour npm seulement : `npm install -g npm@latest`      | checker la version : `node -v` / `npm -v`
 </details> 
 <details>
 <summary>Gemini-cli + MCP Github : </summary>
