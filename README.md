@@ -133,8 +133,11 @@ Pour une installation simplifiée sous Windows, un installeur est fourni. Il se 
 Il pourra demander un fichier .env lors de l'installation.
 
 1.  **Téléchargez la dernière version de l'installeur :**
-    *   [Téléchargez l'installeur Roguia v2.6.0.86](https://github.com/RaykeshR/PFE-Roguelike/raw/refs/heads/Dev-Raykesh/Output/Setup_PFE-Roguelike_v2.6.0.86.exe) [ici](./Output/Setup_PFE-Roguelike_v2.6.0.86.exe)
-    *   Assurez-vous de télécharger la version la plus récente disponible dans le dossier `Output`.
+    *   [Téléchargez l'installeur de Roguia (Assurez-vous de télécharger la version la plus récente disponible)](https://raykeshr.github.io/PFE-Roguelike/telechargements.html) 
+
+<!-- Ancienne méthodes : 
+- [Téléchargez l'installeur Roguia v2.6.0.86](https://github.com/RaykeshR/PFE-Roguelike/raw/refs/heads/Dev-Raykesh/Output/Setup_PFE-Roguelike_v2.6.0.86.exe) [ici](./Output/Setup_PFE-Roguelike_v2.6.0.86.exe)
+- Assurez-vous de télécharger la version la plus récente disponible dans le dossier `Output`. -->
 
 2.  **Exécutez l'installeur :**
     *   Lancez le fichier `.exe` téléchargé.
@@ -204,19 +207,22 @@ $\color{rgba(255,50,50, 0.95)}{\textsf{La}}$  $\color{rgba(255,100,100, 0.95)}{\
 ```zsh
 pyinstaller build.spec
 ```
-[Télécharger le exe (Windows x64)](./dist/PFE-Roguelike/PFE-Roguelike.exe)
+<!-- [Télécharger le exe (Windows x64)](./dist/PFE-Roguelike/PFE-Roguelike.exe) -->
+[Télécharger le exe (Windows x64)](https://github.com/RaykeshR/PFE-Roguelike/releases/download/v2.6.1.16/PFE-Roguelike.exe)
 
 $\color{rgba(255,255,50, 0.95)}{\textsf{La}}$  $\color{rgba(255,255,100, 0.95)}{\textsf{version}}$  $\color{rgba(255,255,100, 0.95)}{\textsf{OneFile}}$ $\color{rgba(255,255,100, 0.95)}{\textsf{(avec}}$  $\color{rgba(255,255,100, 0.95)}{\textsf{CLI)}}$ 
 ```bash
 pyinstaller PFERoguelike.spec
 ```
-[Télécharger le exe (Windows x64)](./dist/PFERoguelike/PFERoguelike.exe)
+<!-- [Télécharger le exe (Windows x64)](./dist/PFERoguelike/PFERoguelike.exe) -->
+[Télécharger le exe (Windows x64)](https://github.com/RaykeshR/PFE-Roguelike/releases/download/v2.6.1.16/PFERoguelike.exe)
 
-$\color{rgba(50,255,50, 0.95)}{\textsf{La}}$  $\color{rgba(100,255,100, 0.95)}{\textsf{version}}$  $\color{rgba(100,255,100, 0.95)}{\textsf{OneFolder}}$ $\color{rgba(100,255,100, 0.95)}{\textsf{(sans}}$  $\color{rgba(100,255,100, 0.95)}{\textsf{CLI)}}$ 
+$\color{rgba(50,255,50, 0.95)}{\textsf{La}}$  $\color{rgba(100,255,100, 0.95)}{\textsf{version}}$  $\color{rgba(100,255,100, 0.95)}{\textsf{onefolder}}$ $\color{rgba(100,255,100, 0.95)}{\textsf{(sans}}$  $\color{rgba(100,255,100, 0.95)}{\textsf{CLI)}}$ 
 ```py
 pyinstaller Roguia.spec
 ```
-[Télécharger le exe (Windows x64)](./dist/Roguia/Roguia.exe)
+<!-- [Télécharger le exe (Windows x64)](./dist/Roguia/Roguia.exe) -->
+[Télécharger le exe (Windows x64)](https://github.com/RaykeshR/PFE-Roguelike/releases/download/v2.6.1.16/Roguia.exe)
 
 
 ### Résultat
