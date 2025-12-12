@@ -207,19 +207,22 @@ $\color{rgba(255,50,50, 0.95)}{\textsf{La}}$  $\color{rgba(255,100,100, 0.95)}{\
 ```zsh
 pyinstaller build.spec
 ```
-[Télécharger le exe (Windows x64)](./dist/PFE-Roguelike/PFE-Roguelike.exe)
+<!-- [Télécharger le exe (Windows x64)](./dist/PFE-Roguelike/PFE-Roguelike.exe) -->
+[Télécharger le exe (Windows x64)](https://github.com/RaykeshR/PFE-Roguelike/releases/download/v2.6.1.16/PFE-Roguelike.exe)
 
 $\color{rgba(255,255,50, 0.95)}{\textsf{La}}$  $\color{rgba(255,255,100, 0.95)}{\textsf{version}}$  $\color{rgba(255,255,100, 0.95)}{\textsf{OneFile}}$ $\color{rgba(255,255,100, 0.95)}{\textsf{(avec}}$  $\color{rgba(255,255,100, 0.95)}{\textsf{CLI)}}$ 
 ```bash
 pyinstaller PFERoguelike.spec
 ```
-[Télécharger le exe (Windows x64)](./dist/PFERoguelike/PFERoguelike.exe)
+<!-- [Télécharger le exe (Windows x64)](./dist/PFERoguelike/PFERoguelike.exe) -->
+[Télécharger le exe (Windows x64)](https://github.com/RaykeshR/PFE-Roguelike/releases/download/v2.6.1.16/PFERoguelike.exe)
 
 $\color{rgba(50,255,50, 0.95)}{\textsf{La}}$  $\color{rgba(100,255,100, 0.95)}{\textsf{version}}$  $\color{rgba(100,255,100, 0.95)}{\textsf{onefolder}}$ $\color{rgba(100,255,100, 0.95)}{\textsf{(sans}}$  $\color{rgba(100,255,100, 0.95)}{\textsf{CLI)}}$ 
 ```py
 pyinstaller Roguia.spec
 ```
-[Télécharger le exe (Windows x64)](./dist/Roguia/Roguia.exe)
+<!-- [Télécharger le exe (Windows x64)](./dist/Roguia/Roguia.exe) -->
+[Télécharger le exe (Windows x64)](https://github.com/RaykeshR/PFE-Roguelike/releases/download/v2.6.1.16/Roguia.exe)
 
 
 ### Résultat
