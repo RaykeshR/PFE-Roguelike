@@ -577,51 +577,14 @@ class Map:
             x, y = _r.choice(flat_walkable)
             if (x, y) != self.start and (x, y) != self.end and self.tiles[y][x] == ".":
                 dx, dy = _r.choice([(1,0),(-1,0),(0,1),(0,-1)])
-<<<<<<< HEAD
-                # arme optionnelle ; tu peux mettre None
-                weapon = None
-=======
                 # Générer une arme aléatoire pour le monstre (80% de chance d'avoir une arme)
                 weapon = self._generate_monster_weapon() if _r.random() < 0.8 else None
->>>>>>> e899a24cfdaa0df061d0128dd307ab6eeb77d2e0
                 m = Monster(weapon=weapon, pv=50, x=x, y=y, dx=dx, dy=dy, speed=0.33,shared_q_data=self.shared_q_data)
                 self.enemies.append(m)
                 placed += 1
             tries += 1
 
     def _place_items(self, count=3):
-<<<<<<< HEAD
-        """   
-        Place des items sur la carte.
-
-        Les items peuvent être choisis aléatoirement ou depuis un fichier CSV en fonction
-        de la variable d'environnement `DONT_USE_CSV_ITEMS`.
-
-        Comportement :
-            - Si `DONT_USE_CSV_ITEMS` est défini à `false` ou `0`, les items sont chargés depuis le fichier CSV situé dans `items/items.csv`.
-            - Si la lecture du CSV échoue ou si `DONT_USE_CSV_ITEMS` est autre chose, des items aléatoires simples (Weapon ou Potion) sont générés.
-
-        Args:
-            count (int, optional): Nombre d'items à placer. Default is 3.
-        """
-        dotenv_path = Path("database/.env")
-        load_dotenv(dotenv_path=dotenv_path)
-        dont_use_csv = os.environ.get("DONT_USE_CSV_ITEMS", "true").strip().lower() not in ["false", "0","f","no","n","non","off","disable","disabled","none","null","nil","0.0","faux","negatif","fals"]
-        
-        # Si CSV est activé, on charge les items du fichier
-        csv_items = []
-        if not dont_use_csv:
-            csv_path = os.path.join("items", "items.csv")
-            try:
-                with open(csv_path, newline='', encoding='utf-8') as f:
-                    reader = csv.DictReader(f)
-                    for row in reader:
-                        csv_items.append(row)
-            except Exception as e:
-                print(f"Erreur lecture CSV items: {e}")
-                dont_use_csv = True  # fallback vers aléatoire si problème CSV
-                import sys;sys.exit(1)
-=======
         """Place des items sur la carte en piochant dans la base de données SQL."""
         
 # Nouveau Code (BDD): ===================================================
@@ -656,22 +619,16 @@ class Map:
         #         dont_use_csv = True  # fallback vers aléatoire si problème CSV
         #         import sys;sys.exit(1)
 # ===================================================
->>>>>>> e899a24cfdaa0df061d0128dd307ab6eeb77d2e0
 
         placed = 0
         tries = 0
         flat_walkable = list(self.walkable)
         occupied_enemy = {(e.x, e.y) for e in self.enemies}
-<<<<<<< HEAD
-        while placed < count and tries < 400 and flat_walkable:
-            x, y = _r.choice(flat_walkable)
-=======
         
         while placed < count and tries < 400 and flat_walkable:
             x, y = _r.choice(flat_walkable)
             
             # Vérifications de placement (pas sur un ennemi, pas sur le départ/fin)
->>>>>>> e899a24cfdaa0df061d0128dd307ab6eeb77d2e0
             if (x, y) in occupied_enemy or (x, y) == self.start or (x, y) == self.end:
                 tries += 1
                 continue
@@ -679,33 +636,6 @@ class Map:
                 tries += 1
                 continue
 
-<<<<<<< HEAD
-            # Choisir un item
-            if dont_use_csv or not csv_items:
-                # Créer un item simple aléatoire
-                if _r.random() < 0.7:
-                    item = Weapon(
-                        name=_r.choice(["Dague", "Épée", "Arc"]),
-                        description="Un objet trouvé au sol",
-                        rarity=_r.choice([Rarity.COMMON, Rarity.RARE, Rarity.EPIC]),
-                        damage=_r.choice([4, 6, 8, 10]),
-                        category=_r.choice([CategoryWeapon.MELEE, CategoryWeapon.DISTANCE]),
-                        range=_r.choice([1.0, 1.5, 3.0, 5.0]),
-                        durability=_r.choice([5, 10, 15]),
-                    )
-                else:
-                    item = Potion(
-                        name=_r.choice(["Potion de soin", "Potion de vitesse"]),
-                        description="Une fiole mystérieuse",
-                        rarity=_r.choice([Rarity.COMMON, Rarity.RARE]),
-                        category=_r.choice([CategoryPotion.HEALTH, CategoryPotion.SPEED]),
-                        potency=_r.choice([10, 20, 30]),
-                        duration=_r.choice([3, 5, 7]),
-                    )
-            else:
-                # Choisir un item depuis CSV
-                row = _r.choice(csv_items)
-=======
             # 2. Choisir un item au hasard parmi ceux de la DB
             row = _r.choice(db_items)
             item_db_id = int(row["id"])
@@ -713,44 +643,21 @@ class Map:
             # 3. Créer l'objet Python correspondant
             item = None
             try:
->>>>>>> e899a24cfdaa0df061d0128dd307ab6eeb77d2e0
                 if row["type"].lower() == "weapon":
                     item = Weapon(
                         name=row["name"],
                         description=row.get("description", ""),
-<<<<<<< HEAD
-                        rarity=Rarity[row["rarity"].upper()],
-                        damage=int(row.get("damage", 0)),
-                        category=CategoryWeapon[row["category"].upper()],
-                        range=float(row.get("range", 1.0)),
-                        durability=int(row.get("durability", 10)),
-=======
                         rarity=Rarity[row["rarity"].upper()] if row["rarity"] else Rarity.COMMON,
                         damage=int(row.get("damage", 0)),
                         category=CategoryWeapon[row["category"].upper()] if row["category"] else CategoryWeapon.MELEE,
                         range=float(row.get("range", 1.0)),
                         durability=int(row.get("durability", 10)),
                         db_id=item_db_id  # <--- Très important pour la sauvegarde !
->>>>>>> e899a24cfdaa0df061d0128dd307ab6eeb77d2e0
                     )
                 elif row["type"].lower() == "potion":
                     item = Potion(
                         name=row["name"],
                         description=row.get("description", ""),
-<<<<<<< HEAD
-                        rarity=Rarity[row["rarity"].upper()],
-                        category=CategoryPotion[row["category"].upper()],
-                        potency=int(row.get("potency", 10)),
-                        duration=int(row.get("duration", 3)),
-                    )
-                else:
-                    # fallback aléatoire si type inconnu
-                    continue
-            self.items.append({"x": x, "y": y, "item": item})
-            placed += 1
-            tries += 1
-
-=======
                         rarity=Rarity[row["rarity"].upper()] if row["rarity"] else Rarity.COMMON,
                         category=CategoryPotion[row["category"].upper()] if row["category"] else CategoryPotion.HEALTH,
                         potency=int(row.get("potency", 10)),
@@ -771,7 +678,6 @@ class Map:
             tries += 1
             
     
->>>>>>> e899a24cfdaa0df061d0128dd307ab6eeb77d2e0
     def get_items_at(self, x, y):
         return [obj["item"] for obj in self.items if obj["x"] == x and obj["y"] == y]
 

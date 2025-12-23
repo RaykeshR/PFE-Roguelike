@@ -343,9 +343,6 @@ def charger_inventaire(joueur_id):
             print(f"Données brutes: {details}")
 
     print(f"Inventaire du joueur {joueur_id} chargé : {len(inventaire_objets)} objet(s).")
-<<<<<<< HEAD
-    return inventaire_objets
-=======
     return inventaire_objets
 
 
@@ -384,4 +381,3 @@ def recuperer_modeles_items():
         items_propres.append(item_data)
         
     return items_propres
->>>>>>> e899a24cfdaa0df061d0128dd307ab6eeb77d2e0
