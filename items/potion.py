@@ -7,11 +7,12 @@ class Potion(Item):
     A class representing a potion item.
     Potency indicates the strength of the potion's effect.
     """
-    def __init__(self, name: str, description: str, rarity:Rarity, category: CategoryPotion, potency: int, duration: int):
+    def __init__(self, name: str, description: str, rarity:Rarity, category: CategoryPotion, potency: int, duration: int,db_id=None):
         super().__init__(name, description, rarity)
         self.category = category
         self.potency = potency
         self.duration = duration
+        self.db_id=db_id
     
     # def use(self, target):
     #     """
