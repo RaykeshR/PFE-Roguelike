@@ -1,4 +1,4 @@
-# PFE-Roguelike
+# Roguia
 
 
 [![My Skills](https://skillicons.dev/icons?i=py)](https://www.python.org/)
@@ -14,6 +14,9 @@
 Le site est accessible via ce [Lien qui fait une Redirection d'URL](https://raykeshr.github.io/PFE-Roguelike/) vers une page d'accueil pour le site du Github : PFE-Roguelike
 Note de Travail : [Fichier Word](https://raykeshr.github.io/PFE-Roguelike/Word_Redirection.html) <!-- si ça ne marche pas cliquer ici : [Fichier Word](https://reseaueseo-my.sharepoint.com/:w:/r/personal/sabri_messaoudi_reseau_eseo_fr/Documents/Note%20de%20Travail%20PFE.docx?d=w94d9488edfa142df962016daa36a74ba&csf=1&web=1&e=UM8vt7) -->
 
+Le site est accessible via ce [Lien qui fait une Redirection d'URL](https://raykeshr.github.io/PFE-Roguelike/) vers une page d'accueil pour le site du Github : PFE-Roguelike
+Note de Travail : [Fichier Word](https://raykeshr.github.io/PFE-Roguelike/Word_Redirection.html) <!-- si ça ne marche pas cliquer ici : [Fichier Word](https://reseaueseo-my.sharepoint.com/:w:/r/personal/sabri_messaoudi_reseau_eseo_fr/Documents/Note%20de%20Travail%20PFE.docx?d=w94d9488edfa142df962016daa36a74ba&csf=1&web=1&e=UM8vt7) -->
+
 #### Sommaire 
 
 TODO :octocat: :neckbeard: :bowtie: :shipit:
@@ -23,6 +26,16 @@ TODO :octocat: :neckbeard: :bowtie: :shipit:
 [![Vidéo Youtube : Miniature](./src/rogue.gif)
 ](https://fr.wikipedia.org/wiki/Roguelike)
 
+### Le poster de Roguia :
+
+TODO :octocat:  :shipit:
+[
+<img
+  src="TODO"
+  alt="Le poster de Roguia"
+  title="Le poster de Roguia" />
+]()
+
 ### Mise en place (Windows):
 
 <!-- <details open> -->
@@ -30,12 +43,12 @@ TODO :octocat: :neckbeard: :bowtie: :shipit:
 <summary>Création d'environnements virtuels : </summary>
 
 ## Un package manquant : 
-
+<!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
 ```
-.venv\Scripts\activate && python -m pip install --upgrade pip && pip install -r requirements.txt
+.venv\Scripts\activate && python -m pip install --upgrade pip && python -m pip install -r requirements.txt
 ```
 
-### 1. Clonner le Repo
+### 1. Cloner le Repo
 
 avec GitHub (Copie les fichiers localement)
 
@@ -66,35 +79,35 @@ On peut aussi (Si c'est un problème de l'éditeur) `$ . .venv\Scripts\activate.
 
 (met à jour pip)
 
-### 5. `pip install -r requirements.txt`
+### 5. `python -m pip install -r requirements.txt`
 
 ```pip freeze > requirements.txt``` pour remplir automatiquement les requirements
 
-Pour tout les étapes précédente (sur CMD ou powershell>=7) : 
+Pour toutes les étapes précédentes (sur CMD ou powershell>=7) : 
 
 
 ```
-python -m venv .venv && .venv\Scripts\activate && python -m pip install --upgrade pip && pip install -r requirements.txt
+python -m venv .venv && .venv\Scripts\activate && python -m pip install --upgrade pip && python -m pip install -r requirements.txt
 ```
 
 en cas d'erreur (supprimer le dossier .venv ou lancer): 
 
-```.venv\Scripts\activate && python -m pip install --upgrade pip && pip install -r requirements.txt```
+```.venv\Scripts\activate && python -m pip install --upgrade pip && python -m pip install -r requirements.txt```
 
 Avec  pip freeze  :
 
-    Pour tout les étapes précédente (sur CMD ou powershell>=7) : 
-    ```python -m venv .venv && .venv\Scripts\activate && python -m pip install --upgrade pip && pip install -r requirements.txt && pip freeze > requirements.txt```
+    Pour toutes les étapes précédentes (sur CMD ou powershell>=7) : 
+    ```python -m venv .venv && .venv\Scripts\activate && python -m pip install --upgrade pip && python -m pip install -r requirements.txt && pip freeze > requirements.txt```
     
     en cas d'erreur (supprimer le dossier .venv ou lancer): 
-    ```.venv\Scripts\activate && python -m pip install --upgrade pip && pip install -r requirements.txt && pip freeze > requirements.txt```
+    ```.venv\Scripts\activate && python -m pip install --upgrade pip && python -m pip install -r requirements.txt && pip freeze > requirements.txt```
     
 ### 6. Modifier .git\info\exclude 
 
 Ajouter : `.venv`
 (Ne prend pas en compte la modification du dossier .venv)
 
-### 7. Lancer le fichier MainWindow.py 
+### 7. Lancer le fichier main.py 
 
 Commande : `python main.py `
 (Lance le fichier principal avec python)
@@ -105,10 +118,62 @@ Commande : `python main.py `
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 python main.py
 """
 Modifier .git\info\exclude 
+
+</details> 
+
+<details>
+<summary>Installeur :  :+1: :sunglasses: :smirk: :smiley::grin::wink::stuck_out_tongue_winking_eye:</summary>
+
+### Installation via l'installeur
+
+Pour une installation simplifiée sous Windows, un installeur est fourni. Il se charge de mettre en place tous les fichiers nécessaires.
+
+Il pourra demander un fichier .env lors de l'installation.
+
+1.  **Téléchargez la dernière version de l'installeur :**
+    *   [Téléchargez l'installeur de Roguia (Assurez-vous de télécharger la version la plus récente disponible)](https://raykeshr.github.io/PFE-Roguelike/telechargements.html) 
+
+<!-- Ancienne méthodes : 
+- [Téléchargez l'installeur Roguia v2.6.0.86](https://github.com/RaykeshR/PFE-Roguelike/raw/refs/heads/Dev-Raykesh/Output/Setup_PFE-Roguelike_v2.6.0.86.exe) [ici](./Output/Setup_PFE-Roguelike_v2.6.0.86.exe)
+- Assurez-vous de télécharger la version la plus récente disponible dans le dossier `Output`. -->
+
+2.  **Exécutez l'installeur :**
+    *   Lancez le fichier `.exe` téléchargé.
+    *   Suivez les instructions à l'écran. L'installeur vous proposera un chemin d'installation et créera les raccourcis nécessaires.
+    *   Il pourra demander un fichier .env lors de l'installation. (Contacter : pfe-roguelike@reseau.eseo.fr pour obtenir un .env)
+
+3.  **Lancez le jeu :**
+    *   Une fois l'installation terminée, vous pouvez lancer le jeu depuis le raccourci sur votre bureau ou via le menu Démarrer.
+
+</details>
+
+<details>
+<summary>Nettoyer un dépôt git : </summary>
+Télécharger BFG Repo-Cleaner sur le site (.jar): 
+https://rtyley.github.io/bfg-repo-cleaner/
+
+Lancer : 
+
+git clone --mirror https://github.com/RaykeshR/PFE-Roguelike.git
+cd PFE-Roguelike.git
+<!-- java -jar ../bfg-1.15.0.jar --delete-files database/.env -->
+java -jar ../bfg-1.15.0.jar --delete-files .env
+
+git reflog expire --expire=now --all
+git gc --prune=now --aggressive
+git push --force --all
+git push --force --tags
+
+<!-- git push --force origin Dev -->
+
+<!-- git push --force origin --all
+git push --force origin --tags -->
+
+git push --mirror
 
 </details> 
 
@@ -137,4 +202,3 @@ git push --force origin --tags -->
 git push --mirror
 
 </details> 
-

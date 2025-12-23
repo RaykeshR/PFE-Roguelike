@@ -175,7 +175,11 @@ def run_game(joueur_id_connecte):
         # Boucle avec saisie continue (Windows)
         print("Contrôles: ZQSD, Attaque=A, Inventaire=I, Aide=H, Quitter=X (maintenir possible)")
         while playing:
+<<<<<<< HEAD
             # 1) Entrée utilisateur d'abord (pour afficher tout de suite les effets)
+=======
+            # 1) Entrée utilisateur
+>>>>>>> e899a24cfdaa0df061d0128dd307ab6eeb77d2e0
             if msvcrt.kbhit():
                 key = msvcrt.getwch().lower()
                 if key == "x":
@@ -400,7 +404,13 @@ def _player_attack(player: PlayerController, game_map: Map):
     if not nearest.get_is_alive():
         dropped = None
         try:
+<<<<<<< HEAD
             dropped = nearest.die(drop_rate=1.0)
+=======
+            # Probabilité de drop d'arme : 60% si le monstre a une arme
+            drop_rate = 0.6 if nearest.weapon else 0.0
+            dropped = nearest.die(drop_rate=drop_rate)
+>>>>>>> e899a24cfdaa0df061d0128dd307ab6eeb77d2e0
         except Exception:
             dropped = None
         if dropped is not None:

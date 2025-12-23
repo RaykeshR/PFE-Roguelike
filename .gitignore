@@ -6,6 +6,27 @@ __pycache__
 **/.env
 database/.env
 .env
+<<<<<<< HEAD
+=======
+build
+dist
+Output
+.exe
+build/build
+dist/PFE-Roguelike/_internal
+dist/PFE-Roguelike/.env
+dist/Roguia/_internal
+dist/Roguia/.env
+dist/PFERoguelike/_internal
+dist/PFERoguelike/.env
+# Pas le bon dossier :
+dist/PFE-Roguelike/_internal/.env
+dist/Roguia/_internal/.env
+dist/PFERoguelike/_internal/.env
+dist/.env
+build/build/.env
+build/.env
+>>>>>>> e899a24cfdaa0df061d0128dd307ab6eeb77d2e0
 
 # Fichiers temporaires
 *.swp

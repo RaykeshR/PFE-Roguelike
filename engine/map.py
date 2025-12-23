@@ -17,6 +17,21 @@ else:
     
     subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "main.py")])
 
+def resource_path(relative_path):
+    """Obtient le chemin absolu de la ressource, fonctionne pour dev et PyInstaller"""
+    if getattr(sys, 'frozen', False):
+        # Si on est dans un exécutable (frozen)
+        if hasattr(sys, '_MEIPASS'):
+            # Mode One-File : dossier temporaire
+            base_path = sys._MEIPASS
+        else:
+            # Mode One-Folder : dossier de l'exécutable (.exe)
+            base_path = os.path.dirname(sys.executable)
+    else:
+        # Mode Développement (python main.py)
+        base_path = os.path.dirname(os.path.abspath(__file__))
+
+    return os.path.join(base_path, relative_path)
 
 class Map:
     def __init__(self, width=60, height=26, room_count=5,shared_q_data=None):
@@ -518,6 +533,42 @@ class Map:
                     for i in range(target_room.width):
                         self.discovered.add((target_room.x + i, target_room.y + j))
 
+    def _generate_monster_weapon(self):
+        """Génère une arme aléatoire pour un monstre."""
+        weapon_names_melee = ["Épée", "Hache", "Masse", "Dague", "Lance", "Glaive"]
+        weapon_names_ranged = ["Arc", "Arbalète", "Boomerang", "Fronde"]
+        
+        # Probabilité 70% mêlée, 30% distance
+        is_ranged = _r.random() < 0.3
+        
+        if is_ranged:
+            name = _r.choice(weapon_names_ranged)
+            category = CategoryWeapon.DISTANCE
+            damage = _r.randint(5, 12)
+            range_val = _r.uniform(3.0, 6.0)
+        else:
+            name = _r.choice(weapon_names_melee)
+            category = CategoryWeapon.MELEE
+            damage = _r.randint(8, 15)
+            range_val = _r.uniform(1.0, 2.0)
+        
+        # Rareté aléatoire (plus souvent commun/rare)
+        rarity_weights = [Rarity.COMMON, Rarity.COMMON, Rarity.RARE, Rarity.RARE, Rarity.EPIC, Rarity.LEGENDARY]
+        rarity = _r.choice(rarity_weights)
+        
+        durability = _r.randint(20, 50)
+        description = f"Une {name.lower()} utilisée par un monstre."
+        
+        return Weapon(
+            name=name,
+            description=description,
+            rarity=rarity,
+            damage=damage,
+            category=category,
+            range=range_val,
+            durability=durability
+        )
+    
     def _place_enemies(self, count=2):
         placed = 0
         tries = 0
@@ -526,8 +577,8 @@ class Map:
             x, y = _r.choice(flat_walkable)
             if (x, y) != self.start and (x, y) != self.end and self.tiles[y][x] == ".":
                 dx, dy = _r.choice([(1,0),(-1,0),(0,1),(0,-1)])
-                # arme optionnelle ; tu peux mettre None
-                weapon = None
+                # Générer une arme aléatoire pour le monstre (80% de chance d'avoir une arme)
+                weapon = self._generate_monster_weapon() if _r.random() < 0.8 else None
                 m = Monster(weapon=weapon, pv=50, x=x, y=y, dx=dx, dy=dy, speed=0.33,shared_q_data=self.shared_q_data)
                 self.enemies.append(m)
                 placed += 1
@@ -536,6 +587,7 @@ class Map:
     def _place_items(self, count=3):
         """Place des items sur la carte en piochant dans la base de données SQL."""
         
+# Nouveau Code (BDD): ===================================================
         # Importation locale pour éviter les cycles d'import
         try:
             from database.db_sql import recuperer_modeles_items
@@ -552,6 +604,21 @@ class Map:
             # (Vous pouvez garder votre code de génération aléatoire 'if _r.random() < 0.7' ici si vous voulez)
             # Pour faire simple, on retourne ou on génère un truc basique
             return
+# Anciens Code (Ficher csv) : ===================================================
+        # # Si CSV est activé, on charge les items du fichier
+        # csv_items = []
+        # if not dont_use_csv:
+        #     csv_path = resource_path(os.path.join("items", "items.csv"))
+        #     try:
+        #         with open(csv_path, newline='', encoding='utf-8') as f:
+        #             reader = csv.DictReader(f)
+        #             for row in reader:
+        #                 csv_items.append(row)
+        #     except Exception as e:
+        #         print(f"Erreur lecture CSV items: {e}")
+        #         dont_use_csv = True  # fallback vers aléatoire si problème CSV
+        #         import sys;sys.exit(1)
+# ===================================================
 
         placed = 0
         tries = 0

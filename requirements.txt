@@ -5,7 +5,6 @@ python-dotenv
 ipython
 ipykernel
 requests
-typing
 pygame
 arcade
 psycopg2-binary
@@ -17,4 +16,9 @@ colorama
 pytest
 fastapi
 seaborn
+<<<<<<< HEAD
 bcrypt
+=======
+bcrypt
+pyinstaller
+>>>>>>> e899a24cfdaa0df061d0128dd307ab6eeb77d2e0
