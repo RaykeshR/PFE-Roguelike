@@ -1,6 +1,8 @@
 import time
 import os
 import logging
+import pickle 
+from collections import defaultdict
 
 try:
     import msvcrt  # Windows input non bloquant
@@ -127,10 +129,37 @@ def run_game(joueur_id_connecte):
         'q_table_path': joueur_data_tuple[5]
     }
 
-    # 2. Charger la Q-Table *partagée* du joueur
+    # Charger la Q-Table de base (pré-entraînée)
     q_table_path = joueur_data['q_table_path']
-    shared_player_q_data = load_q_table(q_table_path)
+    shared_player_q_data = None
+
+    # Cas A : Le joueur a déjà sa propre sauvegarde IA
+    if os.path.exists(q_table_path):
+        print(f"Chargement de l'IA personnelle du joueur : {q_table_path}")
+        shared_player_q_data = load_q_table(q_table_path) #
     
+    # Cas B : C'est un nouveau joueur (ou sauvegarde perdue)
+    else:
+        print(f"Pas de sauvegarde IA trouvée pour {joueur_data['nom']}.")
+        
+        # On cherche l'IA pré-entraînée (le "cerveau commun")
+        base_q_table_path = "models/base_q_table.pkl"
+        
+        if os.path.exists(base_q_table_path):
+            print("✅ Initialisation avec l'IA pré-entraînée (Bots).")
+            try:
+                with open(base_q_table_path, "rb") as f:
+                    base_data = pickle.load(f)
+                    # IMPORTANT : On convertit le dict simple en defaultdict pour le jeu
+                    shared_player_q_data = defaultdict(lambda: defaultdict(float))
+                    shared_player_q_data.update(base_data)
+            except Exception as e:
+                print(f"Erreur lecture IA base: {e}. Démarrage à vide.")
+                shared_player_q_data = defaultdict(lambda: defaultdict(float))
+        else:
+            print("⚠️ Aucune IA de base trouvée. Les monstres commenceront à zéro (Tabula Rasa).")
+            shared_player_q_data = defaultdict(lambda: defaultdict(float))
+
     inventaire_charge = charger_inventaire(joueur_id_connecte)
 
     # 3. Initialiser la Map EN LUI PASSANT la Q-Table partagée
@@ -175,11 +204,7 @@ def run_game(joueur_id_connecte):
         # Boucle avec saisie continue (Windows)
         print("Contrôles: ZQSD, Attaque=A, Inventaire=I, Aide=H, Quitter=X (maintenir possible)")
         while playing:
-<<<<<<< HEAD
-            # 1) Entrée utilisateur d'abord (pour afficher tout de suite les effets)
-=======
             # 1) Entrée utilisateur
->>>>>>> e899a24cfdaa0df061d0128dd307ab6eeb77d2e0
             if msvcrt.kbhit():
                 key = msvcrt.getwch().lower()
                 if key == "x":
@@ -404,13 +429,9 @@ def _player_attack(player: PlayerController, game_map: Map):
     if not nearest.get_is_alive():
         dropped = None
         try:
-<<<<<<< HEAD
-            dropped = nearest.die(drop_rate=1.0)
-=======
             # Probabilité de drop d'arme : 60% si le monstre a une arme
             drop_rate = 0.6 if nearest.weapon else 0.0
             dropped = nearest.die(drop_rate=drop_rate)
->>>>>>> e899a24cfdaa0df061d0128dd307ab6eeb77d2e0
         except Exception:
             dropped = None
         if dropped is not None:
