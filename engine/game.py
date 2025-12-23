@@ -160,10 +160,27 @@ def run_game(joueur_id_connecte):
             print("⚠️ Aucune IA de base trouvée. Les monstres commenceront à zéro (Tabula Rasa).")
             shared_player_q_data = defaultdict(lambda: defaultdict(float))
 
+    global_model_path = "models/global_q_table.pkl"
+    super_monster_brain = None
+    
+    if os.path.exists(global_model_path):
+        print("🧠 Chargement du Cerveau Global (Super Monstre)...")
+        try:
+            with open(global_model_path, "rb") as f:
+                global_data = pickle.load(f)
+                # Conversion en defaultdict pour l'agent
+                super_monster_brain = defaultdict(lambda: defaultdict(float))
+                super_monster_brain.update(global_data)
+        except Exception as e:
+            print(f"Erreur chargement Super Monstre: {e}")
+    else:
+        print("⚠️ Pas de modèle global trouvé. Les Super Monstres seront 'bêtes'.")
+        super_monster_brain = defaultdict(lambda: defaultdict(float))
+
     inventaire_charge = charger_inventaire(joueur_id_connecte)
 
     # 3. Initialiser la Map EN LUI PASSANT la Q-Table partagée
-    game_map = Map(shared_q_data=shared_player_q_data) 
+    game_map = Map(shared_q_data=shared_player_q_data, super_brain=super_monster_brain) 
     
     # 4. Initialiser le PlayerController avec les données de la DB
     player = PlayerController(

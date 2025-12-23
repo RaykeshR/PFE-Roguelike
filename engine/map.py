@@ -34,7 +34,7 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 class Map:
-    def __init__(self, width=60, height=26, room_count=5,shared_q_data=None):
+    def __init__(self, width=60, height=26, room_count=5,shared_q_data=None, super_brain=None):
         self.width = width
         self.height = height
         self.room_count = room_count
@@ -58,6 +58,9 @@ class Map:
         self._color_map = None
         self._color_reset = ""
         self.shared_q_data = shared_q_data
+        self.super_brain = super_brain  
+        self.depth = 1
+
         if self.use_color:
             try:
                 from colorama import Fore, Style, init as colorama_init
@@ -270,8 +273,13 @@ class Map:
             ex, ey = enemy.x, enemy.y
             if 0 <= ey < self.height and 0 <= ex < self.width:
                 if (ex, ey) in visible or (ex, ey) in self.discovered:
-                    grid[ey][ex] = "M"
+                    if getattr(enemy, 'is_super', False):
+                        grid[ey][ex] = "S" # S pour Super Monstre
+                    else:
+                        grid[ey][ex] = "M"
+
         faded_cells = set()
+
         for pr in self.projectiles:
             if len(pr) >= 4:
                 px2, py2 = pr[0], pr[1]
@@ -570,16 +578,56 @@ class Map:
         )
     
     def _place_enemies(self, count=2):
+        """Place des ennemis en fonction de la difficulté (self.depth)."""
+        
+        # 1. Calculer la difficulté
+        # Plus on descend, plus il y a de monstres (Ex: Niv 1=2 monstres, Niv 5=4 monstres)
+        base_count = 2 + (self.depth // 2) 
+        
+        # 2. Probabilité d'apparition d'un Super Monstre
+        # Niv 1: 0%, Niv 3: 20%, Niv 5: 40%, Niv 10+: 100%
+        super_monster_chance = min(1.0, max(0.0, (self.depth - 2) * 0.1))
+        
         placed = 0
         tries = 0
         flat_walkable = list(self.walkable)
-        while placed < count and tries < 200 and flat_walkable:
+        
+        print(f"--- Génération Niveau {self.depth} ---")
+        print(f"Monstres prévus: {base_count} | Chance Super Monstre: {int(super_monster_chance*100)}%")
+
+        while placed < base_count and tries < 200 and flat_walkable:
             x, y = _r.choice(flat_walkable)
             if (x, y) != self.start and (x, y) != self.end and self.tiles[y][x] == ".":
+                
+                # Décision : Super Monstre ou Normal ?
+                is_super = _r.random() < super_monster_chance
+                
+                # Configuration du Monstre
+                if is_super and self.super_brain:
+                    # SUPER MONSTRE
+                    brain = self.super_brain
+                    pv = 50 + (self.depth * 10) # PV augmentés (50, 60, 70...)
+                    name_prefix = "SUPER "
+                    # On peut lui donner une meilleure arme ici si on veut
+                    weapon = self._generate_monster_weapon() 
+                    weapon.damage += 5 # Bonus de dégâts
+                else:
+                    # MONSTRE NORMAL
+                    brain = self.shared_q_data
+                    pv = 50 + (self.depth * 2) # PV augmentés légèrement
+                    name_prefix = ""
+                    weapon = self._generate_monster_weapon()
+
                 dx, dy = _r.choice([(1,0),(-1,0),(0,1),(0,-1)])
-                # Générer une arme aléatoire pour le monstre (80% de chance d'avoir une arme)
-                weapon = self._generate_monster_weapon() if _r.random() < 0.8 else None
-                m = Monster(weapon=weapon, pv=50, x=x, y=y, dx=dx, dy=dy, speed=0.33,shared_q_data=self.shared_q_data)
+                
+                # Création
+                m = Monster(weapon=weapon, pv=pv, x=x, y=y, dx=dx, dy=dy, speed=0.33, shared_q_data=brain)
+                
+                # Petit hack pour le reconnaître (optionnel, pour l'affichage)
+                m.is_super = is_super 
+                if is_super:
+                    print(f"⚠️  UN SUPER MONSTRE EST APPARU EN ({x}, {y}) !")
+
                 self.enemies.append(m)
                 placed += 1
             tries += 1
