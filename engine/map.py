@@ -78,11 +78,11 @@ class Map:
                     "+": Fore.CYAN,
                     "@": Fore.YELLOW,
                     "S": Fore.GREEN,
-                    "B": Fore.GREEN,
-                    "E": Fore.MAGENTA,
+                    "B": Fore.MAGENTA,
+                    "E": Fore.BLUE,
                     "M": Fore.RED,
                     "*": Fore.RED,
-                    "!": Fore.BLUE,
+                    "!": Fore.YELLOW,
                     "X": Fore.RED,
                 }
                 self._color_reset = Style.RESET_ALL
@@ -101,8 +101,8 @@ class Map:
                     "+": ESC + "36m",   # cyan
                     "@": ESC + "33m",   # jaune
                     "S": ESC + "32m",   # vert
-                    "B": ESC + "32m",   # vert
-                    "E": ESC + "35m",   # magenta
+                    "B": ESC + "35m",   # magenta
+                    "E": ESC + "34m",   # bleu
                     "M": ESC + "31m",   # rouge
                     "*": ESC + "31m",   # rouge
                     "!": ESC + "34m",   # bleu

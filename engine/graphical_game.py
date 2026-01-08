@@ -438,7 +438,7 @@ def run_game(joueur_id_connecte):
     COLOR_ITEM = (255, 255, 0)
     COLOR_DOOR = (139, 69, 19)
     COLOR_START = (0, 255, 255)
-    COLOR_END = (255, 0, 255)
+    COLOR_END = (0, 100, 255) # Bleu pour l'arrivée
     COLOR_PROJECTILE_PLAYER = (0, 200, 255)
     COLOR_PROJECTILE_ENEMY = (255, 100, 0)
     COLOR_HIT = (255, 0, 0)
@@ -503,7 +503,7 @@ def run_game(joueur_id_connecte):
                     
                     # --- AJOUT: Vérifier si c'est un Super Monstre ---
                     is_super = getattr(enemy, 'is_super', False)
-                    current_color = (0, 255, 0) if is_super else COLOR_ENEMY # Vert pour Super, Rouge pour normal
+                    current_color = (255, 0, 255) if is_super else COLOR_ENEMY # Magenta pour Super, Rouge pour normal
                     radius_bonus = 4 if is_super else 0 # Plus gros
 
                     # Effet de brillance
