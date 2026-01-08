@@ -28,7 +28,7 @@ TODO :octocat: :neckbeard: :bowtie: :shipit:
 
 ### Le poster de Roguia :
 
-TODO :octocat:  :shipit:
+<!-- TODO :octocat:  :shipit: -->
 [
 <img
   src="./images/Poster_PFE.png"
