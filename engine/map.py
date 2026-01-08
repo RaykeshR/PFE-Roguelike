@@ -78,6 +78,7 @@ class Map:
                     "+": Fore.CYAN,
                     "@": Fore.YELLOW,
                     "S": Fore.GREEN,
+                    "B": Fore.GREEN,
                     "E": Fore.MAGENTA,
                     "M": Fore.RED,
                     "*": Fore.RED,
@@ -100,6 +101,7 @@ class Map:
                     "+": ESC + "36m",   # cyan
                     "@": ESC + "33m",   # jaune
                     "S": ESC + "32m",   # vert
+                    "B": ESC + "32m",   # vert
                     "E": ESC + "35m",   # magenta
                     "M": ESC + "31m",   # rouge
                     "*": ESC + "31m",   # rouge
@@ -274,7 +276,7 @@ class Map:
             if 0 <= ey < self.height and 0 <= ex < self.width:
                 if (ex, ey) in visible or (ex, ey) in self.discovered:
                     if getattr(enemy, 'is_super', False):
-                        grid[ey][ex] = "S" # S pour Super Monstre
+                        grid[ey][ex] = "B" # B pour Super Monstre (Boss/Big)
                     else:
                         grid[ey][ex] = "M"
 

@@ -1,4 +1,6 @@
 import time, os, logging, sys
+import pickle
+from collections import defaultdict
 
 try:
     import msvcrt
@@ -352,10 +354,27 @@ def run_game(joueur_id_connecte):
     q_table_path = joueur_data['q_table_path']
     shared_player_q_data = load_q_table(q_table_path)
     
+    # --- AJOUT: Chargement du Super Cerveau ---
+    global_model_path = "models/global_q_table.pkl"
+    super_monster_brain = None
+    
+    if os.path.exists(global_model_path):
+        try:
+            with open(global_model_path, "rb") as f:
+                global_data = pickle.load(f)
+                super_monster_brain = defaultdict(lambda: defaultdict(float))
+                super_monster_brain.update(global_data)
+                print("[GUI] Super Monstre Brain chargé.")
+        except Exception as e:
+            print(f"[GUI] Erreur chargement Super Monstre: {e}")
+    else:
+        # Fallback vide si nécessaire
+        super_monster_brain = defaultdict(lambda: defaultdict(float))
+
     inventaire_charge = charger_inventaire(joueur_id_connecte)
 
     # 3. Initialiser la Map
-    game_map = Map(shared_q_data=shared_player_q_data) 
+    game_map = Map(shared_q_data=shared_player_q_data, super_brain=super_monster_brain)  
     # [FIX] Initialize cache variables to prevent AttributeError in draw_map_pygame
     game_map._visible_cache_room = None
     game_map._visible_cache_set = None
@@ -481,15 +500,27 @@ def run_game(joueur_id_connecte):
                 if (ex, ey) in visible or (ex, ey) in game_map.discovered:
                     enemy_screen_x = ex * TILE_SIZE + TILE_SIZE // 2
                     enemy_screen_y = ey * TILE_SIZE + TILE_SIZE // 2
-                    # Effet de brillance rouge pulsante
-                    glow_radius = TILE_SIZE // 2 + int(1.5 * (game_map.ticks % 40) / 40)
+                    
+                    # --- AJOUT: Vérifier si c'est un Super Monstre ---
+                    is_super = getattr(enemy, 'is_super', False)
+                    current_color = (0, 255, 0) if is_super else COLOR_ENEMY # Vert pour Super, Rouge pour normal
+                    radius_bonus = 4 if is_super else 0 # Plus gros
+
+                    # Effet de brillance
+                    glow_radius = TILE_SIZE // 2 + radius_bonus + int(1.5 * (game_map.ticks % 40) / 40)
                     glow_surface = pygame.Surface((glow_radius * 2, glow_radius * 2), pygame.SRCALPHA)
-                    glow_color = (*COLOR_ENEMY, 80) if len(COLOR_ENEMY) == 3 else COLOR_ENEMY
+                    # Adapter la couleur du glow
+                    glow_rgb = current_color
+                    glow_color = (*glow_rgb, 80) if len(glow_rgb) == 3 else glow_rgb
+                    
                     pygame.draw.circle(glow_surface, glow_color, (glow_radius, glow_radius), glow_radius)
                     screen.blit(glow_surface, (enemy_screen_x - glow_radius, enemy_screen_y - glow_radius))
-                    pygame.draw.circle(screen, COLOR_ENEMY,
+                    
+                    # Dessiner le corps de l'ennemi avec la bonne couleur
+                    pygame.draw.circle(screen, current_color,
                                      (enemy_screen_x, enemy_screen_y),
-                                     TILE_SIZE // 2 - 2)
+                                     TILE_SIZE // 2 - 2 + radius_bonus)
+                    
                     # Indicateur d'arme (petit point jaune si équipé)
                     if enemy.weapon:
                         pygame.draw.circle(screen, (255, 255, 0),
