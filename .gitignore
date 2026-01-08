@@ -6,6 +6,8 @@ __pycache__
 **/.env
 database/.env
 .env
+<<<<<<< HEAD
+=======
 build
 dist
 Output
@@ -27,6 +29,7 @@ dist/PFERoguelike/_internal/.env
 dist/.env
 build/build/.env
 build/.env
+>>>>>>> e899a24cfdaa0df061d0128dd307ab6eeb77d2e0
 
 # Fichiers temporaires
 *.swp

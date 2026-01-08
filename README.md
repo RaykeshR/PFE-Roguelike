@@ -14,6 +14,8 @@
 Le site est accessible via ce [Lien qui fait une Redirection d'URL](https://raykeshr.github.io/PFE-Roguelike/) vers une page d'accueil pour le site du Github : PFE-Roguelike
 Note de Travail : [Fichier Word](https://raykeshr.github.io/PFE-Roguelike/Word_Redirection.html) <!-- si ça ne marche pas cliquer ici : [Fichier Word](https://reseaueseo-my.sharepoint.com/:w:/r/personal/sabri_messaoudi_reseau_eseo_fr/Documents/Note%20de%20Travail%20PFE.docx?d=w94d9488edfa142df962016daa36a74ba&csf=1&web=1&e=UM8vt7) -->
 
+Le site est accessible via ce [Lien qui fait une Redirection d'URL](https://raykeshr.github.io/PFE-Roguelike/) vers une page d'accueil pour le site du Github : PFE-Roguelike
+Note de Travail : [Fichier Word](https://raykeshr.github.io/PFE-Roguelike/Word_Redirection.html) <!-- si ça ne marche pas cliquer ici : [Fichier Word](https://reseaueseo-my.sharepoint.com/:w:/r/personal/sabri_messaoudi_reseau_eseo_fr/Documents/Note%20de%20Travail%20PFE.docx?d=w94d9488edfa142df962016daa36a74ba&csf=1&web=1&e=UM8vt7) -->
 
 #### Sommaire 
 
@@ -176,24 +178,26 @@ git push --mirror
 </details> 
 
 <details>
-<summary>Création de l'exécutable (pour le déploiement) :</summary>
+<summary>Nettoyer un depot git : </summary>
+Télécharger BFG Repo-Cleaner sur le site (.jar): 
+https://rtyley.github.io/bfg-repo-cleaner/
 
-### Introduction
+Lancer : 
 
-Pour distribuer l'application en tant que programme autonome sur Windows, nous utilisons `PyInstaller`. (Pour avoir une version compilé) Le processus est configuré via les fichiers `build.spec`, `PFERoguelike.spec` et `Roguia.spec` pour garantir que toutes les ressources nécessaires (images, données, etc.) sont incluses.
+git clone --mirror https://github.com/RaykeshR/PFE-Roguelike.git
+cd PFE-Roguelike.git
+<!-- java -jar ../bfg-1.15.0.jar --delete-files database/.env -->
+java -jar ../bfg-1.15.0.jar --delete-files .env
 
-### Prérequis
+git reflog expire --expire=now --all
+git gc --prune=now --aggressive
+git push --force --all
+git push --force --tags
 
-1.  **PyInstaller** : Assurez-vous qu'il est installé. Il est inclus dans le `requirements.txt`.
-```bash
-python -m pip install pyinstaller
-# OU       (pour mettre à jour l'environement virtuelle)
-python -m venv .venv && .venv\Scripts\activate && python -m pip install --upgrade pip && python -m pip install -r requirements.txt
-```
+<!-- git push --force origin Dev -->
 
-2.  **Résolution d'un conflit potentiel** : `PyInstaller` peut entrer en conflit avec une ancienne version du paquet `typing`. Si vous rencontrez une erreur à ce sujet lors de la compilation, vous devrez supprimer manuellement les fichiers correspondants de votre environnement virtuel :
-    *   Supprimez le fichier : `.venv\Lib\site-packages\typing.py`
-    *   Supprimez le dossier : `.venv\Lib\site-packages\typing-X.X.X.dist-info` (la version peut varier)
+<!-- git push --force origin --all
+git push --force origin --tags -->
 
 
 > [!<strong>ℹ️ Note</strong>]  
@@ -287,6 +291,7 @@ Ici, le MCP Github permettra à gemini d'accéder aux code source sans passer pa
 > Pour obtenir le "Bearer ghp_..." ou plus précisément le `ghp_...` il faut mettre un PAT ( Personal access tokens (classic) : [https://github.com/settings/tokens](https://github.com/settings/tokens) ) nommé de préférence "Gemini MCP" avec les droits voulus.
 
 </details> 
+git push --mirror
 
 <details>
 <summary>filtrer les .exe dans le repo : </summary>

@@ -9,7 +9,6 @@ from .monster import Monster
 from items import Weapon
 from items import Potion
 from items.category_potion import CategoryPotion
-
 ###################################################################################################################################################
 #pv joueur =100
 #pv monstre=50
@@ -417,7 +416,10 @@ class players:
             else:
                 print(f"\n{final_msg}")
                 input("Appuyez sur Entrée pour continuer...")
+            
             self._log.info("Porte finale atteinte, regénération map")
+            self.map.depth += 1 
+            print(f">>> PASSAGE AU NIVEAU {self.map.depth} <<<")
             self.map.generate()
             self.x, self.y = self.map.start
             # synchroniser la position dans le modèle

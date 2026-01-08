@@ -1,6 +1,8 @@
 import time
 import os
 import logging
+import pickle 
+from collections import defaultdict
 
 try:
     import msvcrt  # Windows input non bloquant
@@ -127,14 +129,58 @@ def run_game(joueur_id_connecte):
         'q_table_path': joueur_data_tuple[5]
     }
 
-    # 2. Charger la Q-Table *partagée* du joueur
+    # Charger la Q-Table de base (pré-entraînée)
     q_table_path = joueur_data['q_table_path']
-    shared_player_q_data = load_q_table(q_table_path)
+    shared_player_q_data = None
+
+    # Cas A : Le joueur a déjà sa propre sauvegarde IA
+    if os.path.exists(q_table_path):
+        print(f"Chargement de l'IA personnelle du joueur : {q_table_path}")
+        shared_player_q_data = load_q_table(q_table_path) #
     
+    # Cas B : C'est un nouveau joueur (ou sauvegarde perdue)
+    else:
+        print(f"Pas de sauvegarde IA trouvée pour {joueur_data['nom']}.")
+        
+        # On cherche l'IA pré-entraînée (le "cerveau commun")
+        base_q_table_path = "models/base_q_table.pkl"
+        
+        if os.path.exists(base_q_table_path):
+            print("✅ Initialisation avec l'IA pré-entraînée (Bots).")
+            try:
+                with open(base_q_table_path, "rb") as f:
+                    base_data = pickle.load(f)
+                    # IMPORTANT : On convertit le dict simple en defaultdict pour le jeu
+                    shared_player_q_data = defaultdict(lambda: defaultdict(float))
+                    shared_player_q_data.update(base_data)
+            except Exception as e:
+                print(f"Erreur lecture IA base: {e}. Démarrage à vide.")
+                shared_player_q_data = defaultdict(lambda: defaultdict(float))
+        else:
+            print("⚠️ Aucune IA de base trouvée. Les monstres commenceront à zéro (Tabula Rasa).")
+            shared_player_q_data = defaultdict(lambda: defaultdict(float))
+
+    global_model_path = "models/global_q_table.pkl"
+    super_monster_brain = None
+    
+    if os.path.exists(global_model_path):
+        print("🧠 Chargement du Cerveau Global (Super Monstre)...")
+        try:
+            with open(global_model_path, "rb") as f:
+                global_data = pickle.load(f)
+                # Conversion en defaultdict pour l'agent
+                super_monster_brain = defaultdict(lambda: defaultdict(float))
+                super_monster_brain.update(global_data)
+        except Exception as e:
+            print(f"Erreur chargement Super Monstre: {e}")
+    else:
+        print("⚠️ Pas de modèle global trouvé. Les Super Monstres seront 'bêtes'.")
+        super_monster_brain = defaultdict(lambda: defaultdict(float))
+
     inventaire_charge = charger_inventaire(joueur_id_connecte)
 
     # 3. Initialiser la Map EN LUI PASSANT la Q-Table partagée
-    game_map = Map(shared_q_data=shared_player_q_data) 
+    game_map = Map(shared_q_data=shared_player_q_data, super_brain=super_monster_brain) 
     
     # 4. Initialiser le PlayerController avec les données de la DB
     player = PlayerController(
