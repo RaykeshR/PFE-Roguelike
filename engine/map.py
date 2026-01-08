@@ -34,7 +34,7 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 class Map:
-    def __init__(self, width=60, height=26, room_count=5,shared_q_data=None, super_brain=None):
+    def __init__(self, width=60, height=26, room_count=5,shared_q_data=None):
         self.width = width
         self.height = height
         self.room_count = room_count
@@ -58,9 +58,6 @@ class Map:
         self._color_map = None
         self._color_reset = ""
         self.shared_q_data = shared_q_data
-        self.super_brain = super_brain  
-        self.depth = 1
-
         if self.use_color:
             try:
                 from colorama import Fore, Style, init as colorama_init
@@ -273,13 +270,8 @@ class Map:
             ex, ey = enemy.x, enemy.y
             if 0 <= ey < self.height and 0 <= ex < self.width:
                 if (ex, ey) in visible or (ex, ey) in self.discovered:
-                    if getattr(enemy, 'is_super', False):
-                        grid[ey][ex] = "S" # S pour Super Monstre
-                    else:
-                        grid[ey][ex] = "M"
-
+                    grid[ey][ex] = "M"
         faded_cells = set()
-
         for pr in self.projectiles:
             if len(pr) >= 4:
                 px2, py2 = pr[0], pr[1]
@@ -578,144 +570,65 @@ class Map:
         )
     
     def _place_enemies(self, count=2):
-        """Place des ennemis en fonction de la difficulté (self.depth)."""
-        
-        # 1. Calculer la difficulté
-        # Plus on descend, plus il y a de monstres (Ex: Niv 1=2 monstres, Niv 5=4 monstres)
-        base_count = 2 + (self.depth // 2) 
-        
-        # 2. Probabilité d'apparition d'un Super Monstre
-        # Niv 1: 0%, Niv 3: 20%, Niv 5: 40%, Niv 10+: 100%
-        super_monster_chance = min(1.0, max(0.0, (self.depth - 2) * 0.1))
-        
         placed = 0
         tries = 0
         flat_walkable = list(self.walkable)
-        
-        print(f"--- Génération Niveau {self.depth} ---")
-        print(f"Monstres prévus: {base_count} | Chance Super Monstre: {int(super_monster_chance*100)}%")
-
-        while placed < base_count and tries < 200 and flat_walkable:
+        while placed < count and tries < 200 and flat_walkable:
             x, y = _r.choice(flat_walkable)
             if (x, y) != self.start and (x, y) != self.end and self.tiles[y][x] == ".":
-                
-                # Décision : Super Monstre ou Normal ?
-                is_super = _r.random() < super_monster_chance
-                
-                # Configuration du Monstre
-                if is_super and self.super_brain:
-                    # SUPER MONSTRE
-                    brain = self.super_brain
-                    pv = 50 + (self.depth * 10) # PV augmentés (50, 60, 70...)
-                    name_prefix = "SUPER "
-                    # On peut lui donner une meilleure arme ici si on veut
-                    weapon = self._generate_monster_weapon() 
-                    weapon.damage += 5 # Bonus de dégâts
-                else:
-                    # MONSTRE NORMAL
-                    brain = self.shared_q_data
-                    pv = 50 + (self.depth * 2) # PV augmentés légèrement
-                    name_prefix = ""
-                    weapon = self._generate_monster_weapon()
-
                 dx, dy = _r.choice([(1,0),(-1,0),(0,1),(0,-1)])
-                
-                # Création
-                m = Monster(weapon=weapon, pv=pv, x=x, y=y, dx=dx, dy=dy, speed=0.33, shared_q_data=brain)
-                
-                # Petit hack pour le reconnaître (optionnel, pour l'affichage)
-                m.is_super = is_super 
-                if is_super:
-                    print(f"⚠️  UN SUPER MONSTRE EST APPARU EN ({x}, {y}) !")
-
-                # # Générer une arme aléatoire pour le monstre (80% de chance d'avoir une arme)
-                # weapon = self._generate_monster_weapon() if _r.random() < 0.8 else None
-                # m = Monster(weapon=weapon, pv=50, x=x, y=y, dx=dx, dy=dy, speed=0.33,shared_q_data=self.shared_q_data)
+                # Générer une arme aléatoire pour le monstre (80% de chance d'avoir une arme)
+                weapon = self._generate_monster_weapon() if _r.random() < 0.8 else None
+                m = Monster(weapon=weapon, pv=50, x=x, y=y, dx=dx, dy=dy, speed=0.33,shared_q_data=self.shared_q_data)
                 self.enemies.append(m)
                 placed += 1
             tries += 1
 
     def _place_items(self, count=3):
-        """   
-        Place des items sur la carte.
-
-        Les items peuvent être choisis aléatoirement ou depuis un fichier CSV en fonction
-        de la variable d'environnement `DONT_USE_CSV_ITEMS`.
-
-        Comportement :
-            - Si `DONT_USE_CSV_ITEMS` est défini à `false` ou `0`, les items sont chargés depuis le fichier CSV situé dans `items/items.csv`.
-            - Si la lecture du CSV échoue ou si `DONT_USE_CSV_ITEMS` est autre chose, des items aléatoires simples (Weapon ou Potion) sont générés.
-
-        Args:
-            count (int, optional): Nombre d'items à placer. Default is 3.
-        """
-        dotenv_path = Path("database/.env")
-        load_dotenv(dotenv_path=dotenv_path)
-        dont_use_csv = os.environ.get("DONT_USE_CSV_ITEMS", "true").strip().lower() not in ["false", "0","f","no","n","non","off","disable","disabled","none","null","nil","0.0","faux","negatif","fals"]
+        """Place des items sur la carte en piochant dans la base de données SQL."""
         
-        # Si CSV est activé, on charge les items du fichier
-        csv_items = []
-        if not dont_use_csv:
-            csv_path = os.path.join("items", "items.csv")
-            try:
-                with open(csv_path, newline='', encoding='utf-8') as f:
-                    reader = csv.DictReader(f)
-                    for row in reader:
-                        csv_items.append(row)
-            except Exception as e:
-                print(f"Erreur lecture CSV items: {e}")
-                dont_use_csv = True  # fallback vers aléatoire si problème CSV
-                import sys;sys.exit(1)
-# >>>>>>> 4924f34da4d6475187a280355066667c816c0148
-#         """Place des items sur la carte en piochant dans la base de données SQL."""
-        
-# # Nouveau Code (BDD): ===================================================
-#         # Importation locale pour éviter les cycles d'import
-#         try:
-#             from database.db_sql import recuperer_modeles_items
-#         except ImportError:
-#             print("Erreur: Impossible d'importer recuperer_modeles_items depuis db_sql")
-#             return
+# Nouveau Code (BDD): ===================================================
+        # Importation locale pour éviter les cycles d'import
+        try:
+            from database.db_sql import recuperer_modeles_items
+        except ImportError:
+            print("Erreur: Impossible d'importer recuperer_modeles_items depuis db_sql")
+            return
 
-#         # 1. Récupérer tous les items possibles depuis SQL
-#         db_items = recuperer_modeles_items()
+        # 1. Récupérer tous les items possibles depuis SQL
+        db_items = recuperer_modeles_items()
         
-#         # Fallback si la DB est vide
-#         if not db_items:
-#             print("Attention : La table 'items' est vide. Génération aléatoire de secours.")
-#             # (Vous pouvez garder votre code de génération aléatoire 'if _r.random() < 0.7' ici si vous voulez)
-#             # Pour faire simple, on retourne ou on génère un truc basique
-#             return
-# # Anciens Code (Ficher csv) : ===================================================
-#         # # Si CSV est activé, on charge les items du fichier
-#         # csv_items = []
-#         # if not dont_use_csv:
-#         #     csv_path = resource_path(os.path.join("items", "items.csv"))
-#         #     try:
-#         #         with open(csv_path, newline='', encoding='utf-8') as f:
-#         #             reader = csv.DictReader(f)
-#         #             for row in reader:
-#         #                 csv_items.append(row)
-#         #     except Exception as e:
-#         #         print(f"Erreur lecture CSV items: {e}")
-#         #         dont_use_csv = True  # fallback vers aléatoire si problème CSV
-#         #         import sys;sys.exit(1)
-# # ===================================================
-# >>>>>>> 4924f34da4d6475187a280355066667c816c0148
+        # Fallback si la DB est vide
+        if not db_items:
+            print("Attention : La table 'items' est vide. Génération aléatoire de secours.")
+            # (Vous pouvez garder votre code de génération aléatoire 'if _r.random() < 0.7' ici si vous voulez)
+            # Pour faire simple, on retourne ou on génère un truc basique
+            return
+# Anciens Code (Ficher csv) : ===================================================
+        # # Si CSV est activé, on charge les items du fichier
+        # csv_items = []
+        # if not dont_use_csv:
+        #     csv_path = resource_path(os.path.join("items", "items.csv"))
+        #     try:
+        #         with open(csv_path, newline='', encoding='utf-8') as f:
+        #             reader = csv.DictReader(f)
+        #             for row in reader:
+        #                 csv_items.append(row)
+        #     except Exception as e:
+        #         print(f"Erreur lecture CSV items: {e}")
+        #         dont_use_csv = True  # fallback vers aléatoire si problème CSV
+        #         import sys;sys.exit(1)
+# ===================================================
 
-#         placed = 0
-#         tries = 0
-#         flat_walkable = list(self.walkable)
-#         occupied_enemy = {(e.x, e.y) for e in self.enemies}
-# <<<<<<< HEAD
+        placed = 0
+        tries = 0
+        flat_walkable = list(self.walkable)
+        occupied_enemy = {(e.x, e.y) for e in self.enemies}
+        
         while placed < count and tries < 400 and flat_walkable:
             x, y = _r.choice(flat_walkable)
             
             # Vérifications de placement (pas sur un ennemi, pas sur le départ/fin)
-<<<<<<< HEAD
-=======
->>>>>>> e1ee9e50f82e4cfb06348ea23bc5b69ec02b4e18
->>>>>>> 4924f34da4d6475187a280355066667c816c0148
             if (x, y) in occupied_enemy or (x, y) == self.start or (x, y) == self.end:
                 tries += 1
                 continue
@@ -723,36 +636,6 @@ class Map:
                 tries += 1
                 continue
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-            # Choisir un item
-            if dont_use_csv or not csv_items:
-                # Créer un item simple aléatoire
-                if _r.random() < 0.7:
-                    item = Weapon(
-                        name=_r.choice(["Dague", "Épée", "Arc"]),
-                        description="Un objet trouvé au sol",
-                        rarity=_r.choice([Rarity.COMMON, Rarity.RARE, Rarity.EPIC]),
-                        damage=_r.choice([4, 6, 8, 10]),
-                        category=_r.choice([CategoryWeapon.MELEE, CategoryWeapon.DISTANCE]),
-                        range=_r.choice([1.0, 1.5, 3.0, 5.0]),
-                        durability=_r.choice([5, 10, 15]),
-                    )
-                else:
-                    item = Potion(
-                        name=_r.choice(["Potion de soin", "Potion de vitesse"]),
-                        description="Une fiole mystérieuse",
-                        rarity=_r.choice([Rarity.COMMON, Rarity.RARE]),
-                        category=_r.choice([CategoryPotion.HEALTH, CategoryPotion.SPEED]),
-                        potency=_r.choice([10, 20, 30]),
-                        duration=_r.choice([3, 5, 7]),
-                    )
-            else:
-                # Choisir un item depuis CSV
-                row = _r.choice(csv_items)
-=======
->>>>>>> 4924f34da4d6475187a280355066667c816c0148
             # 2. Choisir un item au hasard parmi ceux de la DB
             row = _r.choice(db_items)
             item_db_id = int(row["id"])
@@ -760,56 +643,21 @@ class Map:
             # 3. Créer l'objet Python correspondant
             item = None
             try:
-<<<<<<< HEAD
-=======
->>>>>>> e1ee9e50f82e4cfb06348ea23bc5b69ec02b4e18
->>>>>>> 4924f34da4d6475187a280355066667c816c0148
                 if row["type"].lower() == "weapon":
                     item = Weapon(
                         name=row["name"],
                         description=row.get("description", ""),
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-                        rarity=Rarity[row["rarity"].upper()],
-                        damage=int(row.get("damage", 0)),
-                        category=CategoryWeapon[row["category"].upper()],
-                        range=float(row.get("range", 1.0)),
-                        durability=int(row.get("durability", 10)),
-=======
->>>>>>> 4924f34da4d6475187a280355066667c816c0148
                         rarity=Rarity[row["rarity"].upper()] if row["rarity"] else Rarity.COMMON,
                         damage=int(row.get("damage", 0)),
                         category=CategoryWeapon[row["category"].upper()] if row["category"] else CategoryWeapon.MELEE,
                         range=float(row.get("range", 1.0)),
                         durability=int(row.get("durability", 10)),
                         db_id=item_db_id  # <--- Très important pour la sauvegarde !
-<<<<<<< HEAD
-=======
->>>>>>> e1ee9e50f82e4cfb06348ea23bc5b69ec02b4e18
->>>>>>> 4924f34da4d6475187a280355066667c816c0148
                     )
                 elif row["type"].lower() == "potion":
                     item = Potion(
                         name=row["name"],
                         description=row.get("description", ""),
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-                        rarity=Rarity[row["rarity"].upper()],
-                        category=CategoryPotion[row["category"].upper()],
-                        potency=int(row.get("potency", 10)),
-                        duration=int(row.get("duration", 3)),
-                    )
-                else:
-                    # fallback aléatoire si type inconnu
-                    continue
-            self.items.append({"x": x, "y": y, "item": item})
-            placed += 1
-            tries += 1
-
-=======
->>>>>>> 4924f34da4d6475187a280355066667c816c0148
                         rarity=Rarity[row["rarity"].upper()] if row["rarity"] else Rarity.COMMON,
                         category=CategoryPotion[row["category"].upper()] if row["category"] else CategoryPotion.HEALTH,
                         potency=int(row.get("potency", 10)),
@@ -830,10 +678,6 @@ class Map:
             tries += 1
             
     
-<<<<<<< HEAD
-=======
->>>>>>> e1ee9e50f82e4cfb06348ea23bc5b69ec02b4e18
->>>>>>> 4924f34da4d6475187a280355066667c816c0148
     def get_items_at(self, x, y):
         return [obj["item"] for obj in self.items if obj["x"] == x and obj["y"] == y]
 
@@ -1012,4 +856,3 @@ class Map:
             return "corridor"
         else:
             return "wall"
-# TODO Conflit
