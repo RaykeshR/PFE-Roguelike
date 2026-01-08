@@ -398,6 +398,8 @@ class GameGUI:
         self.height = height
         self.screen = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption(title)
+<<<<<<< HEAD
+=======
 
         # Set window icon
         icon_path = resource_path("src/gameplay.ico")
@@ -406,6 +408,7 @@ class GameGUI:
             pygame.display.set_icon(program_Icon)
         except Exception as e:
             print(f"Error loading icon: {e}")
+>>>>>>> e1ee9e50f82e4cfb06348ea23bc5b69ec02b4e18
         self.bg_color = bg_color
         self.clock = pygame.time.Clock()
         self.fps = fps

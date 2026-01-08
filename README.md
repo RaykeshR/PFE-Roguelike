@@ -97,6 +97,7 @@ en cas d'erreur (supprimer le dossier .venv ou lancer):
 Avec  pip freeze  :
 
     Pour toutes les étapes précédentes (sur CMD ou powershell>=7) : 
+    ```python -m venv .venv && .venv\Scripts\activate && python -m pip install --upgrade pip && pip install -r requirements.txt && pip freeze > requirements.txt```
     ```python -m venv .venv && .venv\Scripts\activate && python -m pip install --upgrade pip && python -m pip install -r requirements.txt && pip freeze > requirements.txt```
     
     en cas d'erreur (supprimer le dossier .venv ou lancer): 
@@ -126,6 +127,8 @@ Modifier .git\info\exclude
 </details> 
 
 <details>
+<<<<<<< HEAD
+=======
 <summary>Installeur :  :+1: :sunglasses: :smirk: :smiley::grin::wink::stuck_out_tongue_winking_eye:</summary>
 
 ### Installation via l'installeur
@@ -152,6 +155,7 @@ Il pourra demander un fichier .env lors de l'installation.
 </details>
 
 <details>
+>>>>>>> e1ee9e50f82e4cfb06348ea23bc5b69ec02b4e18
 <summary>Nettoyer un dépôt git : </summary>
 Télécharger BFG Repo-Cleaner sur le site (.jar): 
 https://rtyley.github.io/bfg-repo-cleaner/
@@ -177,27 +181,27 @@ git push --mirror
 
 </details> 
 
+<<<<<<<<< Temporary merge branch 1
+=========
 <details>
-<summary>Nettoyer un depot git : </summary>
-Télécharger BFG Repo-Cleaner sur le site (.jar): 
-https://rtyley.github.io/bfg-repo-cleaner/
+<summary>Création de l'exécutable (pour le déploiement) :</summary>
 
-Lancer : 
+### Introduction
 
-git clone --mirror https://github.com/RaykeshR/PFE-Roguelike.git
-cd PFE-Roguelike.git
-<!-- java -jar ../bfg-1.15.0.jar --delete-files database/.env -->
-java -jar ../bfg-1.15.0.jar --delete-files .env
+Pour distribuer l'application en tant que programme autonome sur Windows, nous utilisons `PyInstaller`. (Pour avoir une version compilé) Le processus est configuré via les fichiers `build.spec`, `PFERoguelike.spec` et `Roguia.spec` pour garantir que toutes les ressources nécessaires (images, données, etc.) sont incluses.
 
-git reflog expire --expire=now --all
-git gc --prune=now --aggressive
-git push --force --all
-git push --force --tags
+### Prérequis
 
-<!-- git push --force origin Dev -->
+1.  **PyInstaller** : Assurez-vous qu'il est installé. Il est inclus dans le `requirements.txt`.
+```bash
+python -m pip install pyinstaller
+# OU       (pour mettre à jour l'environement virtuelle)
+python -m venv .venv && .venv\Scripts\activate && python -m pip install --upgrade pip && python -m pip install -r requirements.txt
+```
 
-<!-- git push --force origin --all
-git push --force origin --tags -->
+2.  **Résolution d'un conflit potentiel** : `PyInstaller` peut entrer en conflit avec une ancienne version du paquet `typing`. Si vous rencontrez une erreur à ce sujet lors de la compilation, vous devrez supprimer manuellement les fichiers correspondants de votre environnement virtuel :
+    *   Supprimez le fichier : `.venv\Lib\site-packages\typing.py`
+    *   Supprimez le dossier : `.venv\Lib\site-packages\typing-X.X.X.dist-info` (la version peut varier)
 
 
 > [!<strong>ℹ️ Note</strong>]  
@@ -287,11 +291,11 @@ Ici, le MCP Github permettra à gemini d'accéder aux code source sans passer pa
 
 ```    
 
+>>>>>>> e1ee9e50f82e4cfb06348ea23bc5b69ec02b4e18
 > [!NOTE]  
 > Pour obtenir le "Bearer ghp_..." ou plus précisément le `ghp_...` il faut mettre un PAT ( Personal access tokens (classic) : [https://github.com/settings/tokens](https://github.com/settings/tokens) ) nommé de préférence "Gemini MCP" avec les droits voulus.
 
 </details> 
-git push --mirror
 
 <details>
 <summary>filtrer les .exe dans le repo : </summary>
@@ -314,5 +318,6 @@ git reset --hard origin/Dev-Raykesh
 ```
 </details> 
 
+>>>>>>> e1ee9e50f82e4cfb06348ea23bc5b69ec02b4e18
 
 </details> 
