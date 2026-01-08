@@ -127,8 +127,7 @@ Modifier .git\info\exclude
 </details> 
 
 <details>
-<<<<<<< HEAD
-=======
+
 <summary>Installeur :  :+1: :sunglasses: :smirk: :smiley::grin::wink::stuck_out_tongue_winking_eye:</summary>
 
 ### Installation via l'installeur
@@ -155,7 +154,6 @@ Il pourra demander un fichier .env lors de l'installation.
 </details>
 
 <details>
->>>>>>> e1ee9e50f82e4cfb06348ea23bc5b69ec02b4e18
 <summary>Nettoyer un dépôt git : </summary>
 Télécharger BFG Repo-Cleaner sur le site (.jar): 
 https://rtyley.github.io/bfg-repo-cleaner/
@@ -181,8 +179,6 @@ git push --mirror
 
 </details> 
 
-<<<<<<<<< Temporary merge branch 1
-=========
 <details>
 <summary>Création de l'exécutable (pour le déploiement) :</summary>
 

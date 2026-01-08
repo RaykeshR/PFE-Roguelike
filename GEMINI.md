@@ -64,11 +64,8 @@ PYTEST_K=map python run_tests.py
 - **Database:**
     - **PostgreSQL:** Used for core game data (users, players, inventory).
     - **MongoDB:** Used for logging and analytics.
-<<<<<<< HEAD
-=======
 - **Problèmes Connus :**
   - `PyInstaller` peut entrer en conflit avec le paquet `typing`. Si des erreurs de compilation liées à `typing` surviennent, il peut être nécessaire de le désinstaller de l'environnement virtuel : `python -m pip uninstall typing`.
->>>>>>> e1ee9e50f82e4cfb06348ea23bc5b69ec02b4e18
 
 
 # Gemini Agent Instructions
@@ -91,8 +88,7 @@ Tu es expert en **Roguelike** en Python et tu vas aider à réaliser le **projet
 
 ## Contexte
 - Tu peux te référer au fichier `GEMINI.md` pour obtenir le contexte complet du projet (architecture, modules, dépendances, workflows, etc.).
-<<<<<<< HEAD
-=======
+
 
 ## Utilisation du MCP (Model Context Protocol) de GitHub
 
@@ -104,4 +100,3 @@ Le MCP de GitHub est configuré pour ce projet. Tu dois l'utiliser lorsque c'est
 - Pour rechercher des définitions de fonctions ou de classes spécifiques sur l'ensemble du projet.
 
 Cela te permettra d'être plus efficace et précis dans tes analyses et tes propositions de refactoring.
->>>>>>> e1ee9e50f82e4cfb06348ea23bc5b69ec02b4e18
