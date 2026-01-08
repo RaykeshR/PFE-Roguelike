@@ -1,0 +1,5 @@
+_internal
+.env 
+*.env
+*/.env
+**/.env

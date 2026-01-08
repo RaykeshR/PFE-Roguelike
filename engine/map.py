@@ -17,6 +17,21 @@ else:
     
     subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "main.py")])
 
+def resource_path(relative_path):
+    """Obtient le chemin absolu de la ressource, fonctionne pour dev et PyInstaller"""
+    if getattr(sys, 'frozen', False):
+        # Si on est dans un exécutable (frozen)
+        if hasattr(sys, '_MEIPASS'):
+            # Mode One-File : dossier temporaire
+            base_path = sys._MEIPASS
+        else:
+            # Mode One-Folder : dossier de l'exécutable (.exe)
+            base_path = os.path.dirname(sys.executable)
+    else:
+        # Mode Développement (python main.py)
+        base_path = os.path.dirname(os.path.abspath(__file__))
+
+    return os.path.join(base_path, relative_path)
 
 class Map:
     def __init__(self, width=60, height=26, room_count=5,shared_q_data=None):
@@ -570,6 +585,7 @@ class Map:
             tries += 1
 
     def _place_items(self, count=3):
+<<<<<<< HEAD
         """   
         Place des items sur la carte.
 
@@ -600,13 +616,57 @@ class Map:
                 print(f"Erreur lecture CSV items: {e}")
                 dont_use_csv = True  # fallback vers aléatoire si problème CSV
                 import sys;sys.exit(1)
+=======
+        """Place des items sur la carte en piochant dans la base de données SQL."""
+        
+# Nouveau Code (BDD): ===================================================
+        # Importation locale pour éviter les cycles d'import
+        try:
+            from database.db_sql import recuperer_modeles_items
+        except ImportError:
+            print("Erreur: Impossible d'importer recuperer_modeles_items depuis db_sql")
+            return
+
+        # 1. Récupérer tous les items possibles depuis SQL
+        db_items = recuperer_modeles_items()
+        
+        # Fallback si la DB est vide
+        if not db_items:
+            print("Attention : La table 'items' est vide. Génération aléatoire de secours.")
+            # (Vous pouvez garder votre code de génération aléatoire 'if _r.random() < 0.7' ici si vous voulez)
+            # Pour faire simple, on retourne ou on génère un truc basique
+            return
+# Anciens Code (Ficher csv) : ===================================================
+        # # Si CSV est activé, on charge les items du fichier
+        # csv_items = []
+        # if not dont_use_csv:
+        #     csv_path = resource_path(os.path.join("items", "items.csv"))
+        #     try:
+        #         with open(csv_path, newline='', encoding='utf-8') as f:
+        #             reader = csv.DictReader(f)
+        #             for row in reader:
+        #                 csv_items.append(row)
+        #     except Exception as e:
+        #         print(f"Erreur lecture CSV items: {e}")
+        #         dont_use_csv = True  # fallback vers aléatoire si problème CSV
+        #         import sys;sys.exit(1)
+# ===================================================
+>>>>>>> e1ee9e50f82e4cfb06348ea23bc5b69ec02b4e18
 
         placed = 0
         tries = 0
         flat_walkable = list(self.walkable)
         occupied_enemy = {(e.x, e.y) for e in self.enemies}
+<<<<<<< HEAD
         while placed < count and tries < 400 and flat_walkable:
             x, y = _r.choice(flat_walkable)
+=======
+        
+        while placed < count and tries < 400 and flat_walkable:
+            x, y = _r.choice(flat_walkable)
+            
+            # Vérifications de placement (pas sur un ennemi, pas sur le départ/fin)
+>>>>>>> e1ee9e50f82e4cfb06348ea23bc5b69ec02b4e18
             if (x, y) in occupied_enemy or (x, y) == self.start or (x, y) == self.end:
                 tries += 1
                 continue
@@ -614,6 +674,7 @@ class Map:
                 tries += 1
                 continue
 
+<<<<<<< HEAD
             # Choisir un item
             if dont_use_csv or not csv_items:
                 # Créer un item simple aléatoire
@@ -639,20 +700,39 @@ class Map:
             else:
                 # Choisir un item depuis CSV
                 row = _r.choice(csv_items)
+=======
+            # 2. Choisir un item au hasard parmi ceux de la DB
+            row = _r.choice(db_items)
+            item_db_id = int(row["id"])
+
+            # 3. Créer l'objet Python correspondant
+            item = None
+            try:
+>>>>>>> e1ee9e50f82e4cfb06348ea23bc5b69ec02b4e18
                 if row["type"].lower() == "weapon":
                     item = Weapon(
                         name=row["name"],
                         description=row.get("description", ""),
+<<<<<<< HEAD
                         rarity=Rarity[row["rarity"].upper()],
                         damage=int(row.get("damage", 0)),
                         category=CategoryWeapon[row["category"].upper()],
                         range=float(row.get("range", 1.0)),
                         durability=int(row.get("durability", 10)),
+=======
+                        rarity=Rarity[row["rarity"].upper()] if row["rarity"] else Rarity.COMMON,
+                        damage=int(row.get("damage", 0)),
+                        category=CategoryWeapon[row["category"].upper()] if row["category"] else CategoryWeapon.MELEE,
+                        range=float(row.get("range", 1.0)),
+                        durability=int(row.get("durability", 10)),
+                        db_id=item_db_id  # <--- Très important pour la sauvegarde !
+>>>>>>> e1ee9e50f82e4cfb06348ea23bc5b69ec02b4e18
                     )
                 elif row["type"].lower() == "potion":
                     item = Potion(
                         name=row["name"],
                         description=row.get("description", ""),
+<<<<<<< HEAD
                         rarity=Rarity[row["rarity"].upper()],
                         category=CategoryPotion[row["category"].upper()],
                         potency=int(row.get("potency", 10)),
@@ -665,6 +745,28 @@ class Map:
             placed += 1
             tries += 1
 
+=======
+                        rarity=Rarity[row["rarity"].upper()] if row["rarity"] else Rarity.COMMON,
+                        category=CategoryPotion[row["category"].upper()] if row["category"] else CategoryPotion.HEALTH,
+                        potency=int(row.get("potency", 10)),
+                        duration=int(row.get("duration", 3)),
+                        db_id=item_db_id  # <--- Très important pour la sauvegarde !
+                    )
+            except KeyError as e:
+                print(f"Erreur de données pour l'item ID {item_db_id} : clé manquante {e}")
+                continue
+            except Exception as e:
+                print(f"Erreur création item ID {item_db_id} : {e}")
+                continue
+
+            if item:
+                self.items.append({"x": x, "y": y, "item": item})
+                placed += 1
+            
+            tries += 1
+            
+    
+>>>>>>> e1ee9e50f82e4cfb06348ea23bc5b69ec02b4e18
     def get_items_at(self, x, y):
         return [obj["item"] for obj in self.items if obj["x"] == x and obj["y"] == y]
 

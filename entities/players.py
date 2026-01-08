@@ -9,7 +9,11 @@ from .monster import Monster
 from items import Weapon
 from items import Potion
 from items.category_potion import CategoryPotion
+<<<<<<< HEAD
 from typing import Optional, List
+=======
+
+>>>>>>> e1ee9e50f82e4cfb06348ea23bc5b69ec02b4e18
 ###################################################################################################################################################
 #pv joueur =100
 #pv monstre=50
@@ -95,7 +99,11 @@ class players:
     
     
     #retourne l'arme équipée
+<<<<<<< HEAD
     def get_equipped_weapon(self) -> Optional[Weapon]:
+=======
+    def get_equipped_weapon(self) :
+>>>>>>> e1ee9e50f82e4cfb06348ea23bc5b69ec02b4e18
         for it in self.get_equiped_item() or []:
             if isinstance(it, Weapon):
                 return it
