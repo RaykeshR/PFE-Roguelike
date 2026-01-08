@@ -75,6 +75,7 @@ def graphical_menu_principal():
             # verifier_utilisateur retourne un dict {'id': ..., 'username': ...}
             gui.user_data['utilisateur_connecte'] = utilisateur
             update_login_message(f"Bienvenue, {username}!", (100, 255, 100))
+            # Ne pas utiliser time.sleep dans la boucle Pygame, utiliser un timer
             charger_liste_personnages()
             gui.change_state("selection_personnage")
         else:
@@ -106,6 +107,7 @@ def graphical_menu_principal():
                 'username': utilisateur[1]
             }
             update_register_message(f"Compte créé! Bienvenue, {username}!", (100, 255, 100))
+            # Ne pas utiliser time.sleep dans la boucle Pygame
             charger_liste_personnages()
             gui.change_state("selection_personnage")
         else:
@@ -539,6 +541,7 @@ def run_game(joueur_id_connecte):
             game_messages.pop(0)
     
     # Stocker la fonction add_message dans le joueur pour qu'il puisse l'utiliser
+    # (après la définition de add_message)
     player._add_message_callback = add_message
     
     def draw_hud():
@@ -582,6 +585,89 @@ def run_game(joueur_id_connecte):
             msg_y += 22
     
     # Boucle principale du jeu
+# <<<<<<< HEAD
+#     while playing:
+#         for event in pygame.event.get():
+#             if event.type == pygame.QUIT:
+#                 playing = False
+#                 ep.end_episode("quit", {"tick": game_map.ticks})
+#             elif event.type == pygame.KEYDOWN:
+#                 key = event.unicode.lower() if event.unicode else ""
+#                 # Gérer les touches spéciales
+#                 if event.key == pygame.K_x:
+#                     playing = False
+#                     ep.end_episode("quit", {"tick": game_map.ticks})
+#                 elif event.key == pygame.K_h:
+#                     _show_help_menu(screen, SCREEN_WIDTH, SCREEN_HEIGHT, hud_font)
+#                 elif event.key == pygame.K_i:
+#                     _open_inventory_menu_pygame(screen, player, SCREEN_WIDTH, SCREEN_HEIGHT, font, hud_font)
+#                 elif event.key == pygame.K_a:
+#                     messages = _player_attack(player, game_map, add_message_callback=add_message)
+#                     if messages:
+#                         for i, msg in enumerate(messages):
+#                             color = (100, 255, 100) if "vaincu" in msg or "XP" in msg else (255, 200, 100)
+#                             add_message(msg, color)
+#                 elif event.key == pygame.K_UP or event.key == pygame.K_w or key == "z":
+#                     old = (player.x, player.y)
+#                     player.move("z")
+#                     if (player.x, player.y) != old:
+#                         log.info("Déplacement joueur", extra={"extra": {"from": old, "to": (player.x, player.y), "input": "z"}})
+#                         ep.log_step({
+#                             "tick": game_map.ticks,
+#                             "player": {"from": list(old), "to": [player.x, player.y]},
+#                             "action_player": "z",
+#                         })
+#                 elif event.key == pygame.K_LEFT or key == "q":
+#                     old = (player.x, player.y)
+#                     player.move("q")
+#                     if (player.x, player.y) != old:
+#                         log.info("Déplacement joueur", extra={"extra": {"from": old, "to": (player.x, player.y), "input": "q"}})
+#                         ep.log_step({
+#                             "tick": game_map.ticks,
+#                             "player": {"from": list(old), "to": [player.x, player.y]},
+#                             "action_player": "q",
+#                         })
+#                 elif event.key == pygame.K_DOWN or event.key == pygame.K_s or key == "s":
+#                     old = (player.x, player.y)
+#                     player.move("s")
+#                     if (player.x, player.y) != old:
+#                         log.info("Déplacement joueur", extra={"extra": {"from": old, "to": (player.x, player.y), "input": "s"}})
+#                         ep.log_step({
+#                             "tick": game_map.ticks,
+#                             "player": {"from": list(old), "to": [player.x, player.y]},
+#                             "action_player": "s",
+#                         })
+#                 elif event.key == pygame.K_RIGHT or event.key == pygame.K_d or key == "d":
+#                     old = (player.x, player.y)
+#                     player.move("d")
+#                     if (player.x, player.y) != old:
+#                         log.info("Déplacement joueur", extra={"extra": {"from": old, "to": (player.x, player.y), "input": "d"}})
+#                         ep.log_step({
+#                             "tick": game_map.ticks,
+#                             "player": {"from": list(old), "to": [player.x, player.y]},
+#                             "action_player": "d",
+#                         })
+        
+#         # Rendu
+#         screen.fill((0, 0, 0))
+#         draw_map_pygame()
+#         draw_hud()
+#         pygame.display.flip()
+        
+#         # Tick logique
+#         game_map.tick((player.x, player.y))
+        
+#         clock.tick(30)  # 30 FPS
+    
+#     # Sauvegarde
+#     print(f"\nPartie terminée. Sauvegarde de la progression de {player.name}...")
+#     save_q_table(shared_player_q_data, player.q_table_path)
+#     update_joueur_stats(player.db_id, player.get_hp(), player.xp, player.niveau) 
+#     sauvegarder_inventaire(player.db_id, player.get_inventory())
+#     print("Sauvegarde terminée. Au revoir.")
+    
+#     pygame.quit()
+# =======
     try:
         while playing:
             for event in pygame.event.get():
@@ -725,6 +811,18 @@ def _show_help_menu(screen, screen_width, screen_height, font):
                 waiting = False
                 break
 
+# <<<<<<< HEAD
+
+# def _open_inventory_menu_pygame(screen, player: PlayerController, screen_width, screen_height, font, hud_font):
+#     """Affiche le menu d'inventaire dans une fenêtre Pygame."""
+#     # Fond semi-transparent
+#     overlay = pygame.Surface((screen_width, screen_height))
+#     overlay.set_alpha(200)
+#     overlay.fill((0, 0, 0))
+#     screen.blit(overlay, (0, 0))
+    
+#     # Panel d'inventaire
+# =======
 def _open_inventory_menu_pygame(screen, player: PlayerController, screen_width, screen_height, font, hud_font):
     """Affiche le menu d'inventaire dans une fenêtre Pygame avec défilement."""
     overlay = pygame.Surface((screen_width, screen_height))
@@ -736,6 +834,128 @@ def _open_inventory_menu_pygame(screen, player: PlayerController, screen_width, 
     panel_x = (screen_width - panel_width) // 2
     panel_y = (screen_height - panel_height) // 2
     
+# <<<<<<< HEAD
+#     pygame.draw.rect(screen, (60, 60, 70), (panel_x, panel_y, panel_width, panel_height), border_radius=10)
+#     pygame.draw.rect(screen, (100, 100, 120), (panel_x, panel_y, panel_width, panel_height), 3, border_radius=10)
+    
+#     # Titre
+#     title_font = pygame.font.Font(None, 48)
+#     title_text = title_font.render("INVENTAIRE", True, (255, 255, 255))
+#     title_rect = title_text.get_rect(center=(screen_width // 2, panel_y + 30))
+#     screen.blit(title_text, title_rect)
+    
+#     # État du joueur
+#     eq = player.get_equipped_weapon()
+#     eq_desc = "aucune"
+#     if eq:
+#         eq_desc = f"{eq.name} (DMG {getattr(eq,'damage','?')}, Dur {getattr(eq,'durability','?')})"
+    
+#     state_text = font.render(f"PV: {player.get_hp()} | Arme équipée: {eq_desc}", True, (200, 200, 200))
+#     screen.blit(state_text, (panel_x + 20, panel_y + 70))
+    
+#     # Liste des items
+#     inv = player.list_inventory()
+#     y_start = panel_y + 110
+#     item_height = 30
+#     max_items_visible = 10
+    
+#     if not inv:
+#         empty_text = font.render("(Inventaire vide)", True, (150, 150, 150))
+#         screen.blit(empty_text, (panel_x + 20, y_start))
+#     else:
+#         # Afficher les items avec scroll si nécessaire
+#         start_idx = 0
+#         items_to_show = inv[start_idx:start_idx + max_items_visible]
+        
+#         for i, it in enumerate(items_to_show):
+#             y_pos = y_start + i * item_height
+#             name = getattr(it, "name", str(it))
+#             extra = []
+            
+#             if isinstance(it, Weapon):
+#                 dmg = getattr(it,'damage','?')
+#                 dur = getattr(it,'durability','?')
+#                 rng = getattr(it,'range','?')
+#                 extra.append(f"DMG {dmg}")
+#                 extra.append(f"Dur {dur}")
+#                 extra.append(f"Portée {rng}")
+#                 cur = player.get_equipped_weapon()
+#                 if cur and hasattr(cur,'damage') and hasattr(it,'damage'):
+#                     dd = it.damage - cur.damage
+#                     if dd != 0:
+#                         sign = "+" if dd>0 else ""
+#                         extra.append(f"ΔDMG {sign}{dd}")
+#             elif isinstance(it, Potion):
+#                 cat = getattr(it,'category','?')
+#                 pot = getattr(it,'potency','?')
+#                 extra.append(f"{cat}")
+#                 if str(cat).lower().endswith('health'):
+#                     extra.append(f"+PV {pot}")
+            
+#             suffix = f" ({', '.join(extra)})" if extra else ""
+#             item_text = f"{i}: {name}{suffix}"
+            
+#             # Highlight si équipé
+#             if isinstance(it, Weapon) and eq == it:
+#                 highlight_rect = pygame.Rect(panel_x + 15, y_pos - 2, panel_width - 30, item_height)
+#                 pygame.draw.rect(screen, (100, 150, 200), highlight_rect, border_radius=3)
+            
+#             text_surf = hud_font.render(item_text, True, (255, 255, 255))
+#             screen.blit(text_surf, (panel_x + 20, y_pos))
+    
+#     # Instructions
+#     instructions = [
+#         "E + numéro : Équiper une arme",
+#         "U + numéro : Utiliser une potion",
+#         "B ou ESC : Fermer"
+#     ]
+    
+#     y_instructions = panel_y + panel_height - 80
+#     for instruction in instructions:
+#         inst_text = hud_font.render(instruction, True, (180, 180, 180))
+#         screen.blit(inst_text, (panel_x + 20, y_instructions))
+#         y_instructions += 20
+    
+#     pygame.display.flip()
+    
+#     # Boucle d'interaction
+#     waiting = True
+#     input_mode = False
+#     input_text = ""
+#     input_type = None  # 'equip' ou 'use'
+    
+#     while waiting:
+#         for event in pygame.event.get():
+#             if event.type == pygame.QUIT:
+#                 waiting = False
+#                 break
+#             elif event.type == pygame.KEYDOWN:
+#                 if input_mode:
+#                     if event.key == pygame.K_RETURN:
+#                         # Exécuter l'action
+#                         try:
+#                             idx = int(input_text)
+#                             if input_type == 'equip':
+#                                 if player.equip_weapon_by_index(idx):
+#                                     message = "Arme équipée."
+#                                 else:
+#                                     message = "Échec: sélectionnez une arme valide."
+#                             elif input_type == 'use':
+#                                 if player.use_potion_by_index(idx):
+#                                     message = "Potion utilisée."
+#                                 else:
+#                                     message = "Échec: sélectionnez une potion valide."
+#                             else:
+#                                 message = "Action inconnue."
+                            
+#                             # Afficher le message et fermer
+#                             _show_message(screen, screen_width, screen_height, message, font)
+#                             waiting = False
+#                         except ValueError:
+#                             _show_message(screen, screen_width, screen_height, "Format invalide", font)
+#                             waiting = False
+#                         input_mode = False
+# =======
     # [FIX] Define y_start here so it is available in the loop below
     y_start = panel_y + 110
     
@@ -867,6 +1087,85 @@ def _open_inventory_menu_pygame(screen, player: PlayerController, screen_width, 
                     elif event.unicode.isdigit():
                         input_text += event.unicode
                 else:
+# <<<<<<< HEAD
+#                     if event.key == pygame.K_e:
+#                         input_mode = True
+#                         input_type = 'equip'
+#                         input_text = ""
+#                     elif event.key == pygame.K_u:
+#                         input_mode = True
+#                         input_type = 'use'
+#                         input_text = ""
+#                     elif event.key == pygame.K_b or event.key == pygame.K_ESCAPE:
+#                         waiting = False
+#                         break
+        
+#         # Redessiner si en mode input
+#         if input_mode:
+#             # Redessiner complètement l'inventaire
+#             overlay = pygame.Surface((screen_width, screen_height))
+#             overlay.set_alpha(200)
+#             overlay.fill((0, 0, 0))
+#             screen.blit(overlay, (0, 0))
+            
+#             pygame.draw.rect(screen, (60, 60, 70), (panel_x, panel_y, panel_width, panel_height), border_radius=10)
+#             pygame.draw.rect(screen, (100, 100, 120), (panel_x, panel_y, panel_width, panel_height), 3, border_radius=10)
+            
+#             title_text = title_font.render("INVENTAIRE", True, (255, 255, 255))
+#             title_rect = title_text.get_rect(center=(screen_width // 2, panel_y + 30))
+#             screen.blit(title_text, title_rect)
+            
+#             state_text = font.render(f"PV: {player.get_hp()} | Arme équipée: {eq_desc}", True, (200, 200, 200))
+#             screen.blit(state_text, (panel_x + 20, panel_y + 70))
+            
+#             # Redessiner les items
+#             if inv:
+#                 for i, it in enumerate(items_to_show):
+#                     y_pos = y_start + i * item_height
+#                     name = getattr(it, "name", str(it))
+#                     extra = []
+                    
+#                     if isinstance(it, Weapon):
+#                         dmg = getattr(it,'damage','?')
+#                         dur = getattr(it,'durability','?')
+#                         rng = getattr(it,'range','?')
+#                         extra.append(f"DMG {dmg}")
+#                         extra.append(f"Dur {dur}")
+#                         extra.append(f"Portée {rng}")
+#                         cur = player.get_equipped_weapon()
+#                         if cur and hasattr(cur,'damage') and hasattr(it,'damage'):
+#                             dd = it.damage - cur.damage
+#                             if dd != 0:
+#                                 sign = "+" if dd>0 else ""
+#                                 extra.append(f"ΔDMG {sign}{dd}")
+#                     elif isinstance(it, Potion):
+#                         cat = getattr(it,'category','?')
+#                         pot = getattr(it,'potency','?')
+#                         extra.append(f"{cat}")
+#                         if str(cat).lower().endswith('health'):
+#                             extra.append(f"+PV {pot}")
+                    
+#                     suffix = f" ({', '.join(extra)})" if extra else ""
+#                     item_text = f"{i}: {name}{suffix}"
+                    
+#                     if isinstance(it, Weapon) and eq == it:
+#                         highlight_rect = pygame.Rect(panel_x + 15, y_pos - 2, panel_width - 30, item_height)
+#                         pygame.draw.rect(screen, (100, 150, 200), highlight_rect, border_radius=3)
+                    
+#                     text_surf = hud_font.render(item_text, True, (255, 255, 255))
+#                     screen.blit(text_surf, (panel_x + 20, y_pos))
+            
+#             # Afficher le prompt d'input
+#             prompt = f"{'Équiper' if input_type == 'equip' else 'Utiliser'} (entrez le numéro): {input_text}_"
+#             prompt_text = font.render(prompt, True, (255, 255, 0))
+#             prompt_rect = pygame.Rect(panel_x + 20, panel_y + panel_height - 100, panel_width - 40, 40)
+#             pygame.draw.rect(screen, (40, 40, 50), prompt_rect, border_radius=5)
+#             screen.blit(prompt_text, (panel_x + 20, panel_y + panel_height - 100))
+            
+#             pygame.display.flip()
+    
+#     # Redessiner le jeu après fermeture
+# =======
                     if event.key == pygame.K_UP:
                         if len(inv) > max_items_visible: scroll_offset = max(0, scroll_offset - 1)
                     elif event.key == pygame.K_DOWN:
