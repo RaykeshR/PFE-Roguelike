@@ -32,3 +32,8 @@ Roguia/**/.env
 ./Roguia/*/.env
 ./Roguia/**/.env
 *.exe
+**.exe
+./*.exe
+./**.exe
+PFE-Roguelike/PFE-Roguelike.exe
+./PFE-Roguelike/PFE-Roguelike.exe

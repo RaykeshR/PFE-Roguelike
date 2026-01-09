@@ -20,6 +20,9 @@ dist/Roguia/_internal
 dist/Roguia/.env
 dist/PFERoguelike/_internal
 dist/PFERoguelike/.env
+dist/PFE-Roguelike/PFE-Roguelike.exe
+dist/PFERoguelike/PFERoguelike.exe
+dist/Roguia/Roguia.exe
 # Pas le bon dossier :
 dist/PFE-Roguelike/_internal/.env
 dist/Roguia/_internal/.env
@@ -27,6 +30,7 @@ dist/PFERoguelike/_internal/.env
 dist/.env
 build/build/.env
 build/.env
+
 # Fichiers temporaires
 *.swp
 *.swo
@@ -44,3 +48,5 @@ build/.env
 
 # Les Logs 
 *.log.env
+dist/PFE-Roguelike/PFE-Roguelike.exe
+dist/Roguia/Roguia.exe
