@@ -7,7 +7,7 @@
 
 ; DÉFINITION DES CONSTANTES (Pour modifier facilement)
 #define MyAppName "Roguia"
-#define MyAppVersion "2.6.1.16"
+#define MyAppVersion "2.6.1.17"
 #define MyAppPublisher "Raykesh, Sabri, Maxence, Coumba, Chrisphen"
 #define MyAppURL "https://github.com/RaykeshR/PFE-Roguelike"
 ; IMPORTANT : On décide que le jeu installé s'appellera toujours "Roguia.exe"

@@ -154,6 +154,7 @@ Pour mettre à jour l'installeur (Inno Setup 6.6.1)  :
 pyinstaller build.spec --clean --noconfirm
 pyinstaller Roguia.spec --clean --noconfirm
 ```
+(Changer le MyAppVersion)
 puis Compilez l'installeur/lancer : \PFE-Roguelike\installer_Roguia.iss
  -->
 
