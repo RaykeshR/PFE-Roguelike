@@ -70,6 +70,7 @@ dist/Roguia/Roguia.exe
 # Fichiers de synchronisation VS Code
 *.synctex.gz
 *.synctex
+*.synctex(busy)
 
 # Logs et fichiers divers
 *.dvi
