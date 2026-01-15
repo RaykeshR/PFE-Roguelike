@@ -69,7 +69,7 @@ L'approche retenue repose sur l'Apprentissage par Renforcement (RL), et plus sp�
 \section{Modélisation du Problème (MDP)}
 Le problème de navigation et d'attaque des monstres est modélisé comme un Processus de Décision Markovien (MDP) défini par le tuple $\langle \mathcal{S}, \mathcal{A}, P, R, \gamma \rangle$.
 
-\subsection{Espace d'État $\mathcal{S}$}
+\subsection{Espace d'État \texorpdfstring{$\mathcal{S}$}{S}}
 Contrairement à une approche par vision par ordinateur (pixels), nous optons pour un espace d'état compact basé sur la position relative du joueur. Soit $(x_m, y_m)$ la position du monstre et $(x_p, y_p)$ la position du joueur dans la grille discrète $\mathbb{Z}^2$.
 
 L'état $s_t \in \mathcal{S}$ à l'instant $t$ est défini par le vecteur de différence borné (clipping) afin de réduire la dimensionnalité de la Q-Table :
@@ -83,14 +83,14 @@ L'état $s_t \in \mathcal{S}$ à l'instant $t$ est défini par le vecteur de dif
 
 Où la fonction $\text{clip}(v, \min, \max)$ restreint la valeur $v$ dans l'intervalle $[\min, \max]$. Dans notre implémentation actuelle, $C=6$, ce qui limite la perception locale de l'agent à une fenêtre de $13 \times 13$ cases.
 
-\subsection{Espace d'Action $\mathcal{A}$}
+\subsection{Espace d'Action \texorpdfstring{$\mathcal{A}$}{A}}
 L'agent dispose d'un espace d'action discret comprenant les quatre directions cardinales :
 \begin{equation}
     \mathcal{A} = \{ \text{HAUT}, \text{BAS}, \text{GAUCHE}, \text{DROITE} \}
 \end{equation}
-Chaque action $a \in \mathcal{A}$ induit un déplacement potentiel $(\Delta x, \Delta y)$.
+Chaque action $a \in \mathcal{A}$ induit un déplacement potentiel $(\Delta x, \Delta y)$. 
 
-\subsection{Fonction de Récompense $R$ et Reward Shaping}
+\subsection{Fonction de Récompense \texorpdfstring{$R$}{R} et Reward Shaping}
 Pour accélérer la convergence, nous utilisons une technique de \textit{Reward Shaping} basée sur le potentiel \cite{ng1999policy}, utilisant la distance de Manhattan. La récompense $r_t$ reçue après une transition est définie par :
 
 \begin{equation}
@@ -131,7 +131,7 @@ Les hyperparamètres retenus sont :
     \item Facteur d'actualisation $\gamma = 0.95$ (priorité au long terme)
 \end{itemize}
 
-\subsection{Politique d'Exploration $\epsilon$-Greedy}
+\subsection{Politique d'Exploration \texorpdfstring{$\epsilon$-Greedy}{epsilon-Greedy}}
 Pour balancer l'exploration et l'exploitation, l'agent choisit ses actions selon une politique $\epsilon$-greedy avec décroissance exponentielle :
 
 \begin{equation}
