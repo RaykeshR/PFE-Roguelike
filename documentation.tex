@@ -182,6 +182,31 @@ L'apprentissage hors-ligne s'effectue en itérant sur le dataset historique $\ma
 Ce modèle $Q_{global}$ est ensuite redistribué aux clients, permettant aux nouveaux monstres de bénéficier de l'expérience cumulée de tous les joueurs précédents \cite{sutton2018reinforcement}.
 \end{sloppypar}
 
+\section{Analyse des Résultats}
+
+Pour valider l'approche théorique, nous avons analysé les données de comportement des agents sur plusieurs époques d'entraînement.
+
+\subsection{Convergence de la Q-Table}
+La figure \ref{fig:heatmap} illustre la distribution des valeurs Q maximales ($\max_a Q(s, a)$) pour l'espace d'état local. Nous observons une convergence claire : les états centraux (proches du joueur, en $(0,0)$) présentent des valeurs élevées (zones claires), indiquant que l'agent identifie correctement la proximité de la récompense terminale. Les zones périphériques montrent un gradient descendant cohérent avec la fonction de reward shaping.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{analytics_charts/3_heatmap_q_table.png} 
+    \caption{Heatmap des valeurs Q accumulées. Le centre représente la position du joueur.}
+    \label{fig:heatmap}
+\end{figure}
+
+\subsection{Distribution des Récompenses}
+L'histogramme des récompenses (Figure \ref{fig:rewards}) confirme l'impact du \textit{Reward Shaping}. La distribution n'est pas binaire (échec/succès) mais continue, prouvant que les agents reçoivent des signaux d'apprentissage fréquents (les barres autour de -1 à +1 correspondant au rapprochement/éloignement) en plus des événements rares (capture à +20).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{analytics_charts/1_histogramme_recompenses.png}
+    \caption{Distribution des récompenses immédiates perçues par les agents.}
+    \label{fig:rewards}
+\end{figure}
+
+
 \section{Conclusion et Perspectives}
 L'implémentation mathématique présentée permet aux entités de \textit{Roguia} de développer des comportements de poursuite complexes et adaptatifs. L'utilisation conjointe du \textit{Reward Shaping} pour accélérer la convergence locale et du \textit{Batch RL} pour l'intelligence collective assure une courbe de difficulté dynamique.
 
