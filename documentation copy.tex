@@ -71,6 +71,8 @@ L'approche retenue repose sur l'Apprentissage par Renforcement (RL), et plus sp�
 \section{Modélisation du Problème (MDP)}
 Le problème de navigation et d'attaque des monstres est modélisé comme un Processus de Décision Markovien (MDP) défini par le tuple $\langle \mathcal{S}, \mathcal{A}, P, R, \gamma \rangle$.
 
+La dynamique de transition $P(s'|s,a)$ étant déterminée par la génération procédurale du donjon et donc inconnue a priori, une approche \textit{Model-Free} comme le Q-Learning est nécessaire, l'agent devant apprendre la physique de l'environnement par l'expérience directe.
+
 \subsection{Espace d'État \texorpdfstring{$\mathcal{S}$}{S}}
 Contrairement à une approche par vision par ordinateur (pixels), nous optons pour un espace d'état compact basé sur la position relative du joueur. Soit $(x_m, y_m)$ la position du monstre et $(x_p, y_p)$ la position du joueur dans la grille discrète $\mathbb{Z}^2$.
 
@@ -84,6 +86,8 @@ L'état $s_t \in \mathcal{S}$ à l'instant $t$ est défini par le vecteur de dif
 \end{equation}
 
 Où la fonction $\text{clip}(v, \min, \max)$ restreint la valeur $v$ dans l'intervalle $[\min, \max]$. Dans notre implémentation actuelle, $C=6$, ce qui limite la perception locale de l'agent à une fenêtre de $13 \times 13$ cases.
+
+L'espace d'état résultant comporte ainsi $(2C+1)^2 = 13^2 = 169$ états distincts. Cette cardinalité réduite permet une convergence rapide de l'algorithme tabulaire sans nécessiter d'approximation de fonction complexe.
 
 \subsection{Espace d'Action \texorpdfstring{$\mathcal{A}$}{A}}
 L'agent dispose d'un espace d'action discret comprenant les quatre directions cardinales :
