@@ -12,6 +12,10 @@
 \usepackage{tikz}
 \usepackage{hyperref}
 \usepackage{bm} % Pour les vecteurs en gras
+\usepackage{caption} % Pour des légendes de figures plus "académiques"
+
+% Configuration des légendes (Style article de recherche)
+\captionsetup[figure]{font=small,labelfont=bf,name={Fig.}}
 
 % Configuration de la table des matières
 \usepackage{tocloft}
@@ -58,6 +62,15 @@
 
 \maketitle
 \thispagestyle{empty}
+
+% Le résumé (Abstract) est obligatoire dans un papier technique
+\begin{abstract}
+    \noindent Ce document technique détaille l'implémentation d'agents autonomes basés sur l'apprentissage par renforcement (RL) au sein du projet \textit{Roguia}. Nous formulons le problème de navigation en environnement stochastique comme un Processus de Décision Markovien (MDP) à états discrets bornés. Nous proposons une architecture hybride novatrice combinant un apprentissage en ligne (\textit{Online Learning}) via l'algorithme Q-Learning tabulaire, et une consolidation hors-ligne (\textit{Batch RL}) permettant l'agrégation d'expériences multi-agents. Les résultats expérimentaux démontrent une convergence de la politique optimale sur un espace d'état réduit de 169 dimensions, validée par l'analyse des cartes de chaleur (heatmaps) de la fonction de valeur $Q$.
+    
+    \vspace{0.5cm}
+    \noindent \textbf{Mots-clés :} Apprentissage par Renforcement, Q-Learning, MDP, Batch RL, Roguelike, Reward Shaping.
+\end{abstract}
+
 \newpage
 
 \tableofcontents
@@ -191,7 +204,7 @@ Ce modèle $Q_{global}$ est ensuite redistribué aux clients, permettant aux nou
 Pour valider l'approche théorique, nous avons analysé les données de comportement des agents sur plusieurs époques d'entraînement.
 
 \subsection{Convergence de la Q-Table}
-La figure \ref{fig:heatmap} illustre la distribution des valeurs Q maximales ($\max_a Q(s, a)$) pour l'espace d'état local. Nous observons une convergence claire : les états centraux (proches du joueur, en $(0,0)$) présentent des valeurs élevées (zones claires), indiquant que l'agent identifie correctement la proximité de la récompense terminale. Les zones périphériques montrent un gradient descendant cohérent avec la fonction de reward shaping.
+La Fig. \ref{fig:heatmap} illustre la distribution des valeurs Q maximales ($\max_a Q(s, a)$) pour l'espace d'état local. Nous observons une convergence claire : les états centraux (proches du joueur, en $(0,0)$) présentent des valeurs élevées (zones claires), indiquant que l'agent identifie correctement la proximité de la récompense terminale. Les zones périphériques montrent un gradient descendant cohérent avec la fonction de reward shaping.
 
 \begin{figure}[H]
     \centering
@@ -201,7 +214,7 @@ La figure \ref{fig:heatmap} illustre la distribution des valeurs Q maximales ($\
 \end{figure}
 
 \subsection{Distribution des Récompenses}
-L'histogramme des récompenses (Figure \ref{fig:rewards}) confirme l'impact du \textit{Reward Shaping}. La distribution n'est pas binaire (échec/succès) mais continue, prouvant que les agents reçoivent des signaux d'apprentissage fréquents (les barres autour de -1 à +1 correspondant au rapprochement/éloignement) en plus des événements rares (capture à +20).
+L'histogramme des récompenses (Fig. \ref{fig:rewards}) confirme l'impact du \textit{Reward Shaping}. La distribution n'est pas binaire (échec/succès) mais continue, prouvant que les agents reçoivent des signaux d'apprentissage fréquents (les barres autour de -1 à +1 correspondant au rapprochement/éloignement) en plus des événements rares (capture à +20).
 
 \begin{figure}[H]
     \centering
@@ -214,7 +227,7 @@ L'histogramme des récompenses (Figure \ref{fig:rewards}) confirme l'impact du \
 \section{Conclusion et Perspectives}
 L'implémentation mathématique présentée permet aux entités de \textit{Roguia} de développer des comportements de poursuite complexes et adaptatifs. L'utilisation conjointe du \textit{Reward Shaping} pour accélérer la convergence locale et du \textit{Batch RL} pour l'intelligence collective assure une courbe de difficulté dynamique.
 
-Les travaux futurs porteront sur l'intégration de réseaux de neurones profonds (Deep Q-Networks - DQN) pour gérer un espace d'état continu et non borné, s'affranchissant ainsi de la discrétisation spatiale actuelle.
+Cependant, la définition actuelle de l'état $s$ n'incluant pas la topologie des murs (uniquement la position relative), le problème s'apparente à un Processus de Décision Markovien Partiellement Observable (POMDP). Les travaux futurs porteront sur l'intégration de réseaux de neurones profonds (Deep Q-Networks - DQN) pour gérer un espace d'état plus riche (incluant la vision locale des obstacles) et non borné.
 
 \begin{thebibliography}{9}
 
