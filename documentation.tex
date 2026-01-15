@@ -204,6 +204,27 @@ avec $\beta = 0.6$ et $d(\state) = |x_p - x_m| + |y_p - y_m|$.
     \item \textbf{Récompense terminale} : $+20.0$ (capture du joueur).
 \end{itemize}
 
+\subsection{Paramètres de Simulation et Progression}
+Au-delà de la topologie, la complexité de la tâche est régie par des variables d'état internes aux agents et une courbe de difficulté globale.
+
+\paragraph{Hétérogénéité des Agents (Normal vs Super) :}
+La population d'agents $\mathcal{P}$ est composée de deux classes distinctes, influençant la dynamique des épisodes :
+\begin{itemize}
+    \item \textbf{Monstres Standards ($m_{std}$)} : Initialisés avec des attributs stochastiques faibles ($PV \sim \mathcal{U}(50, 70)$). Ils servent principalement à générer du bruit et de l'obstacle social.
+    \item \textbf{Super Monstres ($m_{sup}$)} : Agents d'élite ($PV > 100$, Dégâts $\times 1.5$) instanciés uniquement lorsque la profondeur du donjon $d > 2$. Ils agissent comme des points de singularité dans l'apprentissage, nécessitant une politique plus robuste de la part du joueur, et donc indirectement, une meilleure adaptation de l'IA pour survivre (ou tuer).
+\end{itemize}
+
+\paragraph{Fonction de Difficulté Croissante :}
+L'environnement est non-stationnaire en termes de densité. La difficulté $\Delta$ est une fonction monotone de la profondeur du niveau $d$ :
+\begin{equation}
+    N_{agents}(d) = \lfloor 2 + \frac{d}{2} \rfloor, \quad \mathbb{P}(spawn_{super}) = \min(1.0, \max(0, (d-2) \cdot 0.1))
+\end{equation}
+Cette densification progressive de l'espace $\mathcal{W}$ augmente mécaniquement la probabilité de collisions sociales et réduit l'espace libre, forçant l'algorithme RL à optimiser les trajectoires fines au fil de la progression.
+
+\paragraph{Système d'Inventaire et Portée :}
+Bien que l'état $\state_t$ soit positionnel, l'interaction est modulée par l'équipement. Chaque agent possède une portée d'interaction $\delta_{weapon}$ (ex: 1.0 pour une épée, 5.0 pour un arc). 
+Actuellement, le MDP est optimisé pour une politique de contact ($\delta_{weapon} \approx 1$), mais l'architecture permet d'intégrer cette variable dans l'état futur pour apprendre des comportements de \textit{Kiting} (attaque à distance et repli).
+
 \section{Algorithme d'Apprentissage}
 
 \subsection{Q-Learning Tabulaire}
