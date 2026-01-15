@@ -42,7 +42,7 @@
 
 \title{
     \vspace{2cm}
-    \textbf{\Huge Roguia : Une Approche par Apprentissage par Renforcement Hybride dans un Roguelike} \\ [1cm] 
+    \textbf{\Huge Roguia : Une Approche par Apprentissage par Renforcement Hybride dans un Roguelike} \\ [1cm]
     \large \textit{Documentation Technique et Formalisation Mathématique}
 }
 \author{
@@ -113,13 +113,13 @@ Avec les composantes suivantes :
 \section{Algorithme d\'Apprentissage}
 
 \subsection{Q-Learning Tabulaire}
-L'agent cherche à apprendre la fonction de valeur d\'action optimale $Q^*(s, a)$, qui satisfait l\'équation de Bellman :
+L'agent cherche à apprendre la fonction de valeur d\'action optimale $Q^*(s, a)$, qui satisfait l'équation de Bellman :
 
 \begin{equation}
     Q^*(s, a) = \mathbb{E} \left[ r + \gamma \max_{a'} Q^*(s', a') \mid s, a \right]
 \end{equation}
 
-L\'implémentation (voir fichier \texttt{rl.py}) utilise la règle de mise à jour temporelle suivante :
+L'implémentation (voir fichier \texttt{rl.py}) utilise la règle de mise à jour temporelle suivante :
 
 \begin{equation}
     Q(s_t, a_t) \leftarrow Q(s_t, a_t) + \alpha \left[ r_{t+1} + \gamma \max_{a \in \mathcal{A}} Q(s_{t+1}, a) - Q(s_t, a_t) \right]
@@ -131,8 +131,8 @@ Les hyperparamètres retenus sont :
     \item Facteur d\'actualisation $\gamma = 0.95$ (priorité au long terme)
 \end{itemize}
 
-\subsection{Politique d\'Exploration \texorpdfstring{$\epsilon$-Greedy}{epsilon-Greedy}}
-Pour balancer l\'exploration et l\'exploitation, l\'agent choisit ses actions selon une politique $\epsilon$-greedy avec décroissance exponentielle :
+\subsection{Politique d\'Exploration \texorpdfstring{\epsilon-Greedy}{epsilon-Greedy}}
+Pour balancer l'exploration et l'exploitation, l'agent choisit ses actions selon une politique $\epsilon$-greedy avec décroissance exponentielle :
 
 \begin{equation}
     \pi(s) = \begin{cases} 
@@ -145,18 +145,18 @@ Le paramètre $\epsilon$ décroît après chaque épisode selon $\epsilon \lefta
 
 \section{Architecture "Super Monster" et Apprentissage hors-ligne}
 
-Une innovation majeure du projet Roguia réside dans l\'entraînement asynchrone d\'un modèle global, qualifié de "Super Monster".
+Une innovation majeure du projet Roguia réside dans l'entraînement asynchrone d'un modèle global, qualifié de "Super Monster".
 
 \subsection{Pipeline de Données}
 Le système repose sur une architecture ETL (Extract, Transform, Load) :
 \begin{enumerate}
     \item \textbf{Génération (Client)} : Lors des parties, chaque transition $(s, a, r, s', \text{done})$ est sérialisée.
     \item \textbf{Ingestion (MongoDB)} : Ces logs sont déversés dans une collection NoSQL \texttt{rl\_transitions}, adaptée aux données non structurées et massives.
-    \item \textbf{Entraînement (Batch)} : Un script serveur (\texttt{train\_global\_model.py}) récupère l\'ensemble du dataset $\mathcal{D}$.
+    \item \textbf{Entraînement (Batch)} : Un script serveur (\texttt{train\_global\_model.py}) récupère l'ensemble du dataset $\mathcal{D}$.
 \end{enumerate}
 
 \subsection{Algorithme Batch Q-Learning}
-L\'apprentissage hors-ligne s\'effectue en itérant sur le dataset historique $\mathcal{D}$ (Replay Buffer géant). Pour chaque époque $k \in \{1, \dots, K\}$ et pour chaque transition $i$ dans $\mathcal{D}$ :
+L'apprentissage hors-ligne s'effectue en itérant sur le dataset historique $\mathcal{D}$ (Replay Buffer géant). Pour chaque époque $k \in \{1, \dots, K\}$ et pour chaque transition $i$ dans $\mathcal{D}$ :
 
 \begin{algorithm}[H]
 \caption{Entraînement du Super Monster}
@@ -176,14 +176,12 @@ L\'apprentissage hors-ligne s\'effectue en itérant sur le dataset historique $\
 \end{algorithmic}
 \end{algorithm}
 
-\begin{sloppypar}
-Ce modèle $Q_{global}$ est ensuite redistribué aux clients, permettant aux nouveaux monstres de bénéficier de l\'expérience cumulée de tous les joueurs précédents \cite{sutton2018reinforcement}.
-\end{sloppypar}
+Ce modèle $Q_{global}$ est ensuite redistribué aux clients, permettant aux nouveaux monstres de bénéficier de l'expérience cumulée de tous les joueurs précédents \cite{sutton2018reinforcement}.
 
 \section{Conclusion et Perspectives}
-L\'implémentation mathématique présentée permet aux entités de \textit{Roguia} de développer des comportements de poursuite complexes et adaptatifs. L\'utilisation conjointe du \textit{Reward Shaping} pour accélérer la convergence locale et du \textit{Batch RL} pour l\'intelligence collective assure une courbe de difficulté dynamique.
+L'implémentation mathématique présentée permet aux entités de \textit{Roguia} de développer des comportements de poursuite complexes et adaptatifs. L'utilisation conjointe du \textit{Reward Shaping} pour accélérer la convergence locale et du \textit{Batch RL} pour l'intelligence collective assure une courbe de difficulté dynamique.
 
-Les travaux futurs porteront sur l\'intégration de réseaux de neurones profonds (Deep Q-Networks - DQN) pour gérer un espace d\'état continu et non borné, s\'affranchissant ainsi de la discrétisation spatiale actuelle.
+Les travaux futurs porteront sur l'intégration de réseaux de neurones profonds (Deep Q-Networks - DQN) pour gérer un espace d'état continu et non borné, s'affranchissant ainsi de la discrétisation spatiale actuelle.
 
 \begin{thebibliography}{9}
 
