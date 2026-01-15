@@ -88,18 +88,58 @@ L'approche retenue repose sur l'Apprentissage par Renforcement (RL), et plus sp�
     \item Un \textbf{Apprentissage hors ligne (Batch)} : Globalisé, permettant l'émergence d'un "Super Monstre" via l'agrégation de données massives stockées sur MongoDB.
 \end{itemize}
 
-\paragraph{Environnement Technique :}
-Les résultats présentés ont été obtenus avec la stack suivante :
+\subsection{Objectifs du Projet}
+Le projet \textit{Roguia} répond à une triple ambition technique, ludique et pédagogique :
+
 \begin{itemize}
-    \item \textbf{Langage} : Python 3.x
-    \item \textbf{Persistance} : MongoDB (NoSQL) pour les logs, PostgreSQL pour les données utilisateurs.
-    \item \textbf{Librairies} : \texttt{numpy} (calcul matriciel), \texttt{pymongo} (driver DB), \texttt{pickle} (sérialisation).
+    \item \textbf{Objectif Technique (IA \& Data)} : Concevoir une architecture d'Intelligence Artificielle hybride capable d'apprendre en continu (\textit{Lifelong Learning}). Le défi est de coupler un apprentissage temps-réel (adaptation rapide) avec une consolidation hors-ligne sur des données massives (robustesse).
+    
+    \item \textbf{Objectif Ludique (Game Design)} : Proposer une expérience de jeu "Roguelike" où la difficulté n'est pas scriptée, mais émergente. L'IA doit s'adapter organiquement au niveau du joueur pour maintenir un état de \textit{Flow} (ni trop facile, ni trop dur).
+    
+    \item \textbf{Objectif Ingénierie} : Déployer un pipeline de données complet (End-to-End) intégrant la collecte de logs hétérogènes (ETL), le stockage NoSQL (MongoDB) et le déploiement de modèles sérialisés en production.
+\end{itemize}
+
+\paragraph{Environnement Technique :}
+Le projet s'appuie sur un écosystème Python modulaire. Les bibliothèques principales utilisées sont :
+
+\begin{itemize}
+    \item \textbf{Moteur de Jeu} : \texttt{pygame} pour la boucle de rendu, la gestion des sprites et les événements utilisateurs.
+    \item \textbf{Intelligence Artificielle \& Data} : 
+    \begin{itemize}
+        \item \texttt{numpy} et \texttt{pandas} pour la manipulation vectorielle et le traitement des logs.
+        \item \texttt{matplotlib} et \texttt{seaborn} pour la génération des graphiques d'analyse (Heatmaps, KPIs).
+    \end{itemize}
+    \item \textbf{Persistance \& Backend} : 
+    \begin{itemize}
+        \item \texttt{pymongo} : Driver pour la base NoSQL MongoDB (Big Data/IA).
+        \item \texttt{psycopg2} : Adaptateur pour la base relationnelle PostgreSQL (Progression Joueur).
+    \end{itemize}
+    \item \textbf{Sécurité \& Configuration} : \texttt{bcrypt} pour le hachage des mots de passe et \texttt{python-dotenv} pour la gestion des variables d'environnement.
 \end{itemize}
 
 \section{Modélisation du Problème (MDP)}
 Le problème de navigation et d'attaque des monstres est modélisé comme un Processus de Décision Markovien (MDP) défini par le tuple $\langle \mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma \rangle$.
 
 La dynamique de transition $\mathcal{P}(\state'|\state, \action)$ étant déterminée par la génération procédurale du donjon et donc inconnue \textit{a priori}, une approche \textit{Model-Free} est nécessaire.
+
+\subsection{Algorithme de Génération Procédurale}
+La topologie du donjon $\mathcal{M}$ est générée via un processus stochastique séquentiel garantissant la solvabilité (existence d'un chemin Start $\to$ End).
+
+\paragraph{Placement des Salles (Rejection Sampling) :}
+Soit $\mathcal{R} = \{r_1, \dots, r_N\}$ l'ensemble des salles. Chaque salle $r_i$ est définie par un tuple $(x, y, w, h)$ échantillonné selon une distribution uniforme sur l'espace grille $\mathcal{G} \subset \mathbb{Z}^2$ :
+\begin{equation}
+    (x, y) \sim \mathcal{U}(0, W-w), \quad (w, h) \sim \mathcal{U}(w_{min}, h_{max})
+\end{equation}
+Une salle candidate $r_{new}$ est acceptée si et seulement si elle ne chevauche aucune salle existante avec une marge de sécurité $\delta$ :
+\begin{equation}
+    \mathcal{R}_{k+1} = \mathcal{R}_k \cup \{r_{new}\} \iff \forall r_j \in \mathcal{R}_k, \quad \text{IoU}(r_{new} \oplus \delta, r_j) = 0
+\end{equation}
+
+\paragraph{Connectivité (Graphe Linéaire) :}
+Pour garantir la connexité, les salles sont reliées selon une structure de graphe linéaire (Path Graph) $G=(V, E)$ où $V=\mathcal{R}$ et $E=\{(r_i, r_{i+1}) \mid 1 \le i < N\}$.
+Des couloirs $C_{i, i+1}$ sont creusés par un algorithme de "Dog-leg" (chemin en L) ou via un BFS contraint, connectant le centroïde de $r_i$ à celui de $r_{i+1}$.
+
+Cette méthode assure qu'il existe toujours au moins une trajectoire valide $\tau$ reliant le point de départ $S \in r_1$ au point d'arrivée $E \in r_N$, condition nécessaire pour la convergence de l'apprentissage par renforcement.
 
 \subsection{Dynamique de l'Environnement et Stochasticité}
 L'environnement $\mathcal{E}$ dans lequel évoluent les agents n'est pas statique. À chaque nouvel épisode $k$, une nouvelle instance de carte $\mathcal{M}_k$ est générée par un algorithme procédural (voir \texttt{map.py}).
@@ -467,6 +507,11 @@ Vinyals, O., et al. (2019).
 \textit{Grandmaster level in StarCraft II using multi-agent reinforcement learning}.
 Nature, 575(7782), 350-354.
 
+\bibitem{mckinney2010data}
+McKinney, W. (2010).
+\textit{Data Structures for Statistical Computing in Python} (Pandas).
+In Proceedings of the 9th Python in Science Conference (Vol. 445, pp. 51-56).
+
 \end{thebibliography}
 
 \newpage
@@ -513,5 +558,15 @@ Contrairement à l'environnement de développement, la version de production ne 
         }}
     \end{center}
 \end{enumerate}
+
+\subsection{Chaîne d'Industrialisation (Packaging)}
+Afin de garantir la reproductibilité et la distribution du projet sans contraindre l'utilisateur final à configurer un environnement Python complexe, nous avons mis en place une pipeline de \textit{Build} automatisée :
+
+\begin{enumerate}
+    \item \textbf{Gel de l'environnement (Freezing)} : Utilisation de \texttt{PyInstaller} pour encapsuler l'interpréteur Python et les dépendances lourdes (\texttt{numpy}, \texttt{pandas}, \texttt{pygame}) dans un exécutable autonome (Standalone).
+    \item \textbf{Création de l'Installeur} : Scripting \texttt{Inno Setup} (Code Pascal) pour générer un assistant d'installation standard Windows (\texttt{.exe}), gérant la création des raccourcis et l'injection sécurisée des variables d'environnement (\texttt{.env}).
+\end{enumerate}
+
+Cette démarche transforme un prototype de recherche académique en un logiciel "prêt-à-jouer".
 
 \end{document}
