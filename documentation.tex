@@ -69,7 +69,7 @@
     \noindent Ce document technique détaille l'implémentation d'agents autonomes basés sur l'apprentissage par renforcement (RL) au sein du projet \textit{Roguia}. Nous formulons le problème de navigation en environnement stochastique comme un Processus de Décision Markovien (MDP) à états discrets bornés. Nous proposons une architecture hybride novatrice combinant un apprentissage en ligne (\textit{Online Learning}) via l'algorithme Q-Learning tabulaire, et une consolidation hors-ligne (\textit{Batch RL}) permettant l'agrégation d'expériences multi-agents. Les résultats expérimentaux démontrent une convergence de la politique optimale sur un espace d'état réduit de 169 dimensions, validée par l'analyse des cartes de chaleur (heatmaps) de la fonction de valeur $Q$.
     
     \vspace{0.5cm}
-    \noindent \textbf{Mots-clés :} Apprentissage par Renforcement, Q-Learning, MDP, Batch RL, Roguelike, Reward Shaping.
+    \noindent \textbf{Mots-clés :} Apprentissage par Renforcement, Q-Learning, MDP, Batch RL, Roguelike, Reward Shaping, PBRS.
 \end{abstract}
 
 \newpage
@@ -80,166 +80,180 @@
 \section{Introduction}
 Ce document présente la formalisation mathématique et l'implémentation technique des agents autonomes au sein du projet \textit{Roguia}. L'objectif est de développer une intelligence artificielle capable de contrôler des entités ennemies ("monstres") dans un environnement stochastique généré procéduralement.
 
-L'approche retenue repose sur l'Apprentissage par Renforcement (RL), et plus spécifiquement sur l'algorithme Q-Learning \cite{watkins1989learning}. Le système se distingue par une architecture hybride combinant un apprentissage en ligne (\textit{Online Learning}) local à chaque instance de jeu, et un apprentissage hors ligne (\textit{Offline/Batch RL}) globalisé, permettant l'émergence d'un "Super Monstre" via l'agrégation de données massives stockées sur MongoDB.
+L'approche retenue repose sur l'Apprentissage par Renforcement (RL), et plus spécifiquement sur l'algorithme Q-Learning \cite{watkins1989learning}. Le système se distingue par une architecture hybride combinant :
+\begin{itemize}
+    \item Un \textbf{Apprentissage en ligne (Online)} : Local à chaque instance de jeu, permettant une adaptation rapide via une Q-Table partagée en mémoire (\texttt{shared\_q\_data}).
+    \item Un \textbf{Apprentissage hors ligne (Batch)} : Globalisé, permettant l'émergence d'un "Super Monstre" via l'agrégation de données massives stockées sur MongoDB.
+\end{itemize}
 
 \section{Modélisation du Problème (MDP)}
-Le problème de navigation et d'attaque des monstres est modélisé comme un Processus de Décision Markovien (MDP) défini par le tuple $\langle \mathcal{S}, \mathcal{A}, P, R, \gamma \rangle$.
+Le problème de navigation et d'attaque des monstres est modélisé comme un Processus de Décision Markovien (MDP) défini par le tuple $\langle \mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma \rangle$.
 
-La dynamique de transition $P(s'|s,a)$ étant déterminée par la génération procédurale du donjon et donc inconnue a priori, une approche \textit{Model-Free} comme le Q-Learning est nécessaire, l'agent devant apprendre la physique de l'environnement par l'expérience directe.
+La dynamique de transition $\mathcal{P}(\state'|\state, \action)$ étant déterminée par la génération procédurale du donjon et donc inconnue \textit{a priori}, une approche \textit{Model-Free} est nécessaire.
 
 \subsection{Espace d'État \texorpdfstring{$\mathcal{S}$}{S}}
-Contrairement à une approche par vision par ordinateur (pixels), nous optons pour un espace d'état compact basé sur la position relative du joueur. Soit $(x_m, y_m)$ la position du monstre et $(x_p, y_p)$ la position du joueur dans la grille discrète $\mathbb{Z}^2$.
+Contrairement à une approche par vision par ordinateur (pixels) qui induirait une explosion combinatoire, nous optons pour une représentation centrée sur l'agent (egocentrique). Soit $\mathbf{p}_m = (x_m, y_m)$ la position du monstre et $\mathbf{p}_p = (x_p, y_p)$ la position du joueur dans la grille discrète $\mathbb{Z}^2$.
 
-L'état $s_t \in \mathcal{S}$ à l'instant $t$ est défini par le vecteur de différence borné (clipping) afin de réduire la dimensionnalité de la Q-Table :
+L'état $\state_t \in \mathcal{S}$ à l'instant $t$ est défini par le vecteur de différence relative, projeté sur un espace borné :
 
 \begin{equation}
-    s_t = \begin{bmatrix}
-        \text{clip}(x_p - x_m, -C, C) \\
-        \text{clip}(y_p - y_m, -C, C)
+    \state_t = \begin{bmatrix}
+        \text{clip}(x_p - x_m, -\kappa, \kappa) \\
+        \text{clip}(y_p - y_m, -\kappa, \kappa)
     \end{bmatrix}
 \end{equation}
 
-Où la fonction $\text{clip}(v, \min, \max)$ restreint la valeur $v$ dans l'intervalle $[\min, \max]$. Dans notre implémentation actuelle, $C=6$, ce qui limite la perception locale de l'agent à une fenêtre de $13 \times 13$ cases.
+Où la fonction de saturation $\text{clip}$ est définie par :
+\begin{equation}
+    \text{clip}(z, a, b) = \min(\max(z, a), b)
+\end{equation}
 
-L'espace d'état résultant comporte ainsi $(2C+1)^2 = 13^2 = 169$ états distincts. Cette cardinalité réduite permet une convergence rapide de l'algorithme tabulaire sans nécessiter d'approximation de fonction complexe.
+Dans notre implémentation (\texttt{rl.py}), $\kappa=6$, ce qui limite la perception locale de l'agent à une fenêtre de $(2\kappa+1) \times (2\kappa+1)$ cases. L'espace d'état résultant a une cardinalité de $|\mathcal{S}| = 13^2 = 169$ états.
 
 \subsection{Espace d'Action \texorpdfstring{$\mathcal{A}$}{A}}
 L'agent dispose d'un espace d'action discret comprenant les quatre directions cardinales :
 \begin{equation}
-    \mathcal{A} = \{ \text{HAUT}, \text{BAS}, \text{GAUCHE}, \text{DROITE} \}
+    \mathcal{A} = \{ \text{HAUT}, \text{BAS}, \text{GAUCHE}, \text{DROITE} \} \cong \{0, 1, 2, 3\}
 \end{equation}
-Chaque action $a \in \mathcal{A}$ induit un déplacement potentiel $(\Delta x, \Delta y)$.
+Chaque action $\action \in \mathcal{A}$ induit un déplacement potentiel $\Delta \mathbf{p}$.
 
-\subsection{Fonction de Récompense \texorpdfstring{$R$}{R} et Reward Shaping}
-Pour accélérer la convergence, nous utilisons une technique de \textit{Reward Shaping} basée sur le potentiel \cite{ng1999policy}, utilisant la distance de Manhattan. La récompense $r_t$ reçue après une transition est définie par :
+\subsection{Ingénierie de la Récompense (Reward Shaping)}
+La fonction de récompense est critique pour la convergence. Nous utilisons le \textit{Potential-Based Reward Shaping} (PBRS) pour densifier le signal sans altérer la politique optimale, conformément au théorème de Ng et al. \cite{ng1999policy}.
+
+La récompense immédiate $r_t$ est la somme d'une composante environnementale et d'un potentiel de mise en forme $\mathcal{F}$ :
 
 \begin{equation}
-    r_t = R_{\text{env}} + \Phi(s_{t-1}, s_t)
+    r_t(\state, \action, \state') = R_{\text{env}}(\state, \action, \state') + \underbrace{\gamma \Phi(\state') - \Phi(\state)}_{\text{Terme de Shaping } \mathcal{F}}
 \end{equation}
 
-Avec les composantes suivantes :
+\subsubsection{Définition du Potentiel $\Phi$}
+Nous définissons le potentiel $\Phi(\state)$ comme l'inverse de la distance de Manhattan $L_1$ vers le joueur. Dans l'implémentation, cela se traduit par une récompense différentielle :
+
+\begin{equation}
+    \mathcal{F}(\state_t, \state_{t+1}) \approx \beta \cdot [ d(\state_t) - d(\state_{t+1}) ]
+\end{equation}
+avec $\beta = 0.6$ et $d(\state) = |x_p - x_m| + |y_p - y_m|$.
+
+\subsubsection{Récompenses Environnementales $R_{\text{env}}$}
 \begin{itemize}
-    \item \textbf{Pénalité temporelle} : $-1.0$ pour encourager le chemin le plus court.
-    \item \textbf{Collision murale} : $-5.0$ si l'action mène à un obstacle.
-    \item \textbf{Chevauchement} : $-2.0$ si la case est occupée par un autre monstre.
-    \item \textbf{Capture du joueur (État terminal)} : $+20.0$.
-    \item \textbf{Shaping (Potentiel)} : 
-    \begin{equation}
-        \Phi(s_{t-1}, s_t) = \lambda \cdot (d(s_{t-1}) - d(s_t))
-    \end{equation}
-    où $d(s)$ est la distance de Manhattan $L_1$ entre le monstre et le joueur, et $\lambda = 0.6$ est le facteur d'échelle. Ceci offre une récompense dense guidant l'agent vers la cible.
+    \item \textbf{Coût d'existence} : $-1.0$ par pas (incitation à la rapidité).
+    \item \textbf{Pénalité d'obstacle} : $-5.0$ (collision murale).
+    \item \textbf{Pénalité sociale} : $-2.0$ (collision entre monstres).
+    \item \textbf{Récompense terminale} : $+20.0$ (capture du joueur).
 \end{itemize}
 
 \section{Algorithme d'Apprentissage}
 
-\subsection{Q-Learning Tabulaire et Hyperparamètres}
-L'agent cherche à apprendre la fonction de valeur d'action optimale $Q^*(s, a)$, qui satisfait l'équation de Bellman :
+\subsection{Q-Learning Tabulaire}
+L'agent apprend la fonction de valeur d'action optimale $\Qval^*(\state, \action)$ via l'équation de Bellman d'optimalité. La règle de mise à jour appliquée à chaque pas de temps $t$ est :
 
 \begin{equation}
-    Q^*(s, a) = \mathbb{E} \left[ r + \gamma \max_{a'} Q^*(s', a') \mid s, a \right]
+    \delta_t = r_{t+1} + \gamma \max_{\action' \in \mathcal{A}} \Qval(\state_{t+1}, \action') - \Qval(\state_t, \action_t)
 \end{equation}
-
-L'implémentation utilise la règle de mise à jour temporelle suivante :
 \begin{equation}
-    Q(s_t, a_t) \leftarrow Q(s_t, a_t) + \alpha \left[ r_{t+1} + \gamma \max_{a \in \mathcal{A}} Q(s_{t+1}, a) - Q(s_t, a_t) \right]
+    \Qval(\state_t, \action_t) \leftarrow \Qval(\state_t, \action_t) + \alpha \cdot \delta_t
 \end{equation}
 
-Les hyperparamètres retenus pour l'expérimentation sont résumés dans la Table \ref{tab:hyperparams}.
+Où $\delta_t$ représente l'erreur de différence temporelle (TD-Error).
+
+\subsection{Hyperparamètres}
+Les hyperparamètres retenus (cf. \texttt{engine/rl.py}) sont :
 
 \begin{table}[H]
 \centering
-\begin{tabular}{@{}llp{8cm}@{}}
+\begin{tabular}{@{}llp{7cm}@{}}
 \toprule
-\textbf{Paramètre} & \textbf{Valeur} & \textbf{Description} \\ \midrule
-$\alpha$ & 0.2 & Taux d'apprentissage (Learning Rate) \\
-$\gamma$ & 0.95 & Facteur d'actualisation (Discount Factor) \\
-$\epsilon_{start}$ & 0.5 & Probabilité d'exploration initiale \\
-$\epsilon_{min}$ & 0.05 & Probabilité d'exploration minimale \\
-$\epsilon_{decay}$ & 0.992 & Taux de décroissance de l'exploration \\
-$C$ & 6 & Borne de clipping pour l'état observable \\
+\textbf{Paramètre} & \textbf{Symbole} & \textbf{Valeur} \\ \midrule
+Learning Rate & $\alpha$ & 0.2 \\
+Discount Factor & $\gamma$ & 0.95 \\
+Exploration initiale & $\epsilon_{start}$ & 0.5 \\
+Exploration minimale & $\epsilon_{min}$ & 0.05 \\
+Decay Factor & $\lambda_{\epsilon}$ & 0.992 \\
+Horizon de vue & $\kappa$ & 6 \\
 \bottomrule
 \end{tabular}
-\caption{Synthèse des hyperparamètres de l'agent.}
-\label{tab:hyperparams}
+\caption{Hyperparamètres de l'agent Q-Learning}
 \end{table}
 
-\subsection{Politique d'Exploration \texorpdfstring{$\epsilon$-Greedy}{epsilon-Greedy}}
-Pour balancer l'exploration et l'exploitation, l'agent choisit ses actions selon une politique $\epsilon$-greedy avec décroissance exponentielle :
-
+\subsection{Stratégie d'Exploration $\epsilon$-Greedy}
+La politique suivie $\pi(\state)$ est $\epsilon$-greedy, assurant un compromis exploration/exploitation :
 \begin{equation}
-    \pi(s) = \begin{cases} 
-    \text{action aléatoire uniforme} & \text{avec probabilité } \epsilon \\
-    \argmax_{a \in \mathcal{A}} Q(s, a) & \text{avec probabilité } 1 - \epsilon
+    \action_t = \begin{cases} 
+    \text{uniforme}(\mathcal{A}) & \text{si } \xi < \epsilon_t \\
+    \argmax_{\action \in \mathcal{A}} \Qval(\state_t, \action) & \text{sinon}
     \end{cases}
 \end{equation}
+avec $\xi \sim \mathcal{U}[0,1]$ et une décroissance exponentielle $\epsilon_{t+1} = \max(\epsilon_{min}, \epsilon_t \cdot \lambda_{\epsilon})$.
 
-\subsection{Pré-entraînement (Cold Start)}
-Afin d'éviter le problème du \textit{Cold Start} où les agents explorent de manière purement aléatoire, la Q-Table est initialisée via une phase de pré-entraînement simulé (Bots vs Bots). Cela permet d'injecter des connaissances a priori dans la matrice $Q$ avant la première interaction avec un joueur humain.
+\subsection{Initialisation et Pré-entraînement (Cold Start)}
+Une initialisation uniforme $\Qval_0(\state, \action) = 0$ entraînerait une phase d'exploration purement stochastique (marche aléatoire) au début de l'interaction avec le joueur, nuisant à l'expérience de jeu. 
 
-\section{Architecture "Super Monster" et Apprentissage hors-ligne}
+Pour pallier ce problème de démarrage à froid (\textit{Cold Start}), nous procédons à une phase de pré-entraînement simulé (\textit{Bots vs Bots}). Cette méthode permet d'injecter une connaissance \textit{a priori} dans la matrice $\Qval$ avant le déploiement :
+\begin{equation}
+    \Qval_{deploy} \leftarrow \text{Train}(\Qval_{0}, \text{SimulatedEpisodes})
+\end{equation}
+L'agent débute ainsi la partie avec une politique $\pi_{init}$ déjà capable de se diriger grossièrement vers la cible.
 
-Une innovation majeure du projet Roguia réside dans l'entraînement asynchrone d'un modèle global, qualifié de "Super Monster".
+\section{Architecture Distribuée et Batch RL}
 
-\subsection{Pipeline de Données}
-Le système repose sur une architecture ETL (Extract, Transform, Load) :
+Le projet \textit{Roguia} implémente une boucle d'apprentissage fermée entre les clients de jeu et un serveur centralisé.
+
+\subsection{Pipeline ETL et Base de Données}
+Les transitions de jeu sont capturées et stockées selon le schéma suivant :
 \begin{enumerate}
-    \item \textbf{Génération (Client)} : Lors des parties, chaque transition $(s, a, r, s', \text{done})$ est sérialisée.
-    \item \textbf{Ingestion (MongoDB)} : Ces logs sont déversés dans une collection NoSQL \texttt{rl\_transitions}, adaptée aux données non structurées et massives.
-    \item \textbf{Entraînement (Batch)} : Un script serveur (\texttt{train\_global\_model.py}) récupère l'ensemble du dataset $\mathcal{D}$.
+    \item \textbf{Client} : Chaque monstre instancie un \texttt{QLearningAgent}. Si l'option \texttt{shared\_q\_data} est active (voir \texttt{monster.py}), tous les monstres d'une même partie partagent la même référence mémoire pour la matrice $\Qval$, accélérant l'apprentissage local.
+    \item \textbf{Persistance} : Les transitions $(\state, \action, \reward, \state', \text{done})$ sont exportées vers une base NoSQL MongoDB.
+    \item \textbf{Batch Learning} : Un processus serveur ré-entraîne périodiquement le modèle global sur l'historique complet des parties.
 \end{enumerate}
 
 \subsection{Algorithme Batch Q-Learning}
-L'apprentissage hors-ligne s'effectue en itérant sur le dataset historique $\mathcal{D}$. Pour chaque époque $k \in \{1, \dots, K\}$ et pour chaque transition $i$ dans $\mathcal{D}$ :
+L'algorithme hors-ligne itère sur le dataset $\mathcal{D}$ collecté pour produire une politique robuste :
 
 \begin{algorithm}[H]
-\caption{Entraînement du Super Monster}
+\caption{Entraînement Global (Batch Q-Learning)}
 \begin{algorithmic}[1]
-\State Initialiser $Q_{global}(s, a) \leftarrow$ Pré-entraînement ou 0
-\State Charger $\mathcal{D} \leftarrow \text{MongoDB.collection.find()}$
+\State \textbf{Entrée :} Dataset $\mathcal{D}$, $\Qval_{init}$
+\State Initialiser $\Qval_{global} \leftarrow \Qval_{init}$ \Comment{Récupère le pré-entraînement}
 \For{$epoch = 1$ to $K$}
-    \For{each transition $(s, a, r, s', done) \in \mathcal{D}$}
-        \State $target \leftarrow r$
-        \If{not $done$}
-            \State $target \leftarrow r + \gamma \max_{a'} Q_{global}(s', a')$
+    \For{chaque transition $(\state_i, \action_i, r_i, \state'_i, d_i) \in \mathcal{D}$}
+        \State $y_i = r_i$
+        \If{not $d_i$}
+            \State $y_i = r_i + \gamma \max_{\action'} \Qval_{global}(\state'_i, \action')$
         \EndIf
-        \State $Q_{global}(s, a) \leftarrow Q_{global}(s, a) + \alpha (target - Q_{global}(s, a))$
+        \State $\Qval_{global}(\state_i, \action_i) \leftarrow \Qval_{global}(\state_i, \action_i) + \alpha (y_i - \Qval_{global}(\state_i, \action_i))$
     \EndFor
 \EndFor
-\State Sérialiser $Q_{global}$ via \texttt{pickle}
+\State \textbf{Retourner} $\Qval_{global}$
 \end{algorithmic}
 \end{algorithm}
 
-La complexité temporelle de cette étape est de $\mathcal{O}(K \cdot |\mathcal{D}|)$, ce qui garantit une scalabilité linéaire par rapport au volume de données accumulées. Ce modèle $Q_{global}$ est ensuite redistribué aux clients, permettant aux nouveaux monstres de bénéficier de l'expérience cumulée \cite{sutton2018reinforcement}.
+\section{Analyse Expérimentale}
 
-\section{Analyse des Résultats}
-
-Pour valider l'approche théorique, nous avons analysé les données de comportement des agents sur plusieurs époques d'entraînement.
-
-\subsection{Convergence de la Q-Table}
-La Fig. \ref{fig:heatmap} illustre la distribution des valeurs Q maximales ($\max_a Q(s, a)$) pour l'espace d'état local. Nous observons une convergence claire : les états centraux (proches du joueur, en $(0,0)$) présentent des valeurs élevées (zones claires), indiquant que l'agent identifie correctement la proximité de la récompense terminale. Les zones périphériques montrent un gradient descendant cohérent avec la fonction de reward shaping.
+\subsection{Convergence de la Fonction de Valeur}
+La Fig. \ref{fig:heatmap} visualise la fonction de valeur maximale $V(\state) = \max_a \Qval(\state, a)$ après entraînement. Nous observons un gradient centripète clair : les états proches de $(0,0)$ (position du joueur) possèdent les valeurs les plus élevées, validant la capacité de l'agent à identifier le but.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{analytics_charts/3_heatmap_q_table.png} 
-    \caption{Heatmap des valeurs Q accumulées. Le centre représente la position du joueur.}
+    \includegraphics[width=0.7\linewidth]{analytics_charts/3_heatmap_q_table.png} 
+    \caption{Heatmap de la Q-Table projetée. Le centre $(0,0)$ correspond à la position relative du joueur.}
     \label{fig:heatmap}
 \end{figure}
 
-\subsection{Distribution des Récompenses}
-L'histogramme des récompenses (Fig. \ref{fig:rewards}) confirme l'impact du \textit{Reward Shaping}. La distribution n'est pas binaire (échec/succès) mais continue, prouvant que les agents reçoivent des signaux d'apprentissage fréquents (les barres autour de -1 à +1 correspondant au rapprochement/éloignement) en plus des événements rares (capture à +20).
+\subsection{Impact du Reward Shaping}
+La distribution des récompenses (Fig. \ref{fig:rewards}) montre une prédominance des petites récompenses de shaping (autour de $\pm 0.6$), prouvant que l'agent reçoit un feedback continu même en l'absence de capture, ce qui résout le problème des récompenses clairsemées (\textit{sparse rewards}).
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{analytics_charts/1_histogramme_recompenses.png}
-    \caption{Distribution des récompenses immédiates perçues par les agents.}
+    \includegraphics[width=0.7\linewidth]{analytics_charts/1_histogramme_recompenses.png}
+    \caption{Histogramme des récompenses. Les pics correspondent aux mouvements rapprochant ou éloignant l'agent de sa cible.}
     \label{fig:rewards}
 \end{figure}
 
 
-\section{Conclusion et Perspectives}
-L'implémentation mathématique présentée permet aux entités de \textit{Roguia} de développer des comportements de poursuite complexes et adaptatifs. L'utilisation conjointe du \textit{Reward Shaping} pour accélérer la convergence locale et du \textit{Batch RL} pour l'intelligence collective assure une courbe de difficulté dynamique.
+\section{Conclusion}
+L'implémentation de l'apprentissage par renforcement dans \textit{Roguia} démontre l'efficacité des méthodes tabulaires pour des espaces d'états compacts. L'utilisation du \textit{Reward Shaping} théoriquement fondé et d'une architecture hybride (Online/Batch) permet de générer des comportements de poursuite robustes et évolutifs.
 
-Cependant, la définition actuelle de l'état $s$ n'incluant pas la topologie des murs (uniquement la position relative), le problème s'apparente à un Processus de Décision Markovien Partiellement Observable (POMDP). Les travaux futurs porteront sur l'intégration de réseaux de neurones profonds (Deep Q-Networks - DQN) pour gérer un espace d'état plus riche (incluant la vision locale des obstacles) et non borné.
+Les perspectives incluent l'extension à des espaces d'états partiellement observables (POMDP) via des réseaux de neurones profonds (DQN), afin de prendre en compte la topologie locale des murs directement dans l'état $\state$.
 
 \begin{thebibliography}{9}
 
