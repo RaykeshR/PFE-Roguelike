@@ -2,10 +2,68 @@
 \usepackage[utf8]{inputenc}
 \usepackage[french]{babel}
 \usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{tikz}
+\usepackage{hyperref}
+\usepackage{bm} % Pour les vecteurs en gras
+
+% Configuration de la table des matières
+\usepackage{tocloft}
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\cftsecfont}{\normalfont\bfseries}
+\renewcommand{\cftsubsecfont}{\normalfont}
+
+% Configuration des marges
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+
+% Configuration des liens hypertexte
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=red,
+    urlcolor=cyan,
+    pdftitle={Roguia: Documentation Technique IA},
+    pdfauthor={Messaoudi, Ringuet, Ravirooban, Mbaye, Klein}
+}
+
+% Commandes mathématiques personnalisées
+\newcommand{\state}{\mathbf{s}}
+\newcommand{\action}{a}
+\newcommand{\reward}{r}
+\newcommand{\policy}{\pi}
+\newcommand{\Qval}{Q}
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+\title{
+    \vspace{2cm}
+    \textbf{\Huge Roguia : Une Approche par Apprentissage par Renforcement Hybride dans un Roguelike} \\ [1cm]
+    \large \textit{Documentation Technique et Formalisation Mathématique}
+}
+\author{
+    \textbf{Équipe Projet Roguia} \\
+    ESEO - Option DAIA \\
+    \textit{Supervisé par A. Petrossian \& R. Costaouec}
+}
+\date{\today}
 
 \begin{document}
 
-\section{Titre de test}
-Ceci est un document de test pour vérifier la compilation de base.
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+Ce document présente la formalisation mathématique et l'implémentation technique des agents autonomes au sein du projet \textit{Roguia}. L'objectif est de développer une intelligence artificielle capable de contrôler des entités ennemies ("monstres") dans un environnement stochastique généré procéduralement.
+
+L'approche retenue repose sur l'Apprentissage par Renforcement (RL), et plus spécifiquement sur l'algorithme Q-Learning \cite{watkins1989learning}. Le système se distingue par une architecture hybride combinant un apprentissage en ligne (\textit{Online Learning}) local à chaque instance de jeu, et un apprentissage hors ligne (\textit{Offline/Batch RL}) globalisé, permettant l'émergence d'un "Super Monstre" via l'agrégation de données massives stockées sur MongoDB.
 
 \end{document}
