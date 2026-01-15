@@ -50,3 +50,31 @@ build/.env
 *.log.env
 dist/PFE-Roguelike/PFE-Roguelike.exe
 dist/Roguia/Roguia.exe
+
+# Fichiers temporaires LaTeX Core
+*.aux
+*.log
+*.out
+*.toc
+*.lot
+*.lof
+
+# Fichiers de bibliographie
+*.bbl
+*.blg
+
+# Fichiers de compilation Latexmk
+*.fdb_latexmk
+*.fls
+
+# Fichiers de synchronisation VS Code
+*.synctex.gz
+*.synctex
+
+# Logs et fichiers divers
+*.dvi
+*.nav
+*.snm
+*.vrb
+
+*.pdf
