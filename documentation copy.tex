@@ -91,6 +91,18 @@ Le problème de navigation et d'attaque des monstres est modélisé comme un Pro
 
 La dynamique de transition $\mathcal{P}(\state'|\state, \action)$ étant déterminée par la génération procédurale du donjon et donc inconnue \textit{a priori}, une approche \textit{Model-Free} est nécessaire.
 
+\subsection{Dynamique de l'Environnement et Stochasticité}
+L'environnement $\mathcal{E}$ dans lequel évoluent les agents n'est pas statique. À chaque nouvel épisode $k$, une nouvelle instance de carte $\mathcal{M}_k$ est générée par un algorithme procédural (voir \texttt{map.py}).
+
+L'espace des positions valides $\mathcal{W} \subset \mathbb{Z}^2$ est défini par l'union des ensembles de salles $\mathcal{R}$ et de couloirs $\mathcal{C}$ :
+\begin{equation}
+    \mathcal{W}_k = \left( \bigcup_{i=1}^{N_{rooms}} \mathcal{R}_i \right) \cup \mathcal{C}_{connect}
+\end{equation}
+
+La fonction de transition de probabilité $\mathcal{P}(\state'|\state, \action)$ du MDP dépend donc explicitement de la topologie locale générée $\mathcal{M}_k$. Cette variabilité structurelle impose à l'agent d'apprendre une politique $\pi^*$ généralisable aux caractéristiques locales (coins, couloirs, espaces ouverts) plutôt que de mémoriser une carte spécifique (overfitting), ce qui justifie l'utilisation d'un espace d'état relatif egocentrique.
+
+
+
 \subsection{Espace d'État \texorpdfstring{$\mathcal{S}$}{S}}
 Contrairement à une approche par vision par ordinateur (pixels) qui induirait une explosion combinatoire, nous optons pour une représentation centrée sur l'agent (egocentrique). Soit $\mathbf{p}_m = (x_m, y_m)$ la position du monstre et $\mathbf{p}_p = (x_p, y_p)$ la position du joueur dans la grille discrète $\mathbb{Z}^2$.
 
@@ -227,6 +239,28 @@ L'algorithme hors-ligne itère sur le dataset $\mathcal{D}$ collecté pour produ
 \end{algorithmic}
 \end{algorithm}
 
+\subsection{Déploiement et Injection de Politique}
+Le système implémente une stratégie de sélection de modèle dynamique lors de l'instanciation des entités (cf. \texttt{map.py}). Soit $\mathcal{Q}_{local}$ la matrice apprise en ligne durant l'épisode courant, et $\mathcal{Q}_{global}$ la matrice consolidée hors-ligne.
+
+La politique $\pi_m$ assignée au monstre $m$ est déterminée par une variable de Bernoulli $B \sim \text{Bernoulli}(p)$, où $p$ dépend de la profondeur du niveau (difficulté) :
+
+\begin{equation}
+    \pi_m(\state) = \argmax_{\action \in \mathcal{A}} \begin{cases} 
+    \mathcal{Q}_{global}(\state, \action) & \text{si } B=1 \text{ (Super Monstre)} \\
+    \mathcal{Q}_{local}(\state, \action) & \text{si } B=0 \text{ (Apprentissage Online)}
+    \end{cases}
+\end{equation}
+
+Cette architecture permet une double boucle d'optimisation : $\mathcal{Q}_{local}$ s'adapte rapidement à la stratégie actuelle du joueur (online adaptation), tandis que $\mathcal{Q}_{global}$ garantit une robustesse long-terme acquise sur l'ensemble historique des parties.
+
+\subsection{Analyse de Complexité}
+L'algorithme d'entraînement hors-ligne (\texttt{train\_global\_model.py}) traite un dataset $\mathcal{D}$ de cardinalité $N = |\mathcal{D}|$.
+La complexité temporelle pour $E$ époques est linéaire :
+\begin{equation}
+    \mathcal{T}_{train} = \mathcal{O}(E \cdot N)
+\end{equation}
+Puisque l'accès et la mise à jour de la Hash-Map (dictionnaire Python) s'effectuent en $\mathcal{O}(1)$ amorti. Cela garantit la scalabilité du serveur d'entraînement même avec des millions de transitions, contrairement aux méthodes nécessitant l'inversion de matrices (comme LSTD) qui seraient en $\mathcal{O}(|\mathcal{S}|^3)$.
+
 \section{Analyse Expérimentale}
 
 \subsection{Convergence de la Fonction de Valeur}
@@ -254,6 +288,10 @@ La distribution des récompenses (Fig. \ref{fig:rewards}) montre une prédominan
 L'implémentation de l'apprentissage par renforcement dans \textit{Roguia} démontre l'efficacité des méthodes tabulaires pour des espaces d'états compacts. L'utilisation du \textit{Reward Shaping} théoriquement fondé et d'une architecture hybride (Online/Batch) permet de générer des comportements de poursuite robustes et évolutifs.
 
 Les perspectives incluent l'extension à des espaces d'états partiellement observables (POMDP) via des réseaux de neurones profonds (DQN), afin de prendre en compte la topologie locale des murs directement dans l'état $\state$.
+
+\textbf{Limites et Aliasing Perceptuel :} 
+Notre définition de l'état $\state_t$, basée uniquement sur la position relative cible-agent, souffre d'aliasing perceptuel. Deux situations topologiquement différentes (ex: un couloir sans issue vs un espace ouvert) peuvent correspondre au même vecteur distance $(dx, dy)$. 
+Dans notre implémentation actuelle, l'agent surmonte partiellement cela grâce à la pénalité de collision murale ($r = -5$), apprenant implicitement à éviter les actions menant à des états statiques, mais une extension vers un POMDP incluant une vision locale (raycasting) serait théoriquement supérieure.
 
 \begin{thebibliography}{9}
 
