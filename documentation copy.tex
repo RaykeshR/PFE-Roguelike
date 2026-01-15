@@ -392,7 +392,17 @@ La distribution des récompenses (Fig. \ref{fig:rewards}) montre une prédominan
 \section{Conclusion}
 L'implémentation de l'apprentissage par renforcement dans \textit{Roguia} démontre l'efficacité des méthodes tabulaires pour des espaces d'états compacts. L'utilisation du \textit{Reward Shaping} théoriquement fondé et d'une architecture hybride (Online/Batch) permet de générer des comportements de poursuite robustes et évolutifs.
 
-Les perspectives incluent l'extension à des espaces d'états partiellement observables (POMDP) via des réseaux de neurones profonds (DQN), afin de prendre en compte la topologie locale des murs directement dans l'état $\state$.
+\subsection{Perspectives d'Évolution}
+
+\paragraph{Architecture Distribuée (Federated Learning) :}
+Pour pallier la charge réseau de l'approche \textit{Big Data} actuelle, une migration vers l'\textbf{Apprentissage Fédéré} est envisagée \cite{mcmahan2017communication}. Chaque client calculerait localement les gradients de la Q-Table et ne transmettrait que les mises à jour de poids au serveur, garantissant confidentialité et légèreté.
+
+\paragraph{Coordination Multi-Agents (MARL) :}
+Actuellement, les monstres interagissent par simple évitement (pénalité sociale). L'étape suivante consiste à implémenter un système de \textbf{Communication Locale} où chaque agent reçoit en entrée la position relative de ses alliés proches :
+\begin{equation}
+    \state_{augmented} = [\state_{local}, \mathbf{p}_{ami_1}, \mathbf{p}_{ami_2}, \dots]
+\end{equation}
+Selon les travaux de Lowe et al. sur le \textit{Multi-Agent Deep Deterministic Policy Gradient} (MADDPG) \cite{lowe2017multi}, cela permettrait l'émergence de stratégies coopératives complexes (encerclement, prise en tenaille) impossibles à obtenir avec des agents indépendants.
 
 \textbf{Limites et Aliasing Perceptuel :} 
 Notre définition de l'état $\state_t$, basée uniquement sur la position relative cible-agent, souffre d'aliasing perceptuel. Deux situations topologiquement différentes (ex: un couloir sans issue vs un espace ouvert) peuvent correspondre au même vecteur distance $(dx, dy)$. 
@@ -425,6 +435,81 @@ Lange, S., Gabel, T., \& Riedmiller, M. (2012).
 \textit{Batch Reinforcement Learning}.
 In Reinforcement Learning: State-of-the-Art (pp. 45-73). Springer.
 
+\bibitem{mcmahan2017communication}
+McMahan, B., Moore, E., Ramage, D., Hampson, S., \& y Arcas, B. A. (2017).
+\textit{Communication-efficient learning of deep networks from decentralized data}.
+Artificial Intelligence and Statistics (AISTATS).
+
+\bibitem{shin2017pygame}
+Shin, W. (2017).
+\textit{PyGame: A Primer on Game Programming in Python}.
+Apress.
+
+\bibitem{chodorow2013mongodb}
+Chodorow, K. (2013).
+\textit{MongoDB: The Definitive Guide} (2nd ed.).
+O'Reilly Media.
+
+\bibitem{yannakakis2018artificial}
+Yannakakis, G. N., \& Togelius, J. (2018).
+\textit{Artificial Intelligence and Games}.
+Springer. (Pour la partie Génération Procédurale et Roguelike).
+
+\bibitem{lowe2017multi}
+Lowe, R., Wu, Y., Tamar, A., Harb, J., Abbeel, P., \& Mordatch, I. (2017).
+\textit{Multi-agent actor-critic for mixed cooperative-competitive environments}.
+Advances in Neural Information Processing Systems (NIPS).
+
+\bibitem{vinyals2019grandmaster}
+Vinyals, O., et al. (2019).
+\textit{Grandmaster level in StarCraft II using multi-agent reinforcement learning}.
+Nature, 575(7782), 350-354.
+
 \end{thebibliography}
+
+\newpage
+\appendix
+\section{Annexes}
+
+\subsection{Architecture Logicielle}
+Le projet est structuré selon une séparation claire des responsabilités (Separation of Concerns). Le Tableau \ref{tab:structure} détaille les modules principaux.
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{@{}l|p{10cm}@{}}
+        \toprule
+        \textbf{Module / Dossier} & \textbf{Rôle et Responsabilité Technique} \\ \midrule
+        \texttt{engine/} & \textbf{Moteur de Jeu Core} : Contient la boucle principale (\texttt{game.py}), la physique, et la génération procédurale des cartes (\texttt{map.py}). \\ \hline
+        \texttt{engine/rl.py} & \textbf{Cerveau IA} : Implémentation de l'agent Q-Learning, gestion de la matrice $Q$ et des hyperparamètres ($\alpha, \gamma, \epsilon$). \\ \hline
+        \texttt{entities/} & \textbf{Entités Vivantes} : Gestion des PV, des inventaires et des états des monstres (\texttt{monster.py}) et du joueur. \\ \hline
+        \texttt{database/} & \textbf{Persistance} : Connecteurs pour le stockage relationnel (SQL - progression joueur) et NoSQL (MongoDB - logs massifs pour l'IA). \\ \hline
+        \texttt{tools/} & \textbf{Pipeline ETL} : Scripts d'administration pour l'entraînement hors-ligne (\texttt{train\_global\_model.py}) et l'ingestion des logs. \\ \hline
+        \texttt{main.py} & \textbf{Point d'Entrée} : Initialisation des singletons, chargement des variables d'environnement et lancement de la boucle graphique. \\
+        \bottomrule
+    \end{tabular}
+    \caption{Description fonctionnelle de l'arborescence du projet Roguia.}
+    \label{tab:structure}
+\end{table}
+
+\subsection{Procédure de Déploiement Utilisateur}
+Contrairement à l'environnement de développement, la version de production ne nécessite pas l'installation de l'interpréteur Python.
+
+\begin{enumerate}
+    \item \textbf{Téléchargement} : Se rendre sur le portail de distribution officiel pour récupérer la dernière \textit{Release} stable : \\
+    \url{https://raykeshr.github.io/PFE-Roguelike/telechargements.html}
+    
+    \item \textbf{Exécution} : Lancer l'exécutable \texttt{Roguia.exe}.
+    
+    \item \textbf{Authentification Sécurisée} : 
+    L'accès au prototype est protégé. Lors de l'invite de connexion, saisir la phrase de passe suivante (respecter la casse) :
+    
+    \begin{center}
+        \fcolorbox{black}{gray!10}{
+        \parbox{0.9\linewidth}{
+            \centering \texttt{MotDePasseHyperSécuriséSansEspaceAvecDesMajusculesAuxDébutDeChaqueMotEtDesAccents}
+        }}
+    \end{center}
+\end{enumerate}
 
 \end{document}
