@@ -86,6 +86,14 @@ L'approche retenue repose sur l'Apprentissage par Renforcement (RL), et plus sp�
     \item Un \textbf{Apprentissage hors ligne (Batch)} : Globalisé, permettant l'émergence d'un "Super Monstre" via l'agrégation de données massives stockées sur MongoDB.
 \end{itemize}
 
+\paragraph{Environnement Technique :}
+Les résultats présentés ont été obtenus avec la stack suivante :
+\begin{itemize}
+    \item \textbf{Langage} : Python 3.x
+    \item \textbf{Persistance} : MongoDB (NoSQL) pour les logs, PostgreSQL pour les données utilisateurs.
+    \item \textbf{Librairies} : \texttt{numpy} (calcul matriciel), \texttt{pymongo} (driver DB), \texttt{pickle} (sérialisation).
+\end{itemize}
+
 \section{Modélisation du Problème (MDP)}
 Le problème de navigation et d'attaque des monstres est modélisé comme un Processus de Décision Markovien (MDP) défini par le tuple $\langle \mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma \rangle$.
 
@@ -212,6 +220,35 @@ Pour pallier ce problème de démarrage à froid (\textit{Cold Start}), nous pro
     \Qval_{deploy} \leftarrow \text{Train}(\Qval_{0}, \text{SimulatedEpisodes})
 \end{equation}
 L'agent débute ainsi la partie avec une politique $\pi_{init}$ déjà capable de se diriger grossièrement vers la cible.
+
+\subsection{Synthèse : Boucle de Décision Temps-Réel}
+L'algorithme exécuté à chaque tick de jeu par chaque entité est formalisé ci-dessous. Il intègre la gestion de la mémoire partagée et la politique d'exploration.
+
+\begin{algorithm}[H]
+\caption{Cycle de Vie d'un Agent (Online)}
+\begin{algorithmic}[1]
+\State \textbf{Initialisation :} $\state \leftarrow$ Perception de l'environnement
+\While{Agent est vivant}
+    \State \textbf{1. Décision ($\epsilon$-Greedy) :}
+    \If{$rand() < \epsilon$}
+        \State $\action \leftarrow$ Choix Aléatoire
+    \Else
+        \State $\action \leftarrow \argmax_{a'} Q_{shared}(\state, a')$
+    \EndIf
+    
+    \State \textbf{2. Action :} Exécuter $\action$, observer $\reward$ et nouvel état $\state'$
+    
+    \State \textbf{3. Apprentissage Local (TD-Update) :}
+    \State $\delta \leftarrow \reward + \gamma \max_{a'} Q_{shared}(\state', a') - Q_{shared}(\state, \action)$
+    \State $Q_{shared}(\state, \action) \leftarrow Q_{shared}(\state, \action) + \alpha \cdot \delta$
+    
+    \State \textbf{4. Collecte (Log) :}
+    \State \texttt{Buffer.push($\state, \action, \reward, \state'$, done)}
+    
+    \State $\state \leftarrow \state'$
+\EndWhile
+\end{algorithmic}
+\end{algorithm}
 
 \section{Discussion Théorique}
 
