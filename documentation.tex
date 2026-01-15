@@ -261,7 +261,31 @@ La complexité temporelle pour $E$ époques est linéaire :
 \end{equation}
 Puisque l'accès et la mise à jour de la Hash-Map (dictionnaire Python) s'effectuent en $\mathcal{O}(1)$ amorti. Cela garantit la scalabilité du serveur d'entraînement même avec des millions de transitions, contrairement aux méthodes nécessitant l'inversion de matrices (comme LSTD) qui seraient en $\mathcal{O}(|\mathcal{S}|^3)$.
 
+\subsection{Optimisation : Apprentissage Parallèle Synchrone}
+Une contrainte majeure des Roguelikes est le grand nombre d'entités actives simultanément. Pour optimiser l'apprentissage en ligne sans exploser la consommation mémoire, nous avons implémenté une architecture à \textit{Mémoire Partagée} (Shared Memory).
+
+Soit $M = \{m_1, \dots, m_n\}$ l'ensemble des monstres actifs dans une instance de jeu. Au lieu d'instancier $n$ Q-Tables distinctes, tous les agents $m_i$ possédant le même profil comportemental (ex: "Monstre Normal") partagent une référence unique vers la structure de données $\mathcal{Q}_{shared}$ en mémoire vive.
+
+Cette approche présente deux avantages théoriques majeurs :
+\begin{enumerate}
+    \item \textbf{Accélération de la convergence} : Le taux de visite des états est multiplié par $n$. Si l'agent $m_1$ découvre une pénalité en l'état $\state$, l'information est instantanément accessible à $m_2$, $m_3$, etc.
+    \item \textbf{Complexité Spatiale constante} : L'empreinte mémoire est $\mathcal{O}(|\mathcal{S}| \times |\mathcal{A}|)$ et non $\mathcal{O}(n \times |\mathcal{S}| \times |\mathcal{A}|)$.
+\end{enumerate}
+
+\subsection{Dynamique Multi-Agents et Évitement Social}
+Le système s'apparente à un problème de \textit{Multi-Agent Reinforcement Learning} (MARL) coopératif. L'environnement perçu par un agent est non-stationnaire car il inclut les positions des autres agents $\mathbf{p}_{m_j}$.
+
+Pour éviter les blocages mutuels (deadlocks) dans les couloirs étroits, nous avons intégré une "Pénalité Sociale" $r_{social} = -2.0$ dans la fonction de récompense lorsque l'action $a$ mène à une case occupée par un pair ($s' \in \mathcal{W}_{occupied}$). Cela force l'émergence d'un comportement de file d'attente ou de contournement sans communication explicite entre agents.
+
 \section{Analyse Expérimentale}
+
+\subsection{Métriques de Performance (KPI)}
+L'évaluation de la politique $\pi^*$ repose sur trois indicateurs clés de performance (KPI) suivis au cours des époques d'entraînement (Fig. \ref{fig:kpi}) :
+\begin{itemize}
+    \item \textbf{Durée de survie moyenne ($\bar{T}$)} : Temps avant la mort du monstre (doit augmenter si l'agent fuit, ou diminuer s'il attaque agressivement selon la stratégie).
+    \item \textbf{Dégâts moyens par épisode ($\bar{D}$)} : Mesure directe de l'efficacité offensive.
+    \item \textbf{Taux d'exploration ($\eta$)} : Pourcentage d'états uniques visités dans $\mathcal{S}$, garantissant la non-dégénérescence de la politique.
+\end{itemize}
 
 \subsection{Convergence de la Fonction de Valeur}
 La Fig. \ref{fig:heatmap} visualise la fonction de valeur maximale $V(\state) = \max_a \Qval(\state, a)$ après entraînement. Nous observons un gradient centripète clair : les états proches de $(0,0)$ (position du joueur) possèdent les valeurs les plus élevées, validant la capacité de l'agent à identifier le but.
