@@ -1,0 +1,215 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{tikz}
+\usepackage{hyperref}
+\usepackage{bm} % Pour les vecteurs en gras
+
+% Configuration de la table des matières
+\usepackage{tocloft}
+\renewcommand{\\cftsecleader}{\\cftdotfill{\\cftdotsep}}
+\renewcommand{\\cftsecfont}{\\normalfont\\bfseries}
+\renewcommand{\\cftsubsecfont}{\\normalfont}
+
+% Configuration des marges
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+
+% Configuration des liens hypertexte
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=red,
+    urlcolor=cyan,
+    pdftitle={Roguia: Documentation Technique IA},
+    pdfauthor={Messaoudi, Ringuet, Ravirooban, Mbaye, Klein}
+}
+
+% Commandes mathématiques personnalisées
+\newcommand{\\state}{\\mathbf{s}}
+\newcommand{\\action}{a}
+\newcommand{\\reward}{r}
+\newcommand{\\policy}{\\pi}
+\newcommand{\\Qval}{Q}
+\DeclareMathOperator*{\\argmax}{arg\\,max}
+
+\title{
+    \\vspace{2cm}
+    \\textbf{\\Huge Roguia : Une Approche par Apprentissage par Renforcement Hybride dans un Roguelike} \\\\[1cm]
+    \\large \\textit{Documentation Technique et Formalisation Mathématique}
+}
+\author{
+    \\textbf{Équipe Projet Roguia} \\\\
+    ESEO - Option DAIA \\\\
+    \\textit{Supervisé par A. Petrossian \& R. Costaouec}
+}
+\date{\\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+Ce document présente la formalisation mathématique et l'implémentation technique des agents autonomes au sein du projet \textit{Roguia}. L'objectif est de développer une intelligence artificielle capable de contrôler des entités ennemies ("monstres") dans un environnement stochastique généré procéduralement.
+
+L'approche retenue repose sur l'Apprentissage par Renforcement (RL), et plus spécifiquement sur l'algorithme Q-Learning \cite{watkins1989learning}. Le système se distingue par une architecture hybride combinant un apprentissage en ligne (\textit{Online Learning}) local à chaque instance de jeu, et un apprentissage hors ligne (\textit{Offline/Batch RL}) globalisé, permettant l'émergence d'un "Super Monstre" via l'agrégation de données massives stockées sur MongoDB.
+
+\section{Modélisation du Problème (MDP)}
+Le problème de navigation et d'attaque des monstres est modélisé comme un Processus de Décision Markovien (MDP) défini par le tuple $\langle \mathcal{S}, \mathcal{A}, P, R, \gamma \rangle$.
+
+\subsection{Espace d'État $\mathcal{S}$}
+Contrairement à une approche par vision par ordinateur (pixels), nous optons pour un espace d'état compact basé sur la position relative du joueur. Soit $(x_m, y_m)$ la position du monstre et $(x_p, y_p)$ la position du joueur dans la grille discrète $\mathbb{Z}^2$.
+
+L'état $s_t \in \mathcal{S}$ à l'instant $t$ est défini par le vecteur de différence borné (clipping) afin de réduire la dimensionnalité de la Q-Table :
+
+\begin{equation}
+    s_t = \begin{bmatrix}
+        \text{clip}(x_p - x_m, -C, C) \\
+        \text{clip}(y_p - y_m, -C, C)
+    \end{bmatrix}
+\end{equation}
+
+Où la fonction $\text{clip}(v, \min, \max)$ restreint la valeur $v$ dans l'intervalle $[\min, \max]$. Dans notre implémentation actuelle, $C=6$, ce qui limite la perception locale de l'agent à une fenêtre de $13 \times 13$ cases.
+
+\subsection{Espace d'Action $\mathcal{A}$}
+L'agent dispose d'un espace d'action discret comprenant les quatre directions cardinales :
+\begin{equation}
+    \mathcal{A} = \{ \text{HAUT}, \text{BAS}, \text{GAUCHE}, \text{DROITE} \}
+\end{equation}
+Chaque action $a \in \mathcal{A}$ induit un déplacement potentiel $(\Delta x, \Delta y)$.
+
+\subsection{Fonction de Récompense $R$ et Reward Shaping}
+Pour accélérer la convergence, nous utilisons une technique de \textit{Reward Shaping} basée sur le potentiel \cite{ng1999policy}, utilisant la distance de Manhattan. La récompense $r_t$ reçue après une transition est définie par :
+
+\begin{equation}
+    r_t = R_{\text{env}} + \Phi(s_{t-1}, s_t)
+\end{equation}
+
+Avec les composantes suivantes :
+\begin{itemize}
+    \item \textbf{Pénalité temporelle} : $-1.0$ pour encourager le chemin le plus court.
+    \item \textbf{Collision murale} : $-5.0$ si l'action mène à un obstacle.
+    \item \textbf{Chevauchement} : $-2.0$ si la case est occupée par un autre monstre.
+    \item \textbf{Capture du joueur (État terminal)} : $+20.0$.
+    \item \textbf{Shaping (Potentiel)} : 
+    \begin{equation}
+        \Phi(s_{t-1}, s_t) = \lambda \cdot (d(s_{t-1}) - d(s_t))
+    \end{equation}
+    où $d(s)$ est la distance de Manhattan $L_1$ entre le monstre et le joueur, et $\lambda = 0.6$ est le facteur d'échelle. Ceci offre une récompense dense guidant l'agent vers la cible.
+\end{itemize}
+
+\section{Algorithme d'Apprentissage}
+
+\subsection{Q-Learning Tabulaire}
+L'agent cherche à apprendre la fonction de valeur d'action optimale $Q^*(s, a)$, qui satisfait l'équation de Bellman :
+
+\begin{equation}
+    Q^*(s, a) = \mathbb{E} \left[ r + \gamma \max_{a'} Q^*(s', a') \mid s, a \right]
+\end{equation}
+
+L'implémentation (voir fichier \texttt{rl.py}) utilise la règle de mise à jour temporelle suivante :
+
+\begin{equation}
+    Q(s_t, a_t) \leftarrow Q(s_t, a_t) + \alpha \left[ r_{t+1} + \gamma \max_{a \in \mathcal{A}} Q(s_{t+1}, a) - Q(s_t, a_t) \right]
+\end{equation}
+
+Les hyperparamètres retenus sont :
+\begin{itemize}
+    \item Taux d'apprentissage $\alpha = 0.2$
+    \item Facteur d'actualisation $\gamma = 0.95$ (priorité au long terme)
+\end{itemize}
+
+\subsection{Politique d'Exploration $\epsilon$-Greedy}
+Pour balancer l'exploration et l'exploitation, l'agent choisit ses actions selon une politique $\epsilon$-greedy avec décroissance exponentielle :
+
+\begin{equation}
+    \pi(s) = \begin{cases} 
+    \text{action aléatoire uniforme} & \text{avec probabilité } \epsilon \\
+    \argmax_{a \in \mathcal{A}} Q(s, a) & \text{avec probabilité } 1 - \epsilon
+    \end{cases}
+\end{equation}
+
+Le paramètre $\epsilon$ décroît après chaque épisode selon $\epsilon \leftarrow \max(\epsilon_{\min}, \epsilon \cdot \delta)$, où $\delta = 0.992$.
+
+\section{Architecture "Super Monster" et Apprentissage Hors-Ligne}
+
+Une innovation majeure du projet Roguia réside dans l'entraînement asynchrone d'un modèle global, qualifié de "Super Monster".
+
+\subsection{Pipeline de Données}
+Le système repose sur une architecture ETL (Extract, Transform, Load) :
+\begin{enumerate}
+    \item \textbf{Génération (Client)} : Lors des parties, chaque transition $(s, a, r, s', \text{done})$ est sérialisée.
+    \item \textbf{Ingestion (MongoDB)} : Ces logs sont déversés dans une collection NoSQL \texttt{rl\_transitions}, adaptée aux données non structurées et massives.
+    \item \textbf{Entraînement (Batch)} : Un script serveur (\texttt{train\_global\_model.py}) récupère l'ensemble du dataset $\mathcal{D}$.
+\end{enumerate}
+
+\subsection{Algorithme Batch Q-Learning}
+L'apprentissage hors-ligne s'effectue en itérant sur le dataset historique $\mathcal{D}$ (Replay Buffer géant). Pour chaque époque $k \in \{1, \dots, K\}$ et pour chaque transition $i$ dans $\mathcal{D}$ :
+
+\begin{algorithm}[H]
+\caption{Entraînement du Super Monster}
+\begin{algorithmic}[1]
+\State Initialiser $Q_{global}(s, a) = 0$
+\State Charger $\mathcal{D} \leftarrow \text{MongoDB.collection.find()}$
+\For{$epoch = 1$ to $K$}
+    \For{each transition $(s, a, r, s', done) \in \mathcal{D}$}
+        \State $target \leftarrow r$
+        \If{not $done$}
+            \State $target \leftarrow r + \gamma \max_{a'} Q_{global}(s', a')$
+        \EndIf
+        \State $Q_{global}(s, a) \leftarrow Q_{global}(s, a) + \alpha (target - Q_{global}(s, a))$
+    \EndFor
+\EndFor
+\State Sérialiser $Q_{global}$ via \texttt{pickle}
+\end{algorithmic}
+\end{algorithm}
+
+Ce modèle $Q_{global}$ est ensuite redistribué aux clients, permettant aux nouveaux monstres de bénéficier de l'expérience cumulée de tous les joueurs précédents \cite{sutton2018reinforcement}.
+
+\section{Conclusion et Perspectives}
+L'implémentation mathématique présentée permet aux entités de \textit{Roguia} de développer des comportements de poursuite complexes et adaptatifs. L'utilisation conjointe du \textit{Reward Shaping} pour accélérer la convergence locale et du \textit{Batch RL} pour l'intelligence collective assure une courbe de difficulté dynamique.
+
+Les travaux futurs porteront sur l'intégration de réseaux de neurones profonds (Deep Q-Networks - DQN) pour gérer un espace d'état continu et non borné, s'affranchissant ainsi de la discrétisation spatiale actuelle.
+
+\begin{thebibliography}{9}
+
+\bibitem{watkins1989learning}
+Watkins, C. J. C. H. (1989).
+\textit{Learning from Delayed Rewards}.
+Ph.D. thesis, King's College, Cambridge.
+
+\bibitem{sutton2018reinforcement}
+Sutton, R. S., \& Barto, A. G. (2018).
+\textit{Reinforcement Learning: An Introduction} (2nd ed.).
+The MIT Press.
+
+\bibitem{ng1999policy}
+Ng, A. Y., Harada, D., \& Russell, S. (1999).
+\textit{Policy invariance under reward transformations: Theory and application to reward shaping}.
+In Proceedings of the 16th International Conference on Machine Learning (ICML '99), pp. 278-287.
+
+\bibitem{mnih2015human}
+Mnih, V., et al. (2015).
+\textit{Human-level control through deep reinforcement learning}.
+Nature, 518(7540), 529-533.
+
+\bibitem{lange2012batch}
+Lange, S., Gabel, T., \& Riedmiller, M. (2012).
+\textit{Batch Reinforcement Learning}.
+In Reinforcement Learning: State-of-the-Art (pp. 45-73). Springer.
+
+\end{thebibliography}
+
+\end{document}
