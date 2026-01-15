@@ -12,10 +12,12 @@
 \usepackage{tikz}
 \usepackage{hyperref}
 \usepackage{bm} % Pour les vecteurs en gras
-\usepackage{caption} % Pour des légendes de figures plus "académiques"
+\usepackage{caption} 
+\usepackage{booktabs} 
 
 % Configuration des légendes (Style article de recherche)
 \captionsetup[figure]{font=small,labelfont=bf,name={Fig.}}
+\captionsetup[table]{font=small,labelfont=bf,name={Tab.}}
 
 % Configuration de la table des matières
 \usepackage{tocloft}
@@ -63,7 +65,6 @@
 \maketitle
 \thispagestyle{empty}
 
-% Le résumé (Abstract) est obligatoire dans un papier technique
 \begin{abstract}
     \noindent Ce document technique détaille l'implémentation d'agents autonomes basés sur l'apprentissage par renforcement (RL) au sein du projet \textit{Roguia}. Nous formulons le problème de navigation en environnement stochastique comme un Processus de Décision Markovien (MDP) à états discrets bornés. Nous proposons une architecture hybride novatrice combinant un apprentissage en ligne (\textit{Online Learning}) via l'algorithme Q-Learning tabulaire, et une consolidation hors-ligne (\textit{Batch RL}) permettant l'agrégation d'expériences multi-agents. Les résultats expérimentaux démontrent une convergence de la politique optimale sur un espace d'état réduit de 169 dimensions, validée par l'analyse des cartes de chaleur (heatmaps) de la fonction de valeur $Q$.
     
@@ -131,24 +132,36 @@ Avec les composantes suivantes :
 
 \section{Algorithme d'Apprentissage}
 
-\subsection{Q-Learning Tabulaire}
+\subsection{Q-Learning Tabulaire et Hyperparamètres}
 L'agent cherche à apprendre la fonction de valeur d'action optimale $Q^*(s, a)$, qui satisfait l'équation de Bellman :
 
 \begin{equation}
     Q^*(s, a) = \mathbb{E} \left[ r + \gamma \max_{a'} Q^*(s', a') \mid s, a \right]
 \end{equation}
 
-L'implémentation (voir fichier \texttt{rl.py}) utilise la règle de mise à jour temporelle suivante :
-
+L'implémentation utilise la règle de mise à jour temporelle suivante :
 \begin{equation}
     Q(s_t, a_t) \leftarrow Q(s_t, a_t) + \alpha \left[ r_{t+1} + \gamma \max_{a \in \mathcal{A}} Q(s_{t+1}, a) - Q(s_t, a_t) \right]
 \end{equation}
 
-Les hyperparamètres retenus sont :
-\begin{itemize}
-    \item Taux d'apprentissage $\alpha = 0.2$
-    \item Facteur d'actualisation $\gamma = 0.95$ (priorité au long terme)
-\end{itemize}
+Les hyperparamètres retenus pour l'expérimentation sont résumés dans la Table \ref{tab:hyperparams}.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}llp{8cm}@{}}
+\toprule
+\textbf{Paramètre} & \textbf{Valeur} & \textbf{Description} \\ \midrule
+$\alpha$ & 0.2 & Taux d'apprentissage (Learning Rate) \\
+$\gamma$ & 0.95 & Facteur d'actualisation (Discount Factor) \\
+$\epsilon_{start}$ & 0.5 & Probabilité d'exploration initiale \\
+$\epsilon_{min}$ & 0.05 & Probabilité d'exploration minimale \\
+$\epsilon_{decay}$ & 0.992 & Taux de décroissance de l'exploration \\
+$C$ & 6 & Borne de clipping pour l'état observable \\
+\bottomrule
+\end{tabular}
+\caption{Synthèse des hyperparamètres de l'agent.}
+\label{tab:hyperparams}
+\end{table}
 
 \subsection{Politique d'Exploration \texorpdfstring{$\epsilon$-Greedy}{epsilon-Greedy}}
 Pour balancer l'exploration et l'exploitation, l'agent choisit ses actions selon une politique $\epsilon$-greedy avec décroissance exponentielle :
@@ -160,7 +173,8 @@ Pour balancer l'exploration et l'exploitation, l'agent choisit ses actions selon
     \end{cases}
 \end{equation}
 
-Le paramètre $\epsilon$ décroît après chaque épisode selon $\epsilon \leftarrow \max(\epsilon_{\min}, \epsilon \cdot \delta)$, où $\delta = 0.992$.
+\subsection{Pré-entraînement (Cold Start)}
+Afin d'éviter le problème du \textit{Cold Start} où les agents explorent de manière purement aléatoire, la Q-Table est initialisée via une phase de pré-entraînement simulé (Bots vs Bots). Cela permet d'injecter des connaissances a priori dans la matrice $Q$ avant la première interaction avec un joueur humain.
 
 \section{Architecture "Super Monster" et Apprentissage hors-ligne}
 
@@ -175,12 +189,12 @@ Le système repose sur une architecture ETL (Extract, Transform, Load) :
 \end{enumerate}
 
 \subsection{Algorithme Batch Q-Learning}
-L'apprentissage hors-ligne s'effectue en itérant sur le dataset historique $\mathcal{D}$ (Replay Buffer géant). Pour chaque époque $k \in \{1, \dots, K\}$ et pour chaque transition $i$ dans $\mathcal{D}$ :
+L'apprentissage hors-ligne s'effectue en itérant sur le dataset historique $\mathcal{D}$. Pour chaque époque $k \in \{1, \dots, K\}$ et pour chaque transition $i$ dans $\mathcal{D}$ :
 
 \begin{algorithm}[H]
 \caption{Entraînement du Super Monster}
 \begin{algorithmic}[1]
-\State Initialiser $Q_{global}(s, a) = 0$
+\State Initialiser $Q_{global}(s, a) \leftarrow$ Pré-entraînement ou 0
 \State Charger $\mathcal{D} \leftarrow \text{MongoDB.collection.find()}$
 \For{$epoch = 1$ to $K$}
     \For{each transition $(s, a, r, s', done) \in \mathcal{D}$}
@@ -195,9 +209,7 @@ L'apprentissage hors-ligne s'effectue en itérant sur le dataset historique $\ma
 \end{algorithmic}
 \end{algorithm}
 
-\begin{sloppypar}
-Ce modèle $Q_{global}$ est ensuite redistribué aux clients, permettant aux nouveaux monstres de bénéficier de l'expérience cumulée de tous les joueurs précédents \cite{sutton2018reinforcement}.
-\end{sloppypar}
+La complexité temporelle de cette étape est de $\mathcal{O}(K \cdot |\mathcal{D}|)$, ce qui garantit une scalabilité linéaire par rapport au volume de données accumulées. Ce modèle $Q_{global}$ est ensuite redistribué aux clients, permettant aux nouveaux monstres de bénéficier de l'expérience cumulée \cite{sutton2018reinforcement}.
 
 \section{Analyse des Résultats}
 
