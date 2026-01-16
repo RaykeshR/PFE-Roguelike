@@ -1,12 +1,35 @@
 */__pycache__
 __pycache__
 .venv
-.env
+*.env
 */.env
 **/.env
 database/.env
+.env
 build
 dist
+Output
+.exe
+# Ignorer les exécutables compilés
+Output/*.exe
+Output/*.zip
+build/build
+dist/PFE-Roguelike/_internal
+dist/PFE-Roguelike/.env
+dist/Roguia/_internal
+dist/Roguia/.env
+dist/PFERoguelike/_internal
+dist/PFERoguelike/.env
+dist/PFE-Roguelike/PFE-Roguelike.exe
+dist/PFERoguelike/PFERoguelike.exe
+dist/Roguia/Roguia.exe
+# Pas le bon dossier :
+dist/PFE-Roguelike/_internal/.env
+dist/Roguia/_internal/.env
+dist/PFERoguelike/_internal/.env
+dist/.env
+build/build/.env
+build/.env
 
 # Fichiers temporaires
 *.swp
@@ -25,3 +48,34 @@ dist
 
 # Les Logs 
 *.log.env
+dist/PFE-Roguelike/PFE-Roguelike.exe
+dist/Roguia/Roguia.exe
+
+# Fichiers temporaires LaTeX Core
+*.aux
+*.log
+*.out
+*.toc
+*.lot
+*.lof
+
+# Fichiers de bibliographie
+*.bbl
+*.blg
+
+# Fichiers de compilation Latexmk
+*.fdb_latexmk
+*.fls
+
+# Fichiers de synchronisation VS Code
+*.synctex.gz
+*.synctex
+*.synctex(busy)
+
+# Logs et fichiers divers
+*.dvi
+*.nav
+*.snm
+*.vrb
+
+*.pdf
