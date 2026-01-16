@@ -16,6 +16,10 @@
 \usepackage{booktabs} 
 \usepackage{xcolor}
 
+% Watermark packages
+\usepackage{eso-pic}
+\usepackage{transparent}
+
 % Configuration des légendes (Style article de recherche)
 \captionsetup[figure]{font=small,labelfont=bf,name={Fig.}}
 \captionsetup[table]{font=small,labelfont=bf,name={Tab.}}
@@ -61,6 +65,20 @@
     \textbf{ESEO - Option DAIA}
 }
 \date{\today}
+
+% Watermark ESEO
+\AddToShipoutPicture{%
+    \AtPageCenter{%
+        \makebox[0pt][c]{%
+            \raisebox{-0.5\height}{
+                \rotatebox{0}{%
+                    % l'opacité (0.1 = 10% visible) et la taille (width)
+                    \transparent{0.05}\includegraphics[width=20cm]{images/ESEO-picto-couleur.png}%
+                }%  
+            }%
+        }%
+    }%
+}
 
 \begin{document}
 
