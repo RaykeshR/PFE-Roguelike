@@ -34,6 +34,27 @@ TODO :octocat: :neckbeard: :bowtie: :shipit:
   title="Le poster de Roguia" />
 ]()
 
+> [!IMPORTANT]
+> # 🎓 DOCUMENTATION TECHNIQUE & SCIENTIFIQUE
+> **Vous cherchez les détails mathématiques (MDP, Q-Learning), l'architecture du code et les algorithmes ?**
+>
+> Ne cherchez plus ! Tout est détaillé dans notre rapport complet :
+>
+> ### 👉 [**LIRE LA DOCUMENTATION EN LIGNE (PDF)**](https://raykeshr.github.io/PFE-Roguelike/Documentation.pdf) 👈
+>
+> *(Contient : Formalisation MDP, Algorithmes Batch/Online, Architecture Mongo/SQL, etc.)*
+
+## 📚 Documentation et Ressources
+
+| 👁️ Lecture Directe | 📥 Téléchargement |
+| :---: | :---: |
+| [![Lire](https://img.shields.io/badge/Lire-En%20Ligne-blue?style=for-the-badge&logo=googlechrome&logoColor=white)](https://raykeshr.github.io/PFE-Roguelike/Documentation.pdf) | [![PDF](https://img.shields.io/badge/Télécharger-PDF-red?style=for-the-badge&logo=adobeacrobatreader&logoColor=white)](https://github.com/RaykeshR/PFE-Roguelike/releases/latest) |
+| *Accès immédiat via le navigateur* | *Récupérer le fichier via les Releases* |
+
+---
+
+[![Documentation](https://img.shields.io/badge/DOC-DOCUMENTATION%20TECHNIQUE%20(PDF)-FF0000?style=for-the-badge&logo=latex&logoColor=white)](https://raykeshr.github.io/PFE-Roguelike/Documentation.pdf)
+
 ### Mise en place (Windows):
 
 <!-- <details open> -->
