@@ -14,6 +14,17 @@
 Le site est accessible via ce [Lien qui fait une Redirection d'URL](https://raykeshr.github.io/PFE-Roguelike/) vers une page d'accueil pour le site du Github : PFE-Roguelike
 Note de Travail : [Fichier Word](https://raykeshr.github.io/PFE-Roguelike/Word_Redirection.html) <!-- si ça ne marche pas cliquer ici : [Fichier Word](https://reseaueseo-my.sharepoint.com/:w:/r/personal/sabri_messaoudi_reseau_eseo_fr/Documents/Note%20de%20Travail%20PFE.docx?d=w94d9488edfa142df962016daa36a74ba&csf=1&web=1&e=UM8vt7) -->
 
+> [!IMPORTANT]
+> ## 🎓 DOCUMENTATION TECHNIQUE & SCIENTIFIQUE
+> **Vous cherchez les détails mathématiques (MDP, Q-Learning), l'architecture du code et les algorithmes ?**
+>
+> | 👁️ Lecture Directe | 📥 Téléchargement |
+> | :---: | :---: |
+> | [![Lire](https://img.shields.io/badge/Lire-En%20Ligne-blue?style=for-the-badge&logo=googlechrome&logoColor=white)](https://raykeshr.github.io/PFE-Roguelike/Documentation.pdf) | [![PDF](https://img.shields.io/badge/Télécharger-PDF-red?style=for-the-badge&logo=adobeacrobatreader&logoColor=white)](https://github.com/RaykeshR/PFE-Roguelike/releases/latest) |
+> | *Accès immédiat via le navigateur* | *Récupérer le fichier via les Releases* |
+>
+> *(Contient : Formalisation MDP, Algorithmes Batch/Online, Architecture Mongo/SQL, etc.)*
+
 
 #### Sommaire 
 
@@ -34,24 +45,6 @@ TODO :octocat: :neckbeard: :bowtie: :shipit:
   title="Le poster de Roguia" />
 ]()
 
-> [!IMPORTANT]
-> # 🎓 DOCUMENTATION TECHNIQUE & SCIENTIFIQUE
-> **Vous cherchez les détails mathématiques (MDP, Q-Learning), l'architecture du code et les algorithmes ?**
->
-> | 👁️ Lecture Directe | 📥 Téléchargement |
-> | :---: | :---: |
-> | [![Lire](https://img.shields.io/badge/Lire-En%20Ligne-blue?style=for-the-badge&logo=googlechrome&logoColor=white)](https://raykeshr.github.io/PFE-Roguelike/Documentation.pdf) | [![PDF](https://img.shields.io/badge/Télécharger-PDF-red?style=for-the-badge&logo=adobeacrobatreader&logoColor=white)](https://github.com/RaykeshR/PFE-Roguelike/releases/latest) |
-> | *Accès immédiat via le navigateur* | *Récupérer le fichier via les Releases* |
->
-> *(Contient : Formalisation MDP, Algorithmes Batch/Online, Architecture Mongo/SQL, etc.)*
-
-## 📚 Documentation et Ressources
-
-
-
----
-
-[![Documentation](https://img.shields.io/badge/DOC-DOCUMENTATION%20TECHNIQUE%20(PDF)-FF0000?style=for-the-badge&logo=latex&logoColor=white)](https://raykeshr.github.io/PFE-Roguelike/Documentation.pdf)
 
 ### Mise en place (Windows):
 
