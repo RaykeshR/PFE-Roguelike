@@ -20,7 +20,7 @@ Note de Travail : [Fichier Word](https://raykeshr.github.io/PFE-Roguelike/Word_R
 >
 > | 👁️ Lecture Directe | 📥 Téléchargement |
 > | :---: | :---: |
-> | [![Lire](https://img.shields.io/badge/Lire-En%20Ligne-blue?style=for-the-badge&logo=googlechrome&logoColor=white)](https://raykeshr.github.io/PFE-Roguelike/Documentation.pdf) | [![PDF](https://img.shields.io/badge/Télécharger-PDF-red?style=for-the-badge&logo=adobeacrobatreader&logoColor=white)](https://github.com/RaykeshR/PFE-Roguelike/releases/download/v2.6.1.17/documentation.pdf) |
+> | [![Lire](https://img.shields.io/badge/Lire-En%20Ligne-blue?style=for-the-badge&logo=googlechrome&logoColor=white)](https://raykeshr.github.io/PFE-Roguelike/docs/documentation.pdf) | [![PDF](https://img.shields.io/badge/Télécharger-PDF-red?style=for-the-badge&logo=adobeacrobatreader&logoColor=white)](https://github.com/RaykeshR/PFE-Roguelike/releases/download/v2.6.1.17/documentation.pdf) |
 > | *Accès immédiat via le navigateur* | *Récupérer le fichier via les Releases* |
 >
 > *(Contient : Formalisation MDP, Algorithmes Batch/Online, Architecture Mongo/SQL, etc.)*
