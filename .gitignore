@@ -79,3 +79,4 @@ dist/Roguia/Roguia.exe
 *.vrb
 
 *.pdf
+!docs/documentation.pdf
