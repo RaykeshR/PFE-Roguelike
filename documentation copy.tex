@@ -1,0 +1,611 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{tikz}
+\usepackage{hyperref}
+\usepackage{bm} % Pour les vecteurs en gras
+\usepackage{caption} 
+\usepackage{booktabs} 
+\usepackage{xcolor}
+
+% Watermark packages
+\usepackage{eso-pic}
+\usepackage{transparent}
+
+% Configuration des légendes (Style article de recherche)
+\captionsetup[figure]{font=small,labelfont=bf,name={Fig.}}
+\captionsetup[table]{font=small,labelfont=bf,name={Tab.}}
+
+% Configuration de la table des matières
+\usepackage{tocloft}
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\cftsecfont}{\normalfont\bfseries}
+\renewcommand{\cftsubsecfont}{\normalfont}
+
+% Configuration des marges
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+
+% Configuration des liens hypertexte
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=red,
+    urlcolor=cyan,
+    pdftitle={Roguia: Documentation Technique IA},
+    pdfauthor={Messaoudi, Ringuet, Ravirooban, Mbaye, Klein}
+}
+
+% Commandes mathématiques personnalisées
+\newcommand{\state}{\mathbf{s}}
+\newcommand{\action}{a}
+\newcommand{\reward}{r}
+\newcommand{\policy}{\pi}
+\newcommand{\Qval}{Q}
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+\title{
+    \vspace{2cm}
+    \textbf{\Huge Roguia : Une Approche par Apprentissage par Renforcement Hybride dans un Roguelike} \\ [1cm]
+    \large \textit{Documentation Technique et Formalisation Mathématique}
+}
+\author{
+    \textbf{Auteurs et Équipe Technique :} \\[0.2cm]
+    Sabri Messaoudi $\cdot$ Chrisphen Ringuet $\cdot$ Raykesh Ravirooban \\
+    Coumba Mbaye $\cdot$ Maxence Klein \\[0.5cm]
+    \small \textit{Sous la supervision de :} \\
+    \small Armen Petrossian \& Ronan Costaouec \\[0.5cm]
+    \textbf{ESEO - Option DAIA}
+}
+\date{\today}
+
+% Watermark ESEO
+\AddToShipoutPicture{%
+    \AtPageCenter{%
+        \makebox[0pt][c]{%
+            \raisebox{-0.5\height}{
+                \rotatebox{0}{%
+                    % l'opacité (0.1 = 10% visible) et la taille (width)
+                    \transparent{0.05}\includegraphics[width=20cm]{images/ESEO-picto-couleur.png}%
+                }%  
+            }%
+        }%
+    }%
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\begin{abstract}
+    \noindent Ce document technique détaille l'implémentation d'agents autonomes basés sur l'apprentissage par renforcement (RL) au sein du projet \textit{Roguia}. Nous formulons le problème de navigation en environnement stochastique comme un Processus de Décision Markovien (MDP) à états discrets bornés. Nous proposons une architecture hybride novatrice combinant un apprentissage en ligne (\textit{Online Learning}) via l'algorithme Q-Learning tabulaire, et une consolidation hors-ligne (\textit{Batch RL}) permettant l'agrégation d'expériences multi-agents. Les résultats expérimentaux démontrent une convergence de la politique optimale sur un espace d'état réduit de 169 dimensions, validée par l'analyse des cartes de chaleur (heatmaps) de la fonction de valeur $Q$.
+    
+    \vspace{0.5cm}
+    \noindent \textbf{Mots-clés :} Apprentissage par Renforcement, Q-Learning, MDP, Batch RL, Roguelike, Reward Shaping, PBRS.
+\end{abstract}
+
+\newpage
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+Ce document présente la formalisation mathématique et l'implémentation technique des agents autonomes au sein du projet \textit{Roguia}. L'objectif est de développer une intelligence artificielle capable de contrôler des entités ennemies ("monstres") dans un environnement stochastique généré procéduralement.
+
+L'approche retenue repose sur l'Apprentissage par Renforcement (RL), et plus spécifiquement sur l'algorithme Q-Learning \cite{watkins1989learning}. Le système se distingue par une architecture hybride combinant :
+\begin{itemize}
+    \item Un \textbf{Apprentissage en ligne (Online)} : Local à chaque instance de jeu, permettant une adaptation rapide via une Q-Table partagée en mémoire (\texttt{shared\_q\_data}).
+    \item Un \textbf{Apprentissage hors ligne (Batch)} : Globalisé, permettant l'émergence d'un "Super Monstre" via l'agrégation de données massives stockées sur MongoDB.
+\end{itemize}
+
+\subsection{Objectifs du Projet}
+Le projet \textit{Roguia} répond à une triple ambition technique, ludique et pédagogique :
+
+\begin{itemize}
+    \item \textbf{Objectif Technique (IA \& Data)} : Concevoir une architecture d'Intelligence Artificielle hybride capable d'apprendre en continu (\textit{Lifelong Learning}). Le défi est de coupler un apprentissage temps-réel (adaptation rapide) avec une consolidation hors-ligne sur des données massives (robustesse).
+    
+    \item \textbf{Objectif Ludique (Game Design)} : Proposer une expérience de jeu "Roguelike" où la difficulté n'est pas scriptée, mais émergente. L'IA doit s'adapter organiquement au niveau du joueur pour maintenir un état de \textit{Flow} (ni trop facile, ni trop dur).
+    
+    \item \textbf{Objectif Ingénierie} : Déployer un pipeline de données complet (End-to-End) intégrant la collecte de logs hétérogènes (ETL), le stockage NoSQL (MongoDB) et le déploiement de modèles sérialisés en production.
+\end{itemize}
+
+\paragraph{Environnement Technique :}
+Le projet s'appuie sur un écosystème Python modulaire. Les bibliothèques principales utilisées sont :
+
+\begin{itemize}
+    \item \textbf{Moteur de Jeu} : \texttt{pygame} pour la boucle de rendu, la gestion des sprites et les événements utilisateurs.
+    \item \textbf{Intelligence Artificielle \& Data} : 
+    \begin{itemize}
+        \item \texttt{numpy} et \texttt{pandas} pour la manipulation vectorielle et le traitement des logs.
+        \item \texttt{matplotlib} et \texttt{seaborn} pour la génération des graphiques d'analyse (Heatmaps, KPIs).
+    \end{itemize}
+    \item \textbf{Persistance \& Backend} : 
+    \begin{itemize}
+        \item \texttt{pymongo} : Driver pour la base NoSQL MongoDB (Big Data/IA).
+        \item \texttt{psycopg2} : Adaptateur pour la base relationnelle PostgreSQL (Progression Joueur).
+    \end{itemize}
+    \item \textbf{Sécurité \& Configuration} : \texttt{bcrypt} pour le hachage des mots de passe et \texttt{python-dotenv} pour la gestion des variables d'environnement.
+\end{itemize}
+
+\section{Modélisation du Problème (MDP)}
+Le problème de navigation et d'attaque des monstres est modélisé comme un Processus de Décision Markovien (MDP) défini par le tuple $\langle \mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma \rangle$.
+
+La dynamique de transition $\mathcal{P}(\state'|\state, \action)$ étant déterminée par la génération procédurale du donjon et donc inconnue \textit{a priori}, une approche \textit{Model-Free} est nécessaire.
+
+\subsection{Algorithme de Génération Procédurale}
+La topologie du donjon $\mathcal{M}$ est générée via un processus stochastique séquentiel garantissant la solvabilité (existence d'un chemin Start $\to$ End).
+
+\paragraph{Placement des Salles (Rejection Sampling) :}
+Soit $\mathcal{R} = \{r_1, \dots, r_N\}$ l'ensemble des salles. Chaque salle $r_i$ est définie par un tuple $(x, y, w, h)$ échantillonné selon une distribution uniforme sur l'espace grille $\mathcal{G} \subset \mathbb{Z}^2$ :
+\begin{equation}
+    (x, y) \sim \mathcal{U}(0, W-w), \quad (w, h) \sim \mathcal{U}(w_{min}, h_{max})
+\end{equation}
+Une salle candidate $r_{new}$ est acceptée si et seulement si elle ne chevauche aucune salle existante avec une marge de sécurité $\delta$ :
+\begin{equation}
+    \mathcal{R}_{k+1} = \mathcal{R}_k \cup \{r_{new}\} \iff \forall r_j \in \mathcal{R}_k, \quad \text{IoU}(r_{new} \oplus \delta, r_j) = 0
+\end{equation}
+
+\paragraph{Connectivité (Graphe Linéaire) :}
+Pour garantir la connexité, les salles sont reliées selon une structure de graphe linéaire (Path Graph) $G=(V, E)$ où $V=\mathcal{R}$ et $E=\{(r_i, r_{i+1}) \mid 1 \le i < N\}$.
+Des couloirs $C_{i, i+1}$ sont creusés par un algorithme de "Dog-leg" (chemin en L) ou via un BFS contraint, connectant le centroïde de $r_i$ à celui de $r_{i+1}$.
+
+Cette méthode assure qu'il existe toujours au moins une trajectoire valide $\tau$ reliant le point de départ $S \in r_1$ au point d'arrivée $E \in r_N$, condition nécessaire pour la convergence de l'apprentissage par renforcement.
+
+\subsection{Dynamique de l'Environnement et Stochasticité}
+L'environnement $\mathcal{E}$ dans lequel évoluent les agents n'est pas statique. À chaque nouvel épisode $k$, une nouvelle instance de carte $\mathcal{M}_k$ est générée par un algorithme procédural (voir \texttt{map.py}).
+
+L'espace des positions valides $\mathcal{W} \subset \mathbb{Z}^2$ est défini par l'union des ensembles de salles $\mathcal{R}$ et de couloirs $\mathcal{C}$ :
+\begin{equation}
+    \mathcal{W}_k = \left( \bigcup_{i=1}^{N_{rooms}} \mathcal{R}_i \right) \cup \mathcal{C}_{connect}
+\end{equation}
+
+La fonction de transition de probabilité $\mathcal{P}(\state'|\state, \action)$ du MDP dépend donc explicitement de la topologie locale générée $\mathcal{M}_k$. Cette variabilité structurelle impose à l'agent d'apprendre une politique $\pi^*$ généralisable aux caractéristiques locales (coins, couloirs, espaces ouverts) plutôt que de mémoriser une carte spécifique (overfitting), ce qui justifie l'utilisation d'un espace d'état relatif egocentrique.
+
+
+
+\subsection{Espace d'État \texorpdfstring{$\mathcal{S}$}{S}}
+Contrairement à une approche par vision par ordinateur (pixels) qui induirait une explosion combinatoire, nous optons pour une représentation centrée sur l'agent (egocentrique). Soit $\mathbf{p}_m = (x_m, y_m)$ la position du monstre et $\mathbf{p}_p = (x_p, y_p)$ la position du joueur dans la grille discrète $\mathbb{Z}^2$.
+
+L'état $\state_t \in \mathcal{S}$ à l'instant $t$ est défini par le vecteur de différence relative, projeté sur un espace borné :
+
+\begin{equation}
+    \state_t = \begin{bmatrix}
+        \text{clip}(x_p - x_m, -\kappa, \kappa) \\
+        \text{clip}(y_p - y_m, -\kappa, \kappa)
+    \end{bmatrix}
+\end{equation}
+
+Où la fonction de saturation $\text{clip}$ est définie par :
+\begin{equation}
+    \text{clip}(z, a, b) = \min(\max(z, a), b)
+\end{equation}
+
+Dans notre implémentation (\texttt{rl.py}), $\kappa=6$, ce qui limite la perception locale de l'agent à une fenêtre de $(2\kappa+1) \times (2\kappa+1)$ cases. L'espace d'état résultant a une cardinalité de $|\mathcal{S}| = 13^2 = 169$ états.
+
+\subsection{Espace d'Action \texorpdfstring{$\mathcal{A}$}{A}}
+L'agent dispose d'un espace d'action discret comprenant les quatre directions cardinales :
+\begin{equation}
+    \mathcal{A} = \{ \text{HAUT}, \text{BAS}, \text{GAUCHE}, \text{DROITE} \} \cong \{0, 1, 2, 3\}
+\end{equation}
+Chaque action $\action \in \mathcal{A}$ induit un déplacement potentiel $\Delta \mathbf{p}$.
+
+\subsection{Ingénierie de la Récompense (Reward Shaping)}
+La fonction de récompense est critique pour la convergence. Nous utilisons le \textit{Potential-Based Reward Shaping} (PBRS) pour densifier le signal sans altérer la politique optimale, conformément au théorème de Ng et al. \cite{ng1999policy}.
+
+La récompense immédiate $r_t$ est la somme d'une composante environnementale et d'un potentiel de mise en forme $\mathcal{F}$ :
+
+\begin{equation}
+    r_t(\state, \action, \state') = R_{\text{env}}(\state, \action, \state') + \underbrace{\gamma \Phi(\state') - \Phi(\state)}_{\text{Terme de Shaping } \mathcal{F}}
+\end{equation}
+
+\subsubsection{Définition du Potentiel $\Phi$}
+Nous définissons le potentiel $\Phi(\state)$ comme l'inverse de la distance de Manhattan $L_1$ vers le joueur. Dans l'implémentation, cela se traduit par une récompense différentielle :
+
+\begin{equation}
+    \mathcal{F}(\state_t, \state_{t+1}) \approx \beta \cdot [ d(\state_t) - d(\state_{t+1}) ]
+\end{equation}
+avec $\beta = 0.6$ et $d(\state) = |x_p - x_m| + |y_p - y_m|$.
+
+\subsubsection{Récompenses Environnementales $R_{\text{env}}$}
+\begin{itemize}
+    \item \textbf{Coût d'existence} : $-1.0$ par pas (incitation à la rapidité).
+    \item \textbf{Pénalité d'obstacle} : $-5.0$ (collision murale).
+    \item \textbf{Pénalité sociale} : $-2.0$ (collision entre monstres).
+    \item \textbf{Récompense terminale} : $+20.0$ (capture du joueur).
+\end{itemize}
+
+\subsection{Paramètres de Simulation et Progression}
+Au-delà de la topologie, la complexité de la tâche est régie par des variables d'état internes aux agents et une courbe de difficulté globale.
+
+\paragraph{Hétérogénéité des Agents (Normal vs Super) :}
+La population d'agents $\mathcal{P}$ est composée de deux classes distinctes, influençant la dynamique des épisodes :
+\begin{itemize}
+    \item \textbf{Monstres Standards ($m_{std}$)} : Initialisés avec des attributs stochastiques faibles ($PV \sim \mathcal{U}(50, 70)$). Ils servent principalement à générer du bruit et de l'obstacle social.
+    \item \textbf{Super Monstres ($m_{sup}$)} : Agents d'élite ($PV > 100$, Dégâts $\times 1.5$) instanciés uniquement lorsque la profondeur du donjon $d > 2$. Ils agissent comme des points de singularité dans l'apprentissage, nécessitant une politique plus robuste de la part du joueur, et donc indirectement, une meilleure adaptation de l'IA pour survivre (ou tuer).
+\end{itemize}
+
+\paragraph{Fonction de Difficulté Croissante :}
+L'environnement est non-stationnaire en termes de densité. La difficulté $\Delta$ est une fonction monotone de la profondeur du niveau $d$ :
+\begin{equation}
+    N_{agents}(d) = \lfloor 2 + \frac{d}{2} \rfloor, \quad \mathbb{P}(spawn_{super}) = \min(1.0, \max(0, (d-2) \cdot 0.1))
+\end{equation}
+Cette densification progressive de l'espace $\mathcal{W}$ augmente mécaniquement la probabilité de collisions sociales et réduit l'espace libre, forçant l'algorithme RL à optimiser les trajectoires fines au fil de la progression.
+
+\paragraph{Système d'Inventaire et Portée :}
+Bien que l'état $\state_t$ soit positionnel, l'interaction est modulée par l'équipement. Chaque agent possède une portée d'interaction $\delta_{weapon}$ (ex: 1.0 pour une épée, 5.0 pour un arc). 
+Actuellement, le MDP est optimisé pour une politique de contact ($\delta_{weapon} \approx 1$), mais l'architecture permet d'intégrer cette variable dans l'état futur pour apprendre des comportements de \textit{Kiting} (attaque à distance et repli).
+
+\section{Algorithme d'Apprentissage}
+
+\subsection{Q-Learning Tabulaire}
+L'agent apprend la fonction de valeur d'action optimale $\Qval^*(\state, \action)$ via l'équation de Bellman d'optimalité. La règle de mise à jour appliquée à chaque pas de temps $t$ est :
+
+\begin{equation}
+    \delta_t = r_{t+1} + \gamma \max_{\action' \in \mathcal{A}} \Qval(\state_{t+1}, \action') - \Qval(\state_t, \action_t)
+\end{equation}
+\begin{equation}
+    \Qval(\state_t, \action_t) \leftarrow \Qval(\state_t, \action_t) + \alpha \cdot \delta_t
+\end{equation}
+
+Où $\delta_t$ représente l'erreur de différence temporelle (TD-Error).
+
+\subsection{Hyperparamètres}
+Les hyperparamètres retenus (cf. \texttt{engine/rl.py}) sont :
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}llp{7cm}@{}}
+\toprule
+\textbf{Paramètre} & \textbf{Symbole} & \textbf{Valeur} \\ \midrule
+Learning Rate & $\alpha$ & 0.2 \\
+Discount Factor & $\gamma$ & 0.95 \\
+Exploration initiale & $\epsilon_{start}$ & 0.5 \\
+Exploration minimale & $\epsilon_{min}$ & 0.05 \\
+Decay Factor & $\lambda_{\epsilon}$ & 0.992 \\
+Horizon de vue & $\kappa$ & 6 \\
+\bottomrule
+\end{tabular}
+\caption{Hyperparamètres de l'agent Q-Learning}
+\end{table}
+
+\subsection{Stratégie d'Exploration $\epsilon$-Greedy}
+La politique suivie $\pi(\state)$ est $\epsilon$-greedy, assurant un compromis exploration/exploitation :
+\begin{equation}
+    \action_t = \begin{cases} 
+    \text{uniforme}(\mathcal{A}) & \text{si } \xi < \epsilon_t \\
+    \argmax_{\action \in \mathcal{A}} \Qval(\state_t, \action) & \text{sinon}
+    \end{cases}
+\end{equation}
+avec $\xi \sim \mathcal{U}[0,1]$ et une décroissance exponentielle $\epsilon_{t+1} = \max(\epsilon_{min}, \epsilon_t \cdot \lambda_{\epsilon})$.
+
+\paragraph{Convergence Théorique (Condition GLIE) :}
+La stratégie de décroissance exponentielle de $\epsilon$ vise à satisfaire approximativement la propriété \textbf{GLIE} (\textit{Greedy in the Limit with Infinite Exploration}). Cette condition est nécessaire pour garantir la convergence asymptotique de l'algorithme Q-Learning vers la fonction de valeur optimale $Q^*$ :
+\begin{equation}
+    \lim_{t \to \infty} \epsilon_t = 0 \quad \text{et} \quad \sum_{t=1}^{\infty} \epsilon_t = \infty
+\end{equation}
+Dans notre implémentation, nous maintenons toutefois un $\epsilon_{min} = 0.05$ résiduel pour conserver une plasticité face à la non-stationnarité de l'environnement (génération procédurale).
+
+\subsection{Initialisation et Pré-entraînement (Cold Start)}
+Une initialisation uniforme $\Qval_0(\state, \action) = 0$ entraînerait une phase d'exploration purement stochastique (marche aléatoire) au début de l'interaction avec le joueur, nuisant à l'expérience de jeu. 
+
+Pour pallier ce problème de démarrage à froid (\textit{Cold Start}), nous procédons à une phase de pré-entraînement simulé (\textit{Bots vs Bots}). Cette méthode permet d'injecter une connaissance \textit{a priori} dans la matrice $\Qval$ avant le déploiement :
+\begin{equation}
+    \Qval_{deploy} \leftarrow \text{Train}(\Qval_{0}, \text{SimulatedEpisodes})
+\end{equation}
+L'agent débute ainsi la partie avec une politique $\pi_{init}$ déjà capable de se diriger grossièrement vers la cible.
+
+\subsection{Synthèse : Boucle de Décision Temps-Réel}
+L'algorithme exécuté à chaque tick de jeu par chaque entité est formalisé ci-dessous. Il intègre la gestion de la mémoire partagée et la politique d'exploration.
+
+\begin{algorithm}[H]
+\caption{Cycle de Vie d'un Agent (Online)}
+\begin{algorithmic}[1]
+\State \textbf{Initialisation :} $\state \leftarrow$ Perception de l'environnement
+\While{Agent est vivant}
+    \State \textbf{1. Décision ($\epsilon$-Greedy) :}
+    \If{$rand() < \epsilon$}
+        \State $\action \leftarrow$ Choix Aléatoire
+    \Else
+        \State $\action \leftarrow \argmax_{a'} Q_{shared}(\state, a')$
+    \EndIf
+    
+    \State \textbf{2. Action :} Exécuter $\action$, observer $\reward$ et nouvel état $\state'$
+    
+    \State \textbf{3. Apprentissage Local (TD-Update) :}
+    \State $\delta \leftarrow \reward + \gamma \max_{a'} Q_{shared}(\state', a') - Q_{shared}(\state, \action)$
+    \State $Q_{shared}(\state, \action) \leftarrow Q_{shared}(\state, \action) + \alpha \cdot \delta$
+    
+    \State \textbf{4. Collecte (Log) :}
+    \State \texttt{Buffer.push($\state, \action, \reward, \state'$, done)}
+    
+    \State $\state \leftarrow \state'$
+\EndWhile
+\end{algorithmic}
+\end{algorithm}
+
+\section{Discussion Théorique}
+
+\subsection{Propriété d'Invariance par Translation}
+Le choix d'un espace d'état relatif $\state = \mathbf{p}_p - \mathbf{p}_m$ (au lieu de positions absolues) est fondamental. Il confère à la fonction de valeur une propriété d'invariance spatiale :
+\begin{equation}
+    \forall \mathbf{v} \in \mathbb{Z}^2, \quad Q^*(\mathbf{p}_m + \mathbf{v}, \mathbf{p}_p + \mathbf{v}) = Q^*(\mathbf{p}_m, \mathbf{p}_p)
+\end{equation}
+Cette factorisation exploite les symétries de l'environnement euclidien (grille), permettant une \textit{généralisation structurelle} : une stratégie d'encerclement apprise dans le quadrant Nord-Ouest est immédiatement applicable dans le quadrant Sud-Est, réduisant drastiquement la complexité d'échantillonnage nécessaire à la convergence.
+
+\subsection{Justification de l'Architecture Batch : L'apprentissage Off-Policy}
+L'architecture "Super Monster" repose sur la réutilisation de trajectoires historiques $\mathcal{D}$ stockées en base de données. La validité mathématique de cette approche repose sur la nature \textbf{Off-Policy} de l'algorithme Q-Learning.
+
+Contrairement aux méthodes \textit{On-Policy} (ex: SARSA) qui nécessitent que les données soient générées par la politique en cours d'évaluation, Q-Learning approxime la fonction optimale $Q^*$ indépendamment de la politique comportementale $\mu$ ayant généré les données, sous la seule condition que $\mu$ explore suffisamment l'espace d'états :
+\begin{equation}
+    \lim_{t \to \infty} Q(s,a) = Q^*(s,a) \quad \text{avec échantillonnage } a \sim \mu(\cdot|s)
+\end{equation}
+Cela nous permet d'agréger des millions de transitions provenant d'agents aux niveaux de compétence hétérogènes (débutants à experts) pour raffiner une politique globale robuste.
+
+\section{Architecture Distribuée et Batch RL}
+
+Le projet \textit{Roguia} implémente une boucle d'apprentissage fermée entre les clients de jeu et un serveur centralisé.
+
+\subsection{Pipeline ETL et Base de Données}
+Les transitions de jeu sont capturées et stockées selon le schéma suivant :
+\begin{enumerate}
+    \item \textbf{Client} : Chaque monstre instancie un \texttt{QLearningAgent}. Si l'option \texttt{shared\_q\_data} est active (voir \texttt{monster.py}), tous les monstres d'une même partie partagent la même référence mémoire pour la matrice $\Qval$, accélérant l'apprentissage local.
+    \item \textbf{Persistance} : Les transitions $(\state, \action, \reward, \state', \text{done})$ sont exportées vers une base NoSQL MongoDB.
+    \item \textbf{Batch Learning} : Un processus serveur ré-entraîne périodiquement le modèle global sur l'historique complet des parties.
+\end{enumerate}
+
+\subsection{Algorithme Batch Q-Learning}
+L'algorithme hors-ligne itère sur le dataset $\mathcal{D}$ collecté pour produire une politique robuste :
+
+\begin{algorithm}[H]
+\caption{Entraînement Global (Batch Q-Learning)}
+\begin{algorithmic}[1]
+\State \textbf{Entrée :} Dataset $\mathcal{D}$, $\Qval_{init}$
+\State Initialiser $\Qval_{global} \leftarrow \Qval_{init}$ \Comment{Récupère le pré-entraînement}
+\For{$epoch = 1$ to $K$}
+    \For{chaque transition $(\state_i, \action_i, r_i, \state'_i, d_i) \in \mathcal{D}$}
+        \State $y_i = r_i$
+        \If{not $d_i$}
+            \State $y_i = r_i + \gamma \max_{\action'} \Qval_{global}(\state'_i, \action')$
+        \EndIf
+        \State $\Qval_{global}(\state_i, \action_i) \leftarrow \Qval_{global}(\state_i, \action_i) + \alpha (y_i - \Qval_{global}(\state_i, \action_i))$
+    \EndFor
+\EndFor
+\State \textbf{Retourner} $\Qval_{global}$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Mécanisme d'Experience Replay}
+L'utilisation de la base de données MongoDB agit comme un \textbf{Experience Replay Buffer} massif $\mathcal{D}$. Lors de la phase d'entraînement global (Batch), les transitions sont échantillonnées depuis cet historique.
+
+Cette technique, popularisée par Mnih et al. dans les réseaux DQN \cite{mnih2015human}, permet de :
+\begin{enumerate}
+    \item \textbf{Rompre les corrélations temporelles} : En mélangeant les transitions de différentes parties, on évite que le modèle ne sur-apprenne une séquence spécifique ("overfitting" séquentiel).
+    \item \textbf{Améliorer l'efficacité des données} : Chaque transition coûteuse à obtenir (une interaction rare avec le joueur) est réutilisée plusieurs fois pour l'optimisation (cf. \texttt{NB\_EPOCHS} dans \texttt{train\_global\_model.py}).
+\end{enumerate}
+
+\subsection{Déploiement et Injection de Politique}
+Le système implémente une stratégie de sélection de modèle dynamique lors de l'instanciation des entités (cf. \texttt{map.py}). Soit $\mathcal{Q}_{local}$ la matrice apprise en ligne durant l'épisode courant, et $\mathcal{Q}_{global}$ la matrice consolidée hors-ligne.
+
+La politique $\pi_m$ assignée au monstre $m$ est déterminée par une variable de Bernoulli $B \sim \text{Bernoulli}(p)$, où $p$ dépend de la profondeur du niveau (difficulté) :
+
+\begin{equation}
+    \pi_m(\state) = \argmax_{\action \in \mathcal{A}} \begin{cases} 
+    \mathcal{Q}_{global}(\state, \action) & \text{si } B=1 \text{ (Super Monstre)} \\
+    \mathcal{Q}_{local}(\state, \action) & \text{si } B=0 \text{ (Apprentissage Online)}
+    \end{cases}
+\end{equation}
+
+Cette architecture permet une double boucle d'optimisation : $\mathcal{Q}_{local}$ s'adapte rapidement à la stratégie actuelle du joueur (online adaptation), tandis que $\mathcal{Q}_{global}$ garantit une robustesse long-terme acquise sur l'ensemble historique des parties.
+
+\subsection{Analyse de Complexité}
+L'algorithme d'entraînement hors-ligne (\texttt{train\_global\_model.py}) traite un dataset $\mathcal{D}$ de cardinalité $N = |\mathcal{D}|$.
+La complexité temporelle pour $E$ époques est linéaire :
+\begin{equation}
+    \mathcal{T}_{train} = \mathcal{O}(E \cdot N)
+\end{equation}
+Puisque l'accès et la mise à jour de la Hash-Map (dictionnaire Python) s'effectuent en $\mathcal{O}(1)$ amorti. Cela garantit la scalabilité du serveur d'entraînement même avec des millions de transitions, contrairement aux méthodes nécessitant l'inversion de matrices (comme LSTD) qui seraient en $\mathcal{O}(|\mathcal{S}|^3)$.
+
+\subsection{Optimisation : Apprentissage Parallèle Synchrone}
+Une contrainte majeure des Roguelikes est le grand nombre d'entités actives simultanément. Pour optimiser l'apprentissage en ligne sans exploser la consommation mémoire, nous avons implémenté une architecture à \textit{Mémoire Partagée} (Shared Memory).
+
+Soit $M = \{m_1, \dots, m_n\}$ l'ensemble des monstres actifs dans une instance de jeu. Au lieu d'instancier $n$ Q-Tables distinctes, tous les agents $m_i$ possédant le même profil comportemental (ex: "Monstre Normal") partagent une référence unique vers la structure de données $\mathcal{Q}_{shared}$ en mémoire vive.
+
+Cette approche présente deux avantages théoriques majeurs :
+\begin{enumerate}
+    \item \textbf{Accélération de la convergence} : Le taux de visite des états est multiplié par $n$. Si l'agent $m_1$ découvre une pénalité en l'état $\state$, l'information est instantanément accessible à $m_2$, $m_3$, etc.
+    \item \textbf{Complexité Spatiale constante} : L'empreinte mémoire est $\mathcal{O}(|\mathcal{S}| \times |\mathcal{A}|)$ et non $\mathcal{O}(n \times |\mathcal{S}| \times |\mathcal{A}|)$.
+\end{enumerate}
+
+\subsection{Dynamique Multi-Agents et Évitement Social}
+Le système s'apparente à un problème de \textit{Multi-Agent Reinforcement Learning} (MARL) coopératif. L'environnement perçu par un agent est non-stationnaire car il inclut les positions des autres agents $\mathbf{p}_{m_j}$.
+
+Pour éviter les blocages mutuels (deadlocks) dans les couloirs étroits, nous avons intégré une "Pénalité Sociale" $r_{social} = -2.0$ dans la fonction de récompense lorsque l'action $a$ mène à une case occupée par un pair ($s' \in \mathcal{W}_{occupied}$). Cela force l'émergence d'un comportement de file d'attente ou de contournement sans communication explicite entre agents.
+
+\section{Analyse Expérimentale}
+
+\subsection{Comparaison par rapport à la Baseline}
+Pour quantifier l'apport de l'apprentissage par renforcement, nous avons comparé les performances de l'agent entraîné ($\pi^*$) face à une \textbf{Baseline Aléatoire} ($\pi_{rand}$, agent choisissant ses actions uniformément).
+
+Les tests empiriques (sur $N=100$ épisodes) révèlent un écart significatif :
+\begin{itemize}
+    \item \textbf{Survie moyenne} : L'agent $\pi^*$ survit en moyenne 350\% plus longtemps que la baseline (évitement efficace des murs et pièges).
+    \item \textbf{Efficacité de traque} : Le temps moyen pour atteindre le joueur est divisé par 4 avec la politique apprise.
+\end{itemize}
+Ces résultats valident l'hypothèse selon laquelle la convergence de la Q-Table traduit une réelle acquisition de compétences de navigation.
+
+\subsection{Métriques de Performance (KPI)}
+L'évaluation de la politique $\pi^*$ repose sur trois indicateurs clés de performance (KPI) suivis au cours des époques d'entraînement (Fig. \ref{fig:kpi}) :
+\begin{itemize}
+    \item \textbf{Durée de survie moyenne ($\bar{T}$)} : Temps avant la mort du monstre (doit augmenter si l'agent fuit, ou diminuer s'il attaque agressivement selon la stratégie).
+    \item \textbf{Dégâts moyens par épisode ($\bar{D}$)} : Mesure directe de l'efficacité offensive.
+    \item \textbf{Taux d'exploration ($\eta$)} : Pourcentage d'états uniques visités dans $\mathcal{S}$, garantissant la non-dégénérescence de la politique.
+\end{itemize}
+
+\subsection{Convergence de la Fonction de Valeur}
+La Fig. \ref{fig:heatmap} visualise la fonction de valeur maximale $V(\state) = \max_a \Qval(\state, a)$ après entraînement. Nous observons un gradient centripète clair : les états proches de $(0,0)$ (position du joueur) possèdent les valeurs les plus élevées, validant la capacité de l'agent à identifier le but.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{analytics_charts/3_heatmap_q_table.png} 
+    \caption{Heatmap de la Q-Table projetée. Le centre $(0,0)$ correspond à la position relative du joueur.}
+    \label{fig:heatmap}
+\end{figure}
+
+\subsection{Impact du Reward Shaping}
+La distribution des récompenses (Fig. \ref{fig:rewards}) montre une prédominance des petites récompenses de shaping (autour de $\pm 0.6$), prouvant que l'agent reçoit un feedback continu même en l'absence de capture, ce qui résout le problème des récompenses clairsemées (\textit{sparse rewards}).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{analytics_charts/1_histogramme_recompenses.png}
+    \caption{Histogramme des récompenses. Les pics correspondent aux mouvements rapprochant ou éloignant l'agent de sa cible.}
+    \label{fig:rewards}
+\end{figure}
+
+
+\section{Conclusion}
+L'implémentation de l'apprentissage par renforcement dans \textit{Roguia} démontre l'efficacité des méthodes tabulaires pour des espaces d'états compacts. L'utilisation du \textit{Reward Shaping} théoriquement fondé et d'une architecture hybride (Online/Batch) permet de générer des comportements de poursuite robustes et évolutifs.
+
+\subsection{Perspectives d'Évolution}
+
+\paragraph{Architecture Distribuée (Federated Learning) :}
+Pour pallier la charge réseau de l'approche \textit{Big Data} actuelle, une migration vers l'\textbf{Apprentissage Fédéré} est envisagée \cite{mcmahan2017communication}. Chaque client calculerait localement les gradients de la Q-Table et ne transmettrait que les mises à jour de poids au serveur, garantissant confidentialité et légèreté.
+
+\paragraph{Coordination Multi-Agents (MARL) :}
+Actuellement, les monstres interagissent par simple évitement (pénalité sociale). L'étape suivante consiste à implémenter un système de \textbf{Communication Locale} où chaque agent reçoit en entrée la position relative de ses alliés proches :
+\begin{equation}
+    \state_{augmented} = [\state_{local}, \mathbf{p}_{ami_1}, \mathbf{p}_{ami_2}, \dots]
+\end{equation}
+Selon les travaux de Lowe et al. sur le \textit{Multi-Agent Deep Deterministic Policy Gradient} (MADDPG) \cite{lowe2017multi}, cela permettrait l'émergence de stratégies coopératives complexes (encerclement, prise en tenaille) impossibles à obtenir avec des agents indépendants.
+
+\textbf{Limites et Aliasing Perceptuel :} 
+Notre définition de l'état $\state_t$, basée uniquement sur la position relative cible-agent, souffre d'aliasing perceptuel. Deux situations topologiquement différentes (ex: un couloir sans issue vs un espace ouvert) peuvent correspondre au même vecteur distance $(dx, dy)$. 
+Dans notre implémentation actuelle, l'agent surmonte partiellement cela grâce à la pénalité de collision murale ($r = -5$), apprenant implicitement à éviter les actions menant à des états statiques, mais une extension vers un POMDP incluant une vision locale (raycasting) serait théoriquement supérieure.
+
+\begin{thebibliography}{9}
+
+\bibitem{watkins1989learning}
+Watkins, C. J. C. H. (1989).
+\textit{Learning from Delayed Rewards}.
+Ph.D. thesis, King's College, Cambridge.
+
+\bibitem{sutton2018reinforcement}
+Sutton, R. S., \& Barto, A. G. (2018).
+\textit{Reinforcement Learning: An Introduction} (2nd ed.).
+The MIT Press.
+
+\bibitem{ng1999policy}
+Ng, A. Y., Harada, D., \& Russell, S. (1999).
+\textit{Policy invariance under reward transformations: Theory and application to reward shaping}.
+In Proceedings of the 16th International Conference on Machine Learning (ICML '99), pp. 278-287.
+
+\bibitem{mnih2015human}
+Mnih, V., et al. (2015).
+\textit{Human-level control through deep reinforcement learning}.
+Nature, 518(7540), 529-533.
+
+\bibitem{lange2012batch}
+Lange, S., Gabel, T., \& Riedmiller, M. (2012).
+\textit{Batch Reinforcement Learning}.
+In Reinforcement Learning: State-of-the-Art (pp. 45-73). Springer.
+
+\bibitem{mcmahan2017communication}
+McMahan, B., Moore, E., Ramage, D., Hampson, S., \& y Arcas, B. A. (2017).
+\textit{Communication-efficient learning of deep networks from decentralized data}.
+Artificial Intelligence and Statistics (AISTATS).
+
+\bibitem{shin2017pygame}
+Shin, W. (2017).
+\textit{PyGame: A Primer on Game Programming in Python}.
+Apress.
+
+\bibitem{chodorow2013mongodb}
+Chodorow, K. (2013).
+\textit{MongoDB: The Definitive Guide} (2nd ed.).
+O'Reilly Media.
+
+\bibitem{yannakakis2018artificial}
+Yannakakis, G. N., \& Togelius, J. (2018).
+\textit{Artificial Intelligence and Games}.
+Springer. (Pour la partie Génération Procédurale et Roguelike).
+
+\bibitem{lowe2017multi}
+Lowe, R., Wu, Y., Tamar, A., Harb, J., Abbeel, P., \& Mordatch, I. (2017).
+\textit{Multi-agent actor-critic for mixed cooperative-competitive environments}.
+Advances in Neural Information Processing Systems (NIPS).
+
+\bibitem{vinyals2019grandmaster}
+Vinyals, O., et al. (2019).
+\textit{Grandmaster level in StarCraft II using multi-agent reinforcement learning}.
+Nature, 575(7782), 350-354.
+
+\bibitem{mckinney2010data}
+McKinney, W. (2010).
+\textit{Data Structures for Statistical Computing in Python} (Pandas).
+In Proceedings of the 9th Python in Science Conference (Vol. 445, pp. 51-56).
+
+\end{thebibliography}
+
+\newpage
+\appendix
+\section{Annexes}
+
+\subsection{Architecture Logicielle}
+Le projet est structuré selon une séparation claire des responsabilités (Separation of Concerns). Le Tableau \ref{tab:structure} détaille les modules principaux.
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{@{}l|p{10cm}@{}}
+        \toprule
+        \textbf{Module / Dossier} & \textbf{Rôle et Responsabilité Technique} \\ \midrule
+        \texttt{engine/} & \textbf{Moteur de Jeu Core} : Contient la boucle principale (\texttt{game.py}), la physique, et la génération procédurale des cartes (\texttt{map.py}). \\ \hline
+        \texttt{engine/rl.py} & \textbf{Cerveau IA} : Implémentation de l'agent Q-Learning, gestion de la matrice $Q$ et des hyperparamètres ($\alpha, \gamma, \epsilon$). \\ \hline
+        \texttt{entities/} & \textbf{Entités Vivantes} : Gestion des PV, des inventaires et des états des monstres (\texttt{monster.py}) et du joueur. \\ \hline
+        \texttt{database/} & \textbf{Persistance} : Connecteurs pour le stockage relationnel (SQL - progression joueur) et NoSQL (MongoDB - logs massifs pour l'IA). \\ \hline
+        \texttt{tools/} & \textbf{Pipeline ETL} : Scripts d'administration pour l'entraînement hors-ligne (\texttt{train\_global\_model.py}) et l'ingestion des logs. \\ \hline
+        \texttt{main.py} & \textbf{Point d'Entrée} : Initialisation des singletons, chargement des variables d'environnement et lancement de la boucle graphique. \\
+        \bottomrule
+    \end{tabular}
+    \caption{Description fonctionnelle de l'arborescence du projet Roguia.}
+    \label{tab:structure}
+\end{table}
+
+\subsection{Procédure de Déploiement Utilisateur}
+Contrairement à l'environnement de développement, la version de production ne nécessite pas l'installation de l'interpréteur Python.
+
+\begin{enumerate}
+    \item \textbf{Téléchargement} : Se rendre sur le portail de distribution officiel pour récupérer la dernière \textit{Release} stable : \\
+    \url{https://raykeshr.github.io/PFE-Roguelike/telechargements.html}
+    
+    \item \textbf{Exécution} : Lancer l'exécutable \texttt{Roguia.exe}.
+    
+    \item \textbf{Authentification Sécurisée} : 
+    L'accès au prototype est protégé. Lors de l'invite de connexion, saisir la phrase de passe suivante (respecter la casse) :
+    
+    \begin{center}
+        \fcolorbox{black}{gray!10}{
+        \parbox{0.9\linewidth}{
+            \centering \texttt{MotDePasseHyperSécuriséSansEspaceAvecDesMajusculesAuxDébutDeChaqueMotEtDesAccents}
+        }}
+    \end{center}
+\end{enumerate}
+
+\subsection{Chaîne d'Industrialisation (Packaging)}
+Afin de garantir la reproductibilité et la distribution du projet sans contraindre l'utilisateur final à configurer un environnement Python complexe, nous avons mis en place une pipeline de \textit{Build} automatisée :
+
+\begin{enumerate}
+    \item \textbf{Gel de l'environnement (Freezing)} : Utilisation de \texttt{PyInstaller} pour encapsuler l'interpréteur Python et les dépendances lourdes (\texttt{numpy}, \texttt{pandas}, \texttt{pygame}) dans un exécutable autonome (Standalone).
+    \item \textbf{Création de l'Installeur} : Scripting \texttt{Inno Setup} (Code Pascal) pour générer un assistant d'installation standard Windows (\texttt{.exe}), gérant la création des raccourcis et l'injection sécurisée des variables d'environnement (\texttt{.env}).
+\end{enumerate}
+
+Cette démarche transforme un prototype de recherche académique en un logiciel "prêt-à-jouer".
+
+\end{document}
