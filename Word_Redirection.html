@@ -20,9 +20,19 @@
 </head>
 <body>
     <button id="btn">Ouvrir la note de travail</button>
+    <button id="btn2">Ouvrir la note de travail v2 (Canvas)</button>
     <script>
         document.getElementById("btn").addEventListener("click", function () {
           const urlDoc = "https://reseaueseo-my.sharepoint.com/:w:/r/personal/sabri_messaoudi_reseau_eseo_fr/Documents/Note%20de%20Travail%20PFE.docx?d=w94d9488edfa142df962016daa36a74ba&csf=1&web=1&e=UM8vt7";
+    
+          window.open(urlDoc, "_blank"); // 1. On ouvre le document dans un nouvel onglet (autorisé car clic utilisateur)
+    
+          history.back();// 2. On change l’URL locale en ajoutant une nouvelle entrée dans l’historique
+     
+          // Maintenant, si l'utilisateur fait "retour", il revient à la page précédente.
+        });
+        document.getElementById("btn2").addEventListener("click", function () {
+          const urlDoc = "https://www.canva.com/design/DAG-hoYxDps/t9RVa4IQsHi3ry-jTmCEpA/edit?utm_content=DAG-hoYxDps&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton";
     
           window.open(urlDoc, "_blank"); // 1. On ouvre le document dans un nouvel onglet (autorisé car clic utilisateur)
     
