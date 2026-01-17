@@ -4,7 +4,7 @@ from system.logging_setup import setup_json_logging
 from dotenv import load_dotenv
 import os
 
-def main():
+def main(): 
     """ Lance le jeu """
     logger = setup_json_logging()
     logger.info("Application démarrée")
