@@ -27,7 +27,7 @@ def preentrainer_monstres(nb_episodes=1000):
     for i in range(nb_episodes):
         # --- A. Mise en place de l'arène ---
         # Petite map pour forcer la rencontre
-        game_map = Map(width=15, height=15, room_count=1, shared_q_data=base_q_table)
+        game_map = Map(width=30, height=30, room_count=1, shared_q_data=base_q_table)
         
         # Le Bot (Joueur)
         # On lui donne beaucoup de PV pour que le combat dure un peu

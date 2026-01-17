@@ -16,6 +16,10 @@
 \usepackage{booktabs} 
 \usepackage{xcolor}
 
+% Watermark packages
+\usepackage{eso-pic}
+\usepackage{transparent}
+
 % Configuration des légendes (Style article de recherche)
 \captionsetup[figure]{font=small,labelfont=bf,name={Fig.}}
 \captionsetup[table]{font=small,labelfont=bf,name={Tab.}}
@@ -61,6 +65,20 @@
     \textbf{ESEO - Option DAIA}
 }
 \date{\today}
+
+% Watermark ESEO
+\AddToShipoutPicture{%
+    \AtPageCenter{%
+        \makebox[0pt][c]{%
+            \raisebox{-0.5\height}{
+                \rotatebox{0}{%
+                    % l'opacité (0.1 = 10% visible) et la taille (width)
+                    \transparent{0.05}\includegraphics[width=20cm]{images/ESEO-picto-couleur.png}%
+                }%  
+            }%
+        }%
+    }%
+}
 
 \begin{document}
 
@@ -407,7 +425,8 @@ Cette approche présente deux avantages théoriques majeurs :
 \end{enumerate}
 
 \subsection{Dynamique Multi-Agents et Évitement Social}
-Le système s'apparente à un problème de \textit{Multi-Agent Reinforcement Learning} (MARL) coopératif. L'environnement perçu par un agent est non-stationnaire car il inclut les positions des autres agents $\mathbf{p}_{m_j}$.
+Le système s'apparente à un problème de \textit{Multi-Agent Reinforcement Learning} (MARL) coopératif. 
+L'environnement perçu par un agent est non-stationnaire car il inclut les positions des autres agents $\mathbf{p}_{m_j}$.
 
 Pour éviter les blocages mutuels (deadlocks) dans les couloirs étroits, nous avons intégré une "Pénalité Sociale" $r_{social} = -2.0$ dans la fonction de récompense lorsque l'action $a$ mène à une case occupée par un pair ($s' \in \mathcal{W}_{occupied}$). Cela force l'émergence d'un comportement de file d'attente ou de contournement sans communication explicite entre agents.
 
@@ -446,7 +465,7 @@ La distribution des récompenses (Fig. \ref{fig:rewards}) montre une prédominan
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{analytics_charts/1_histogramme_recompenses.png}
+    \includegraphics[width=0.7\linewidth]{analytics_charts/1_histogramme_recompenses_offline.png}
     \caption{Histogramme des récompenses. Les pics correspondent aux mouvements rapprochant ou éloignant l'agent de sa cible.}
     \label{fig:rewards}
 \end{figure}
